@@ -39,3 +39,6 @@ logs/
 
 # Scratch local audit files
 tools/.audit-classes/
+
+# Local documentation
+docs/
