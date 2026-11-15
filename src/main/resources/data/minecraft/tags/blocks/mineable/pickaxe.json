@@ -1,0 +1,9 @@
+{
+ "replace": false,
+ "values": [
+  "exe_tacticals:gun_workbench",
+  "exe_tacticals:magazine_workbench",
+  "exe_tacticals:attachment_workbench",
+  "exe_tacticals:ammo_workbench"
+ ]
+}

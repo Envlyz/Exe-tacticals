@@ -1,0 +1,14 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "attachment",
+ "category": "dustcover",
+ "result": {
+  "item": "exe_tacticals:6p34_dustcover"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 3
+  }
+ ]
+}

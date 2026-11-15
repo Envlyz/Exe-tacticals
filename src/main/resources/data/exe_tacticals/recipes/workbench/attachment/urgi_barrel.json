@@ -1,0 +1,18 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "attachment",
+ "category": "barrel",
+ "result": {
+  "item": "exe_tacticals:urgi_barrel"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 6
+  },
+  {
+   "item": "minecraft:iron_nugget",
+   "count": 4
+  }
+ ]
+}

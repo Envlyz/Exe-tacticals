@@ -1,0 +1,22 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "magazine",
+ "category": "magazine_ar",
+ "result": {
+  "item": "exe_tacticals:surefire_mag_60r"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 8
+  },
+  {
+   "item": "minecraft:redstone",
+   "count": 2
+  },
+  {
+   "item": "minecraft:iron_nugget",
+   "count": 6
+  }
+ ]
+}

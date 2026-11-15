@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "exe_tacticals:item/ammo_5_56x45"
+  }
+}

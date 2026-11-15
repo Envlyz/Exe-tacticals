@@ -1,0 +1,18 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "attachment",
+ "category": "stock",
+ "result": {
+  "item": "exe_tacticals:akm_stock"
+ },
+ "ingredients": [
+  {
+   "tag": "minecraft:planks",
+   "count": 4
+  },
+  {
+   "item": "minecraft:iron_nugget",
+   "count": 4
+  }
+ ]
+}

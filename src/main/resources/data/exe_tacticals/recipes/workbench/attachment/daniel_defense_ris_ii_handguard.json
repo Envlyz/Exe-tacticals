@@ -1,0 +1,18 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "attachment",
+ "category": "handguard",
+ "result": {
+  "item": "exe_tacticals:daniel_defense_ris_ii_handguard"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 3
+  },
+  {
+   "item": "minecraft:black_dye",
+   "count": 1
+  }
+ ]
+}

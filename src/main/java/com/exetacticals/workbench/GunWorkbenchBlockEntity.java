@@ -1,0 +1,121 @@
+package com.exetacticals.workbench;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+/**
+ * Главная часть верстака ({@link GunWorkbenchBlock.Part#MAIN}): скрафченное оружие лежит на столе, пока игрок
+ * не заберёт его клавишей «сменить руку» (F). Пока стол занят, новый крафт запрещён.
+ */
+public class GunWorkbenchBlockEntity extends BlockEntity {
+    /** Дальше этого расстояния (в блоках) от центра стола обводка не рисуется. */
+    public static final double OUTLINE_DISTANCE = 8.0;
+    private ItemStack crafted = ItemStack.EMPTY;
+
+    public GunWorkbenchBlockEntity(BlockPos pos, BlockState state) {
+        super(ModWorkbench.BLOCK_ENTITY.get(), pos, state);
+    }
+
+    public ItemStack crafted() {
+        return crafted;
+    }
+
+    public boolean isOccupied() {
+        return !crafted.isEmpty();
+    }
+
+    public void setCrafted(ItemStack stack) {
+        crafted = stack;
+        setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
+    }
+
+    /** Забрать оружие со стола (стол становится пустым). */
+    public ItemStack take() {
+        ItemStack stack = crafted;
+        setCrafted(ItemStack.EMPTY);
+        return stack;
+    }
+
+    @Override
+    protected void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
+        // всегда пишем, даже пустой: пустой тег пакет обновления превращает в null, и клиент не узнал бы,
+        // что оружие забрали (модель оставалась на столе, крафт был заблокирован)
+        tag.put("Crafted", crafted.save(new CompoundTag()));
+    }
+
+    @Override
+    public void load(@NotNull CompoundTag tag) {
+        super.load(tag);
+        crafted = tag.contains("Crafted") ? ItemStack.of(tag.getCompound("Crafted")) : ItemStack.EMPTY;
+    }
+
+    /**
+     * Клиент: данные пришли с сервера. Блок-сущность могла появиться после сборки куска чанка (верстак поставлен до
+     * этой версии мода) — тогда её нет в списке отрисовки, и оружие на столе не видно. Перестраиваем кусок.
+     */
+    @Override
+    public void onDataPacket(net.minecraft.network.Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
+        requestRerender();
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        super.handleUpdateTag(tag);
+        requestRerender();
+    }
+
+    private void requestRerender() {
+        if (level != null && level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_IMMEDIATE);
+        }
+    }
+
+    @Override
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    /** Центр столешницы в мире. */
+    public double[] tableCenter() {
+        BlockPos right = GunWorkbenchBlock.partPos(worldPosition, getBlockState().getValue(GunWorkbenchBlock.FACING),
+                GunWorkbenchBlock.Part.RIGHT);
+        return new double[]{(worldPosition.getX() + right.getX()) / 2.0 + 0.5, worldPosition.getY() + 1.0,
+                (worldPosition.getZ() + right.getZ()) / 2.0 + 0.5};
+    }
+
+    /** Рисовать белую обводку оружия ({@code client.render.fx.GunOutline}): на столе есть оружие и игрок рядом. */
+    public boolean outlineVisibleFor(Player player) {
+        if (crafted.isEmpty()) {
+            return false;
+        }
+        double[] c = tableCenter();
+        return player.distanceToSqr(c[0], c[1], c[2]) <= OUTLINE_DISTANCE * OUTLINE_DISTANCE;
+    }
+
+    @Override
+    public AABB getRenderBoundingBox() {
+        return new AABB(worldPosition).inflate(1.5, 1.0, 1.5);
+    }
+}

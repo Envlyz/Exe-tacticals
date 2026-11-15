@@ -1,0 +1,26 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "attachment",
+ "category": "sight",
+ "result": {
+  "item": "exe_tacticals:elcan"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 3
+  },
+  {
+   "item": "minecraft:glass",
+   "count": 2
+  },
+  {
+   "item": "minecraft:copper_ingot",
+   "count": 2
+  },
+  {
+   "item": "minecraft:redstone",
+   "count": 1
+  }
+ ]
+}

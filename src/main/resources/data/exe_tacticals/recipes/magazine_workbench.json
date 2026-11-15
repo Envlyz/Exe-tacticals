@@ -1,0 +1,22 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "III",
+  "IHI",
+  "P P"
+ ],
+ "key": {
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "H": {
+   "item": "minecraft:chest"
+  },
+  "P": {
+   "tag": "minecraft:planks"
+  }
+ },
+ "result": {
+  "item": "exe_tacticals:magazine_workbench"
+ }
+}

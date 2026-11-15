@@ -1,0 +1,18 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "attachment",
+ "category": "muzzle",
+ "result": {
+  "item": "exe_tacticals:ar15_muzzle_brake"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 2
+  },
+  {
+   "item": "minecraft:iron_nugget",
+   "count": 2
+  }
+ ]
+}

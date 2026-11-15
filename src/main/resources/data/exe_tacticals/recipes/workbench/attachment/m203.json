@@ -1,0 +1,22 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "attachment",
+ "category": "underbarrel",
+ "result": {
+  "item": "exe_tacticals:m203"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 8
+  },
+  {
+   "item": "minecraft:redstone",
+   "count": 2
+  },
+  {
+   "item": "minecraft:gunpowder",
+   "count": 2
+  }
+ ]
+}

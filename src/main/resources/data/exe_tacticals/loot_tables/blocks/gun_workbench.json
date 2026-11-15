@@ -1,0 +1,26 @@
+{
+ "type": "minecraft:block",
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "exe_tacticals:gun_workbench"
+    }
+   ],
+   "conditions": [
+    {
+     "condition": "minecraft:survives_explosion"
+    },
+    {
+     "condition": "minecraft:block_state_property",
+     "block": "exe_tacticals:gun_workbench",
+     "properties": {
+      "part": "main"
+     }
+    }
+   ]
+  }
+ ]
+}

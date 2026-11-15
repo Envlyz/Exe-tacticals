@@ -1,0 +1,22 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "magazine",
+ "category": "magazine_ar",
+ "result": {
+  "item": "exe_tacticals:pmag_30r"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 2
+  },
+  {
+   "item": "minecraft:black_dye",
+   "count": 3
+  },
+  {
+   "item": "minecraft:slime_ball",
+   "count": 1
+  }
+ ]
+}

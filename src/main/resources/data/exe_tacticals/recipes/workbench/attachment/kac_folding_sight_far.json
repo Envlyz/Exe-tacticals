@@ -1,0 +1,18 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "attachment",
+ "category": "sight",
+ "result": {
+  "item": "exe_tacticals:kac_folding_sight_far"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 2
+  },
+  {
+   "item": "minecraft:iron_nugget",
+   "count": 3
+  }
+ ]
+}

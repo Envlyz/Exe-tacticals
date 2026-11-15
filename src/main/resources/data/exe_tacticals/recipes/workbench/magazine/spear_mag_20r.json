@@ -1,0 +1,22 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "magazine",
+ "category": "magazine_ar",
+ "result": {
+  "item": "exe_tacticals:spear_mag_20r"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 4
+  },
+  {
+   "item": "minecraft:black_dye",
+   "count": 2
+  },
+  {
+   "item": "minecraft:redstone",
+   "count": 1
+  }
+ ]
+}

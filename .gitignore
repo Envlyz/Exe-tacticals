@@ -1,0 +1,41 @@
+# IDE and local machine
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Gradle, Forge, Minecraft dev runtime
+.gradle/
+build/
+**/build/
+out/
+run/
+.gradle-cache/
+
+# Temporary reports, crash dumps and Java output
+*.log
+*.class
+*.tmp
+*.bak
+*.orig
+*.rej
+*.patch
+*.diff
+hs_err_pid*
+crash-reports/
+logs/
+*~
+
+# Local/distributed artifacts (build via GitHub Actions)
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.zip
+*.war
+*.tar.gz
+
+# Scratch local audit files
+tools/.audit-classes/

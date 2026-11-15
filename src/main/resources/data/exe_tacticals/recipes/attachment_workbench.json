@@ -1,0 +1,25 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "IGI",
+  "ICI",
+  "P P"
+ ],
+ "key": {
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "G": {
+   "item": "minecraft:glass"
+  },
+  "C": {
+   "item": "minecraft:crafting_table"
+  },
+  "P": {
+   "tag": "minecraft:planks"
+  }
+ },
+ "result": {
+  "item": "exe_tacticals:attachment_workbench"
+ }
+}

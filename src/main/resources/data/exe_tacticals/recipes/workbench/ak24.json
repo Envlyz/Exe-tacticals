@@ -1,0 +1,25 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "category": "rifle",
+ "result": {
+  "item": "exe_tacticals:ak24"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 22
+  },
+  {
+   "item": "minecraft:redstone",
+   "count": 8
+  },
+  {
+   "item": "minecraft:black_dye",
+   "count": 6
+  },
+  {
+   "item": "minecraft:copper_ingot",
+   "count": 6
+  }
+ ]
+}

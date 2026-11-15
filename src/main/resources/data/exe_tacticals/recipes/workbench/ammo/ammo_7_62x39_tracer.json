@@ -1,0 +1,31 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "ammo",
+ "category": "ammo",
+ "result": {
+  "item": "exe_tacticals:ammo_7_62x39_tracer",
+  "count": 16
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:copper_ingot",
+   "count": 2
+  },
+  {
+   "item": "minecraft:gunpowder",
+   "count": 2
+  },
+  {
+   "item": "minecraft:iron_nugget",
+   "count": 1
+  },
+  {
+   "item": "minecraft:redstone",
+   "count": 1
+  },
+  {
+   "item": "minecraft:glowstone_dust",
+   "count": 1
+  }
+ ]
+}

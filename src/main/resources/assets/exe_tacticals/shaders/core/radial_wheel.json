@@ -1,0 +1,31 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "srcalpha",
+    "dstrgb": "1-srcalpha"
+  },
+  "vertex": "exe_tacticals:radial_wheel",
+  "fragment": "exe_tacticals:radial_wheel",
+  "attributes": [
+    "Position",
+    "UV0",
+    "Color"
+  ],
+  "samplers": [
+    { "name": "Sampler0" }
+  ],
+  "uniforms": [
+    { "name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+    { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+    { "name": "Size", "type": "float", "count": 1, "values": [ 1.0 ] },
+    { "name": "Radii", "type": "float", "count": 4, "values": [ 40.0, 50.0, 160.0, 6.0 ] },
+    { "name": "Gap", "type": "float", "count": 1, "values": [ 4.0 ] },
+    { "name": "Count", "type": "float", "count": 1, "values": [ 8.0 ] },
+    { "name": "Highlight", "type": "float", "count": 8, "values": [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ] },
+    { "name": "Favorite", "type": "float", "count": 8, "values": [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ] },
+    { "name": "CenterHighlight", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "Accent", "type": "float", "count": 3, "values": [ 0.008, 0.827, 0.675 ] },
+    { "name": "BlurRadius", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "Opacity", "type": "float", "count": 1, "values": [ 1.0 ] }
+  ]
+}

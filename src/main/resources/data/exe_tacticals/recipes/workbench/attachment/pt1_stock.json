@@ -1,0 +1,22 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "attachment",
+ "category": "stock",
+ "result": {
+  "item": "exe_tacticals:pt1_stock"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 2
+  },
+  {
+   "item": "minecraft:black_dye",
+   "count": 2
+  },
+  {
+   "item": "minecraft:slime_ball",
+   "count": 1
+  }
+ ]
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "exe_tacticals:item/module_3d",
+  "textures": {
+    "particle": "exe_tacticals:item/ctr_stock"
+  }
+}

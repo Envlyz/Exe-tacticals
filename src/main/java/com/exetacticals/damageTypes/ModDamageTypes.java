@@ -1,0 +1,11 @@
+package com.exetacticals.damageTypes;
+
+import com.exetacticals.GCR;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.damagesource.DamageType;
+
+public class ModDamageTypes {
+    public static final ResourceKey<DamageType> CUSTOM_EXPLOSION = ResourceKey.create(Registries.DAMAGE_TYPE, GCR.RL("custom_explosion"));
+    public static final ResourceKey<DamageType> BULLET = ResourceKey.create(Registries.DAMAGE_TYPE, GCR.RL("bullet"));
+}

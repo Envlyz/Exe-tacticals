@@ -1,0 +1,55 @@
+{
+ "variants": {
+  "facing=north,part=main": {
+   "model": "exe_tacticals:block/ammo_workbench"
+  },
+  "facing=north,part=right": {
+   "model": "exe_tacticals:block/ammo_workbench_part"
+  },
+  "facing=north,part=top": {
+   "model": "exe_tacticals:block/ammo_workbench_part"
+  },
+  "facing=north,part=top_right": {
+   "model": "exe_tacticals:block/ammo_workbench_part"
+  },
+  "facing=east,part=main": {
+   "model": "exe_tacticals:block/ammo_workbench",
+   "y": 90
+  },
+  "facing=east,part=right": {
+   "model": "exe_tacticals:block/ammo_workbench_part"
+  },
+  "facing=east,part=top": {
+   "model": "exe_tacticals:block/ammo_workbench_part"
+  },
+  "facing=east,part=top_right": {
+   "model": "exe_tacticals:block/ammo_workbench_part"
+  },
+  "facing=south,part=main": {
+   "model": "exe_tacticals:block/ammo_workbench",
+   "y": 180
+  },
+  "facing=south,part=right": {
+   "model": "exe_tacticals:block/ammo_workbench_part"
+  },
+  "facing=south,part=top": {
+   "model": "exe_tacticals:block/ammo_workbench_part"
+  },
+  "facing=south,part=top_right": {
+   "model": "exe_tacticals:block/ammo_workbench_part"
+  },
+  "facing=west,part=main": {
+   "model": "exe_tacticals:block/ammo_workbench",
+   "y": 270
+  },
+  "facing=west,part=right": {
+   "model": "exe_tacticals:block/ammo_workbench_part"
+  },
+  "facing=west,part=top": {
+   "model": "exe_tacticals:block/ammo_workbench_part"
+  },
+  "facing=west,part=top_right": {
+   "model": "exe_tacticals:block/ammo_workbench_part"
+  }
+ }
+}

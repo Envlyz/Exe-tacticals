@@ -1,0 +1,22 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "attachment",
+ "category": "grip",
+ "result": {
+  "item": "exe_tacticals:ak_bakelite_grip"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_nugget",
+   "count": 4
+  },
+  {
+   "item": "minecraft:brown_dye",
+   "count": 2
+  },
+  {
+   "item": "minecraft:clay_ball",
+   "count": 1
+  }
+ ]
+}

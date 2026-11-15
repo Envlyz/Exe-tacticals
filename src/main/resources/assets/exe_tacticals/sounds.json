@@ -1,0 +1,577 @@
+{
+  "ar_charge_back": {
+    "sounds": [
+      "exe_tacticals:ar/ar_charge_back"
+    ]
+  },
+  "m203_close": {
+    "sounds": [
+      "exe_tacticals:m203/m203_close"
+    ]
+  },
+  "m203_fire": {
+    "sounds": [
+      "exe_tacticals:m203/m203_fire"
+    ]
+  },
+  "m203_open": {
+    "sounds": [
+      "exe_tacticals:m203/m203_open"
+    ]
+  },
+  "m203_shell_insert": {
+    "sounds": [
+      "exe_tacticals:m203/m203_shell_insert"
+    ]
+  },
+  "m203_shell_out": {
+    "sounds": [
+      "exe_tacticals:m203/m203_shell_out"
+    ]
+  },
+  "m4a1_fire": {
+    "sounds": [
+      "exe_tacticals:ar/m4a1_fire"
+    ]
+  },
+  "m4a1_fire_suppressed": {
+    "sounds": [
+      "exe_tacticals:ar/m4a1_fire_suppressed"
+    ]
+  },
+  "ar_switch_fire_mode": {
+    "sounds": [
+      "exe_tacticals:ar/ar_switch_fire_mode"
+    ]
+  },
+  "ar_arm_wave": {
+    "sounds": [
+      "exe_tacticals:ar/ar_arm_wave"
+    ]
+  },
+  "ar_mag_in": {
+    "sounds": [
+      "exe_tacticals:ar/ar_mag_in"
+    ]
+  },
+  "ar_mag_out": {
+    "sounds": [
+      "exe_tacticals:ar/ar_mag_out"
+    ]
+  },
+  "ar_bolt_lock": {
+    "sounds": [
+      "exe_tacticals:ar/ar_bolt_lock"
+    ]
+  },
+  "ar_charge_forward": {
+    "sounds": [
+      "exe_tacticals:ar/ar_charge_forward"
+    ]
+  },
+  "ar_shell_in": {
+    "sounds": [
+      "exe_tacticals:ar/ar_shell_in"
+    ]
+  },
+  "ar_stuck_remove": {
+    "sounds": [
+      "exe_tacticals:ar/ar_stuck_remove"
+    ]
+  },
+  "ak74m_boltback": {
+    "sounds": [
+      "exe_tacticals:ak/ak74m_boltback"
+    ]
+  },
+  "ak74m_boltforward": {
+    "sounds": [
+      "exe_tacticals:ak/ak74m_boltforward"
+    ]
+  },
+  "ak74m_magin": {
+    "sounds": [
+      "exe_tacticals:ak/ak74m_magin"
+    ]
+  },
+  "ak74m_magout": {
+    "sounds": [
+      "exe_tacticals:ak/ak74m_magout"
+    ]
+  },
+  "ak74m_empty_magin": {
+    "sounds": [
+      "exe_tacticals:ak/ak74m_empty_magin"
+    ]
+  },
+  "ak74m_empty_magout": {
+    "sounds": [
+      "exe_tacticals:ak/ak74m_empty_magout"
+    ]
+  },
+  "ak74m_fire": {
+    "sounds": [
+      "exe_tacticals:ak/ak74m_fire"
+    ]
+  },
+  "ak74m_fire_suppressed": {
+    "sounds": [
+      "exe_tacticals:ak/ak74m_fire_suppressed"
+    ]
+  },
+  "btn": {
+    "sounds": [
+      "exe_tacticals:generic/btn"
+    ]
+  },
+  "gun_stuck": {
+    "sounds": [
+      "exe_tacticals:generic/gun_stuck"
+    ]
+  },
+  "generic_clearshell1": {
+    "sounds": [
+      "exe_tacticals:generic/generic_clearshell1"
+    ]
+  },
+  "generic_getmag1": {
+    "sounds": [
+      "exe_tacticals:generic/generic_getmag1"
+    ]
+  },
+  "generic_getmag2": {
+    "sounds": [
+      "exe_tacticals:generic/generic_getmag2"
+    ]
+  },
+  "generic_getmag3": {
+    "sounds": [
+      "exe_tacticals:generic/generic_getmag3"
+    ]
+  },
+  "m203new_close": {
+    "sounds": [
+      "exe_tacticals:generic/m203new_close"
+    ]
+  },
+  "m203new_open": {
+    "sounds": [
+      "exe_tacticals:generic/m203new_open"
+    ]
+  },
+  "m203new_shellin": {
+    "sounds": [
+      "exe_tacticals:generic/m203new_shellin"
+    ]
+  },
+  "m203new_shellout": {
+    "sounds": [
+      "exe_tacticals:generic/m203new_shellout"
+    ]
+  },
+  "gp25_fire": {
+    "sounds": [
+      "exe_tacticals:gp25/gp25_fire"
+    ]
+  },
+  "gp25_load_grenade": {
+    "sounds": [
+      "exe_tacticals:gp25/gp25_load_grenade"
+    ]
+  },
+  "ak24_fire": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_fire"
+    ]
+  },
+  "ak24_fire_suppressed": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_fire_suppressed"
+    ]
+  },
+  "akmn_fire": {
+    "sounds": [
+      "exe_tacticals:ak/akmn_fire"
+    ]
+  },
+  "akmn_fire_suppressed": {
+    "sounds": [
+      "exe_tacticals:ak/akmn_fire_suppressed"
+    ]
+  },
+  "mcx_spear_fire": {
+    "sounds": [
+      "exe_tacticals:mcx_spear/mcx_spear_fire"
+    ]
+  },
+  "mcx_spear_fire_suppressed": {
+    "sounds": [
+      "exe_tacticals:mcx_spear/mcx_spear_fire_suppressed"
+    ]
+  },
+  "m4new_fire_v2": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_fire_v2"
+    ]
+  },
+  "m4new_fire_sup_v2": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_fire_sup_v2"
+    ]
+  },
+  "m4new_chargeback": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_chargeback"
+    ]
+  },
+  "m4new_chargeforward": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_chargeforward"
+    ]
+  },
+  "m4new_boltrelease1": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_boltrelease1"
+    ]
+  },
+  "m4new_boltrelease2": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_boltrelease2"
+    ]
+  },
+  "m4new_checkback": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_checkback"
+    ]
+  },
+  "m4new_checkforward": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_checkforward"
+    ]
+  },
+  "m4new_clearback": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_clearback"
+    ]
+  },
+  "m4new_clearforward": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_clearforward"
+    ]
+  },
+  "m4new_maghit1": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_maghit1"
+    ]
+  },
+  "m4new_maghit2": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_maghit2"
+    ]
+  },
+  "m4new_maghit3": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_maghit3"
+    ]
+  },
+  "m4new_magin1": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_magin1"
+    ]
+  },
+  "m4new_magin2": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_magin2"
+    ]
+  },
+  "m4new_magin3": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_magin3"
+    ]
+  },
+  "m4new_magmove1": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_magmove1"
+    ]
+  },
+  "m4new_magmove2": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_magmove2"
+    ]
+  },
+  "m4new_magout1": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_magout1"
+    ]
+  },
+  "m4new_magout2": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_magout2"
+    ]
+  },
+  "m4new_magout3": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_magout3"
+    ]
+  },
+  "m4new_magout4": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_magout4"
+    ]
+  },
+  "m4new_magoutcheck": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_magoutcheck"
+    ]
+  },
+  "m4new_bigmove1": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_bigmove1"
+    ]
+  },
+  "m4new_bigmove2": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_bigmove2"
+    ]
+  },
+  "m4new_smallmove1": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_smallmove1"
+    ]
+  },
+  "m4new_smallmove2": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_smallmove2"
+    ]
+  },
+  "m4new_smallmove3": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_smallmove3"
+    ]
+  },
+  "m4new_regrip1": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_regrip1"
+    ]
+  },
+  "m4new_regrip2": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_regrip2"
+    ]
+  },
+  "m4new_regrip3": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_regrip3"
+    ]
+  },
+  "m4new_removestuck": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_removestuck"
+    ]
+  },
+  "m4new_selector1": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_selector1"
+    ]
+  },
+  "m4new_selector2": {
+    "sounds": [
+      "exe_tacticals:m4new/m4new_selector2"
+    ]
+  },
+  "ak24_fire_v2": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_fire_v2"
+    ]
+  },
+  "ak24_fire_sup_v2": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_fire_sup_v2"
+    ]
+  },
+  "ak24_chargeback": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_chargeback"
+    ]
+  },
+  "ak24_chargeforward": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_chargeforward"
+    ]
+  },
+  "ak24_boltrelease1": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_boltrelease1"
+    ]
+  },
+  "ak24_boltrelease2": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_boltrelease2"
+    ]
+  },
+  "ak24_checkback": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_checkback"
+    ]
+  },
+  "ak24_checkforward": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_checkforward"
+    ]
+  },
+  "ak24_maghit1": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_maghit1"
+    ]
+  },
+  "ak24_maghit2": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_maghit2"
+    ]
+  },
+  "ak24_maghit3": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_maghit3"
+    ]
+  },
+  "ak24_maghit4": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_maghit4"
+    ]
+  },
+  "ak24_maghit5": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_maghit5"
+    ]
+  },
+  "ak24_maghit6": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_maghit6"
+    ]
+  },
+  "ak24_magin1": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_magin1"
+    ]
+  },
+  "ak24_magin2": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_magin2"
+    ]
+  },
+  "ak24_magin3": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_magin3"
+    ]
+  },
+  "ak24_magin4": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_magin4"
+    ]
+  },
+  "ak24_magout1": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_magout1"
+    ]
+  },
+  "ak24_magout2": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_magout2"
+    ]
+  },
+  "ak24_magout3": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_magout3"
+    ]
+  },
+  "ak24_magout4": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_magout4"
+    ]
+  },
+  "ak24_magout5": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_magout5"
+    ]
+  },
+  "ak24_bigmove1": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_bigmove1"
+    ]
+  },
+  "ak24_bigmove2": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_bigmove2"
+    ]
+  },
+  "ak24_smallmove1": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_smallmove1"
+    ]
+  },
+  "ak24_smallmove2": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_smallmove2"
+    ]
+  },
+  "ak24_smallmove3": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_smallmove3"
+    ]
+  },
+  "ak24_easteregg_magin": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_easteregg_magin"
+    ]
+  },
+  "ak24_easteregg_magout": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_easteregg_magout"
+    ]
+  },
+  "ak24_easteregg_move1": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_easteregg_move1"
+    ]
+  },
+  "ak24_easteregg_move2": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_easteregg_move2"
+    ]
+  },
+  "ak24_easteregg_move3": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_easteregg_move3"
+    ]
+  },
+  "ak24_easteregg_move4": {
+    "sounds": [
+      "exe_tacticals:ak24/ak24_easteregg_move4"
+    ]
+  },
+  "mag_round_load": {
+    "sounds": [
+      {
+        "name": "exe_tacticals:magazine/chamber_load_rifle",
+        "weight": 1
+      },
+      {
+        "name": "exe_tacticals:magazine/chamber_load2_rifle",
+        "weight": 1
+      }
+    ]
+  },
+  "mag_round_unload": {
+    "sounds": [
+      "exe_tacticals:magazine/chamber_out"
+    ]
+  },
+  "wheel_select": {
+    "sounds": [
+      {
+        "name": "exe_tacticals:gui/wheel_select",
+        "weight": 1
+      }
+    ]
+  }
+}

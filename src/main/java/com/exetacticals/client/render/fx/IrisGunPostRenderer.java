@@ -1,0 +1,80 @@
+package com.exetacticals.client.render.fx;
+
+import com.mojang.blaze3d.shaders.ProgramManager;
+import com.mojang.blaze3d.shaders.Uniform;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.exetacticals.Client;
+import com.exetacticals.client.render.IrisExtendRT;
+import com.exetacticals.client.render.delayed.Stage;
+import com.exetacticals.client.render.delayed.Task;
+import com.exetacticals.compat.IrisCompat;
+import com.exetacticals.items.GunItem;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.Item;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.client.event.RenderHandEvent;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+
+import static org.lwjgl.opengl.GL11C.GL_ONE;
+import static org.lwjgl.opengl.GL11C.GL_SRC_ALPHA;
+
+@OnlyIn(Dist.CLIENT)
+public class IrisGunPostRenderer {
+    static {
+        Stage.LOWEST.addTask(new Task((event) -> IrisGunPostRenderer.onRender()).forever());
+    }
+
+    static boolean shouldRender = false;
+
+    @SubscribeEvent
+    public static void onRenderHand(RenderHandEvent event) {
+        if (Client.isUsingIrisShader && IrisGunPostShader.isOK() && !IrisCompat.isRenderingShadowPass()) {
+            InteractionHand hand = event.getHand();
+            Item item = event.getItemStack().getItem();
+            if (hand == InteractionHand.MAIN_HAND && item instanceof GunItem) {
+                shouldRender = true;
+            }
+        }
+    }
+
+    public static void onRender() {
+        if (shouldRender && IrisExtendRT.textureId != -1) {
+
+            if (IrisExtendRT.dirty) {
+
+                RenderSystem.enableBlend();
+                RenderSystem.blendFunc(GL_SRC_ALPHA, GL_ONE);
+                RenderSystem.disableDepthTest();
+                RenderSystem.depthMask(false);
+                GL20.glUseProgram(IrisGunPostShader.programId);
+
+
+                RenderSystem.activeTexture(GL13.GL_TEXTURE0);
+                RenderSystem.bindTexture(IrisExtendRT.textureId);
+                Uniform.uploadInteger(IrisGunPostShader.muzzleLightContributionSamplerLoc, 0);
+
+
+                GL30.glBindVertexArray(IrisGunPostShader.vaoId);
+                GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
+
+
+                IrisExtendRT.clearMuzzleTexture();
+                GL30.glBindVertexArray(0);
+                ProgramManager.glUseProgram(0);
+                RenderSystem.enableDepthTest();
+                RenderSystem.depthMask(true);
+                RenderSystem.defaultBlendFunc();
+                RenderSystem.activeTexture(GL13.GL_TEXTURE0);
+                RenderSystem.bindTexture(0);
+            }
+            shouldRender = false;
+        } else {
+            IrisExtendRT.clearMuzzleTexture();
+        }
+    }
+}

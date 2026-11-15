@@ -1,0 +1,18 @@
+{
+ "type": "exe_tacticals:gun_crafting",
+ "station": "attachment",
+ "category": "sight",
+ "result": {
+  "item": "exe_tacticals:a2_carry_handle"
+ },
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot",
+   "count": 3
+  },
+  {
+   "item": "minecraft:iron_nugget",
+   "count": 2
+  }
+ ]
+}
