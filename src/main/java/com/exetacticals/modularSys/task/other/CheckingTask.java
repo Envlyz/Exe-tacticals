@@ -10,7 +10,6 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Map;
 import java.util.Objects;
 
-
 public class CheckingTask extends GunTask<IGun> {
     public static final String CHECK_MAG = "check_mag";
     public static final String CHECK_CHAMBER = "check_chamber";

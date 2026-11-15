@@ -28,11 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * MSDF-шрифт (атласы из ExeInventory: {@code textures/font/sf_regular|sf_medium.png/json}, шейдер {@code mtsdf_font}).
- * Чёткий на любом масштабе GUI. Рисует строки и {@link FormattedCharSequence} с цветами из стилей.
- * Размер — em в единицах GUI, y — базовая линия.
- */
 @OnlyIn(Dist.CLIENT)
 public final class MsdfFont {
     private static final Map<String, MsdfFont> CACHE = new HashMap<>();
@@ -45,12 +40,10 @@ public final class MsdfFont {
         return get("sf_medium");
     }
 
-    /** null, если атлас не загрузился — тогда вызывающий рисует ванильным шрифтом. */
     public static MsdfFont get(String name) {
         return CACHE.computeIfAbsent(name, MsdfFont::load);
     }
 
-    /** Сбросить кэш (при перезагрузке ресурсов). */
     public static void clear() {
         CACHE.clear();
     }
@@ -107,7 +100,6 @@ public final class MsdfFont {
             }
             JsonObject ab = g.getAsJsonObject("atlasBounds");
             JsonObject pb = g.getAsJsonObject("planeBounds");
-            // yOrigin = bottom → V переворачивается
             glyphs.put(code, new Glyph(advance,
                     ab.get("left").getAsFloat() / atlasW, 1f - ab.get("top").getAsFloat() / atlasH,
                     ab.get("right").getAsFloat() / atlasW, 1f - ab.get("bottom").getAsFloat() / atlasH,
@@ -139,7 +131,6 @@ public final class MsdfFont {
         return v != null ? v : 0f;
     }
 
-    /** Высота заглавных над базовой линией, для вертикального центрирования. */
     public float ascent(float size) {
         return ascender * size;
     }
@@ -177,10 +168,6 @@ public final class MsdfFont {
         draw(g, FormattedCharSequence.forward(text, net.minecraft.network.chat.Style.EMPTY), x, baseline, size, argb, false);
     }
 
-    /**
-     * Рисует текст; цвет символа — из его стиля, иначе {@code argb}.
-     * {@code shadow} — мягкая тень на 0.6 единицы вниз-вправо.
-     */
     public void draw(GuiGraphics g, FormattedCharSequence text, float x, float baseline, float size, int argb, boolean shadow) {
         ShaderInstance shader = Shaders.msdfFont;
         if (shader == null) {

@@ -15,11 +15,5 @@ public abstract class LightTextureMixin {
 
     @Inject(method = "updateLightTexture", at = @At("TAIL"))
     public void onUpdate(float partialTicks, CallbackInfo ci) {
-//        LightTexture lightmap = Minecraft.getInstance().gameRenderer.lightTexture();
-//        NativeImage pixels1 = ((LightTextureAccessor) lightmap).getLightTexture().getPixels();
-//        NativeImage pixels = getLightTexture().getPixels();
-//        int color = pixels.getPixelRGBA(12, 12);
-//        System.out.println("unpdate: " + (System.identityHashCode(pixels1) == System.identityHashCode(pixels)));
-//        System.out.println("color:" + color);
     }
 }

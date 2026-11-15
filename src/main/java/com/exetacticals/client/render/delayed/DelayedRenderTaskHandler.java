@@ -5,7 +5,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 
-
 @OnlyIn(Dist.CLIENT)
 public class DelayedRenderTaskHandler {
 

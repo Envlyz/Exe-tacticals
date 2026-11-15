@@ -28,7 +28,6 @@ public class AttachmentModule extends Module {
 
     @Override
     public void appendHoverText(ItemStack stack, net.minecraft.world.level.Level context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        // вес и модификаторы показываются полосками: см. appendStatRows
     }
 
     @Override

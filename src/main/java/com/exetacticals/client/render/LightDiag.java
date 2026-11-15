@@ -12,13 +12,8 @@ import org.joml.Vector3f;
 
 import java.util.Arrays;
 
-/**
- * ВРЕМЕННАЯ диагностика затемнения пушки/рук от первого лица: раз в 2 с пишет в лог свет, туман,
- * ColorModulator, направления света и биом. Убрать после разбора.
- */
 public final class LightDiag {
     private static long last;
-    /** свет, переданный в рендер пушки от первого лица (packed) */
     public static int fpLight = -1;
 
     private LightDiag() {}

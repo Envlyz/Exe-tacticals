@@ -6,7 +6,7 @@ import net.minecraft.network.chat.Style;
 import java.util.Objects;
 
 public final class ValidationError {
-    private final Unit source; // 报告问题的 Unit
+    private final Unit source;
     private final Unit target;
     private final String message;
     private final ErrorLevel level;

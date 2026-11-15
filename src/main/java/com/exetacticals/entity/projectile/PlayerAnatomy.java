@@ -6,17 +6,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Lightweight player-only combat rig inspired by AftermatchDayZ's anatomical
- * HEAD / CHEST / ABDOMEN / PELVIS / arms / thighs / shins layout.
- *
- * Uses rotated, ray-clipped sub-boxes with NO aim-assist margin. Every hit must
- * lie inside the actual Minecraft player bounding box; broadphase candidate
- * inflation in BulletEntity cannot cause a hit by itself.
- *
- * The volumes scale with the current player dimensions, including sneaking
- * and swimming. This does not attempt to synchronize render-only limb animations.
- */
 public final class PlayerAnatomy {
     public enum Part {
         HEAD(PlayerAnatomyZone.HEAD),
@@ -49,7 +38,6 @@ public final class PlayerAnatomy {
         AABB box = player.getBoundingBox();
         if (!box.contains(start) && box.clip(start, end).isEmpty()) return null;
 
-        // When disabled, retain strict ray-vs-vanilla-player-AABB behavior.
         if (!PlayerHitZoneConfig.ENABLED.get()) {
             Vec3 point = box.contains(start) ? start : box.clip(start, end).orElse(null);
             return point == null ? null : new Hit(Part.CHEST, point,
@@ -67,8 +55,6 @@ public final class PlayerAnatomy {
         Vec3 from = local(start, center, box.minY, cosine, sine);
         Vec3 to = local(end, center, box.minY, cosine, sine);
 
-        // The original model proportions are scaled to the player's actual
-        // AABB. Local dimensions are expressed as fractions of that AABB.
         Hit nearest = null;
         nearest = test(nearest, Part.HEAD, 0, .865, -.015, .32, .125, .32,
                 width, height, depth, start, end, from, to, center, box);
@@ -123,8 +109,6 @@ public final class PlayerAnatomy {
         double t = parameter(from, to, localHit);
         if (t < 0d || t > 1d || (nearest != null && t >= nearest.segmentT())) return nearest;
         Vec3 worldHit = worldStart.add(worldEnd.subtract(worldStart).scale(t));
-        // A rotated limb can protrude beyond the vanilla collision box.
-        // The authoritative entity AABB is an absolute hard limit.
         if (!insideWithTolerance(outer, worldHit)) return nearest;
         return new Hit(part, worldHit, t);
     }

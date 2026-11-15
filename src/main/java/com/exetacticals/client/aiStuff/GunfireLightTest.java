@@ -19,10 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-/**
- * Дев-тест света от выстрела ({@code -Dexe_tacticals.flashTest=true}): загружает первый мир, ставит ночь,
- * делает снимок без вспышки ({@code flash_off.png}) и в момент вспышки ({@code flash_on.png}), закрывает игру.
- */
 @OnlyIn(Dist.CLIENT)
 public final class GunfireLightTest {
     private static final boolean ENABLED = Boolean.getBoolean("exe_tacticals.flashTest");
@@ -69,7 +65,7 @@ public final class GunfireLightTest {
             mc.player.setXRot(25f);
             GunfireLights.debugHoldMs = 1500f;
         } else if (ticks == 60) {
-            GunfireLights.onShot(mc.player, null, ItemStack.EMPTY); // прогрев шейдера
+            GunfireLights.onShot(mc.player, null, ItemStack.EMPTY);
         } else if (ticks == 100) {
             pendingShot = "flash_off";
             framesAfterShot = 0;
@@ -87,7 +83,6 @@ public final class GunfireLightTest {
             return;
         }
         if (pendingShot.equals("flash_on") && framesAfterShot == 0) {
-            // свет добавляется сейчас, снимок — в следующем кадре (~16 мс после выстрела)
             GunfireLights.onShot(Minecraft.getInstance().player, null, ItemStack.EMPTY);
         }
         if (++framesAfterShot < 4) {

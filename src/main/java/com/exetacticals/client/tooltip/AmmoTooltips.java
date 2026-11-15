@@ -20,13 +20,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Подсказки, связанные с зарядкой магазинов в инвентаре:
- * <ul>
- *   <li>патроны — в какие магазины заряжаются и как (магазин на курсоре → ПКМ по патронам);</li>
- *   <li>оружие — какие магазины к нему подходят и каким патроном.</li>
- * </ul>
- */
 @OnlyIn(Dist.CLIENT)
 public final class AmmoTooltips {
     private static final int MAX_LISTED = 5;
@@ -79,7 +72,6 @@ public final class AmmoTooltips {
         if (mags.isEmpty()) {
             return;
         }
-        // вставляем перед блоком управления магазином, если он есть
         int at = tip.size();
         for (int i = 0; i < tip.size(); i++) {
             if (tip.get(i).getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents tc

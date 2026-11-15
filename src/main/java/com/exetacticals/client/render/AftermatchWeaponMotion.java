@@ -19,11 +19,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-/**
- * Purely visual Aftermatch first-person weapon presentation.
- * Operates on GCR's common model pose so the weapon AND both animated arms
- * move together. Never modifies recoil calculations, ADS state or bullet rays.
- */
 @OnlyIn(Dist.CLIENT)
 public final class AftermatchWeaponMotion {
     private long lastFrameNanos;
@@ -39,33 +34,21 @@ public final class AftermatchWeaponMotion {
     private float swayPitch;
     private float swayRoll;
     private float strafeSmoothed;
-    // Independent, frame-rate-correct spring roll for the hip-fire test.
     private float hipBankAngle;
     private float hipBankVelocity;
     private float tuckProgress;
     private float wallTarget;
     private long crouchStartedNanos;
 
-    /** Immutable cross-thread render sample for the client's fire worker. */
     public record ShotOffset(float yawDegrees, float pitchDegrees, long timestampNanos) {}
     private static final ShotOffset ZERO_SHOT_OFFSET = new ShotOffset(0f, 0f, 0L);
 
-    // Static initialization order is significant: INSTANCE constructs the
-    // class and copies ZERO_SHOT_OFFSET into its instance field. Initializing
-    // INSTANCE first left latestShotOffset null until the first weapon render,
-    // causing a HUD crash if the hipfire dot requested an early shot sample.
     public static final AftermatchWeaponMotion INSTANCE = new AftermatchWeaponMotion();
 
     private volatile ShotOffset latestShotOffset = ZERO_SHOT_OFFSET;
 
-    /**
-     * Never fire with a stale render pose (unfocused client, switched weapon,
-     * camera loading). Coordinates are additional yaw and pitch in degrees.
-     */
     public ShotOffset shotOffset() {
         ShotOffset sample = latestShotOffset;
-        // Fail safe during first render, resource reloads and weapon changes.
-        // Never let a missing visual-only sample crash the client HUD.
         if (sample == null || sample.timestampNanos() <= 0L) {
             return ZERO_SHOT_OFFSET;
         }
@@ -96,7 +79,6 @@ public final class AftermatchWeaponMotion {
             lastItem = currentItem;
         }
 
-        // Probe only twenty times a second even at high client FPS.
         if (now - lastWallProbeNanos >= 50_000_000L || lastWallProbeNanos == 0L) {
             wallTarget = AftermatchWallTuck.check(player, partialTicks).progress();
             lastWallProbeNanos = now;
@@ -158,10 +140,6 @@ public final class AftermatchWeaponMotion {
                     -AftermatchMotionConfig.STRAFE_MAX_ROLL.get().floatValue(),
                     AftermatchMotionConfig.STRAFE_MAX_ROLL.get().floatValue());
 
-            // TEST: spring-based camera-relative banking of the ENTIRE gun
-            // and hands when hip firing. Unlike the existing swayRoll this
-            // responds to angular speed rather than per-frame displacement,
-            // producing consistent tilt at different client FPS.
             float additionalBank = 0f;
             if (AftermatchMotionConfig.ENABLE_HIPFIRE_BANK.get()) {
                 float hipWeight = (1f - aim) * (1f - aim);
@@ -182,27 +160,15 @@ public final class AftermatchWeaponMotion {
                     hipBankAngle = 0f;
                     hipBankVelocity = 0f;
                 }
-                // ADS fades the entire experimental bank, even while the
-                // underlying spring is settling, so optics remain unchanged.
                 additionalBank = hipBankAngle * hipWeight;
             } else {
                 hipBankAngle = hipBankVelocity = 0f;
             }
 
-            // Apply full-strength inertia even while sprinting. Previously
-            // motionStrength was reduced to 0.35 in sprint, making the effect
-            // almost invisible underneath GCR's sprint animation.
-            // This remains additive to the existing breathing / walking /
-            // sprinting pose and never replaces their animation tracks.
             Quaternionf inertiaRotation = new Quaternionf().rotateXYZ(
                     radians(-swayPitch),
                     radians(-(swayYaw + strafeYaw)),
                     radians(swayRoll + strafeRoll));
-            // Side sights rotate the gun strongly about Z (canted rail).
-            // Right-multiplying inertia directly rotates in the gun's tilted
-            // axes, displacing the sight along the wrong screen direction.
-            // Conjugate by the actual current gun pose so the inertial swing
-            // remains camera-relative even with a canted/offset optic.
             Node currentSight = Client.WEAPON_STATUS.getActiveSight();
             boolean cantedAds = aim > 0.001f && currentSight != null
                     && currentSight.getUnit().getCustomParam(ISight.ON_SIDE_POSITION) != -1;
@@ -214,19 +180,12 @@ public final class AftermatchWeaponMotion {
                     : inertiaRotation;
             poseStack.mulPose(renderInertia);
             if (Math.abs(additionalBank) > 0.0001f) {
-                // Lean about a point slightly below the weapon centre rather
-                // than only spinning around the camera origin. The extra
-                // roll is around the local bore axis: it visibly tilts the
-                // weapon and hands, but does not change the gun's forward ray.
                 poseStack.translate(0f, -0.13f, 0f);
                 poseStack.mulPose(new Quaternionf().rotateZ(radians(additionalBank)));
                 poseStack.translate(0f, 0.13f, 0f);
             }
-            // Ballistics still use the camera-space rotation. Do not rotate
-            // the server projectile a second time by the canted sight angle.
             Quaternionf shotRotation = new Quaternionf(inertiaRotation);
 
-            // ADS is deliberately not static: breathing continues even with no mouse input.
             if (aim > 0f) {
                 double seconds = now / 1_000_000_000.0;
                 double baseCycle = AftermatchMotionConfig.AIM_IDLE_SWAY_CYCLE.get();
@@ -254,7 +213,6 @@ public final class AftermatchWeaponMotion {
             } else {
                 crouchStartedNanos = 0L;
             }
-            // Forward in first-person model space is negative Z.
             Vector3f barrel = shotRotation.transform(new Vector3f(0f, 0f, -1f));
             float shotYaw = (float) Math.toDegrees(Math.atan2(barrel.x, -barrel.z));
             float shotPitch = (float) Math.toDegrees(Math.atan2(-barrel.y,
@@ -270,9 +228,6 @@ public final class AftermatchWeaponMotion {
         lastYaw = yaw;
         lastPitch = pitch;
 
-        // Move both animated arms and the gun as ONE unit. Positive local Z
-        // pulls the weapon toward the camera; negative Y lowers the hands.
-        // This hides the clipped arm ends seen when raising by rotation alone.
         if (tuckProgress > 0f) {
             float eased = tuckProgress * tuckProgress * (3f - 2f * tuckProgress);
             float angle = Math.min(AftermatchWallConfig.TUCK_MAX_ANGLE.get().floatValue(),

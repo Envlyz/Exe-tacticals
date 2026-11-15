@@ -14,7 +14,6 @@ public class FoldingFarIronSightModel extends ModularModel {
     private final Bone fold;
     private final float foldRot;
 
-
     public FoldingFarIronSightModel(MeshModelData root, ResourceLocation name, float foldRotDeg) {
         super(root, name);
         this.fold = getOrThrow("FOLD");

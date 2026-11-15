@@ -65,15 +65,12 @@ public class AnimationInstance {
         return this;
     }
 
-
-
     public AnimationInstance setScale(float scale) {
         this.scales.x = scale;
         this.scales.y = scale;
         this.scales.z = scale;
         return this;
     }
-
 
     public AnimationInstance enableSound(boolean enableSound) {
         this.enableSound = enableSound;

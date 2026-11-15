@@ -21,7 +21,6 @@ public class Muzzle extends AttachmentModule implements IHeatSensitiveModular {
 
     }
 
-
     public int getFireSoundType() {
         return fireSoundType;
     }

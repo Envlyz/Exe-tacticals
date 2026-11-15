@@ -28,7 +28,6 @@ public class Builder implements IBuilder{
         }
     }
 
-
     @Override
     public <T extends ISlotProviderModular & IModular> IBuilder root(T modular) {
         if (workSpace == null) {
@@ -74,7 +73,7 @@ public class Builder implements IBuilder{
         ValidateResult result = new ValidateResult();
         for (Unit unit : sequencedUnits) {
             result.setSource(unit);
-            if (unit != accessor.root()) {//不是root检测是否有父节点
+            if (unit != accessor.root()) {
                 Optional<SlotInstance> belongsTo = accessor.getBelongsTo(unit);
                 belongsTo.ifPresentOrElse(slot -> {
                     if (slot.isHidden()) {
@@ -120,7 +119,7 @@ public class Builder implements IBuilder{
         }
         List<ValidateResult> checkResults = new ArrayList<>();
         while (true) {
-            int illegalCountBefore = illegalSet.size(); // 记录本轮开始前的非法单元数量
+            int illegalCountBefore = illegalSet.size();
             ValidateResult check = check(accessor, true);
             checkResults.add(check);
             if (check.isCommitAllowed()) {
@@ -141,21 +140,16 @@ public class Builder implements IBuilder{
                     illegalSet.add(source);
                 } else {
                     if (timeLine.get(source) > timeLine.get(target)) {
-                        illegalSet.add(source); // 将后加入的 source 标记为非法
+                        illegalSet.add(source);
                     } else {
-                        illegalSet.add(target); // 将后加入的 target 标记为非法
+                        illegalSet.add(target);
                     }
                 }
             }
-            // 【新增】看门狗检查
             if (illegalSet.size() == illegalCountBefore) {
-                // 如果一整轮循环下来，错误依旧存在，但非法集合的大小没有增加，
-                // 说明遇到了无法通过裁剪解决的僵局。
-                // 此时应中断循环，可以抛出异常或返回一个表示失败的结果。
                 throw new IllegalStateException(
                         "can not cut workspace to committable, there are some conflicts or errors that can't be solved!");
             }
-            //子节点也会被隐藏
             accessor.setHideUnits(illegalSet);
             callMutatedHook(workSpace, accessor);
         }
@@ -242,7 +236,7 @@ public class Builder implements IBuilder{
             String id = tag.getString(Unit.IN_TIME_ID);
             String slotName = tag.getString(Unit.SLOT_NAME);
 
-            if (workSpace.isEmpty()) {//root
+            if (workSpace.isEmpty()) {
                 IModular iModular = ModuleRegister.get(moduleId);
                 if (iModular == null) {
                     GCR.LOGGER.warn("The module: {} does not exist", moduleId);
@@ -310,52 +304,47 @@ public class Builder implements IBuilder{
     }
 
     public static Pair<List<CompoundTag>, List<CompoundTag>> diffByModule(ListTag original, ListTag fin) {
-        // 统计 original 每个 module 的出现次数
         Map<String, Integer> origCount = new HashMap<>(Math.max(8, original.size()));
         for (int i = 0; i < original.size(); i++) {
             CompoundTag tag = original.getCompound(i);
             if (!tag.contains("module")) {
-                continue; // 没 module 的条目这里忽略（可按需改）
+                continue;
             }
             String module = tag.getString("module");
             origCount.merge(module, 1, Integer::sum);
         }
 
-        // matchedCount 表示 original 中被 final 匹配（消耗掉）的数量
         Map<String, Integer> matchedCount = new HashMap<>();
         List<CompoundTag> inc = new ArrayList<>();
 
-        // 遍历 final：如果 original 还有剩余同名 module 则消耗一个 matched；否则这是新增（inc）
         for (int i = 0; i < fin.size(); i++) {
             CompoundTag tag = fin.getCompound(i);
             if (!tag.contains("module")) {
-                inc.add(tag); // 没 module 的我们认为是新增（或按需改为忽略）
+                inc.add(tag);
                 continue;
             }
             String module = tag.getString("module");
             int available = origCount.getOrDefault(module, 0) - matchedCount.getOrDefault(module, 0);
             if (available > 0) {
-                matchedCount.merge(module, 1, Integer::sum); // 用掉 original 的一个实例（匹配）
+                matchedCount.merge(module, 1, Integer::sum);
             } else {
-                inc.add(tag); // final 比 original 多出来的实例
+                inc.add(tag);
             }
         }
 
-        // 遍历 original（保持原始顺序），未被 matched 的那些就是 dec
         List<CompoundTag> dec = new ArrayList<>();
-        Map<String, Integer> matchedRemaining = new HashMap<>(matchedCount); // 用来按原序消费 matched
+        Map<String, Integer> matchedRemaining = new HashMap<>(matchedCount);
         for (int i = 0; i < original.size(); i++) {
             CompoundTag tag = original.getCompound(i);
             if (!tag.contains("module")) {
-                // 如果前面把无 module 当新增处理，这里也应对称处理；此处选择忽略
                 continue;
             }
             String module = tag.getString("module");
             int left = matchedRemaining.getOrDefault(module, 0);
             if (left > 0) {
-                matchedRemaining.put(module, left - 1); // 这个 original 实例被 final 对应消耗掉了
+                matchedRemaining.put(module, left - 1);
             } else {
-                dec.add(tag); // original 中剩余的实例（在 final 中没有对应）
+                dec.add(tag);
             }
         }
 

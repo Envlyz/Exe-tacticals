@@ -5,15 +5,9 @@ import com.exetacticals.client.model.modular.state.ReadOnlyTag;
 import com.exetacticals.client.render.ModuleRenderContext;
 import com.exetacticals.modularSys.modules.views.IM203View;
 
-/**
- * M203 的状态视图：在公共的 {@code base} / {@code empty} 之外，
- * 还有弹壳留在膛内的 {@code full} 与 {@code fired} 两个状态。
- */
 public class M203Viewer extends GrenadeLauncherViewer<IM203View> {
 
-    /** 弹壳在膛（已装填）。 */
     protected static final String FULL_STATE = "full";
-    /** 已击发、弹壳未退出。 */
     protected static final String FIRED_STATE = "fired";
 
     public M203Viewer(IM203View view) {

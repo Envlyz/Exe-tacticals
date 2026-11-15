@@ -10,9 +10,6 @@ import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-/**
- * example: ads_pose_limit(main, 0.1, 0.1)
- * */
 @OnlyIn(Dist.CLIENT)
 public class AdsPoseLimit extends Command{
     private final String boneName;
@@ -28,7 +25,6 @@ public class AdsPoseLimit extends Command{
         transScale = Float.parseFloat(args.get(1));
         rotScale = Float.parseFloat(args.get(2));
     }
-
 
     @Override
     public void onFrame(IAnimated animated, IAnimationSequence sequence, ModuleRenderContext context) {

@@ -43,5 +43,4 @@ public class ARMainModel extends ArmHandlerModel<ARView> implements IBulletShell
         return handHoldPivot;
     }
 
-
 }

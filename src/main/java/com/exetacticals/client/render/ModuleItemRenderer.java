@@ -26,31 +26,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-/**
- * 3D-рендер предметов обвесов и магазинов: рисует ту же glTF-модель модуля, что и на оружии.
- *
- * <p>Подключается через {@code builtin/entity} в JSON-модели предмета (общий родитель
- * {@code exe_tacticals:item/module_3d}); повороты/смещения по контекстам задаются там же в {@code display}.
- * Здесь модель только центрируется по своим габаритам и масштабируется:</p>
- * <ul>
- *     <li>GUI и рамка — вписывается в куб {@link #FIT_SIZE};</li>
- *     <li>рука/земля/голова — в «реальном» масштабе оружия от 3-го лица ({@link #WORLD_SCALE}),
- *     но не меньше {@link #MIN_WORLD_SIZE} блока по длинной стороне, чтобы мелочь не терялась.</li>
- * </ul>
- */
 @OnlyIn(Dist.CLIENT)
 public class ModuleItemRenderer extends BlockEntityWithoutLevelRenderer {
-    /** Длинная сторона модели в GUI / рамке, в долях блока (слот = 1). */
     public static final float FIT_SIZE = 0.9f;
-    /** Тот же масштаб, что у оружия от 3-го лица (DisplayData.THIRD_PERSON = 0.15). */
     public static final float WORLD_SCALE = 0.15f;
-    /** Минимальная длинная сторона в мире, в блоках. */
     public static final float MIN_WORLD_SIZE = 0.2f;
     private static final String NODE_ID = "exe_tacticals_item_preview";
 
     private static ModuleItemRenderer instance;
 
-    /** Кэш габаритов по экземпляру модели (горячая перезагрузка создаёт новый экземпляр). */
     private final Map<IModularModel, float[]> boundsCache = new WeakHashMap<>();
     private final Set<String> warned = new HashSet<>();
 
@@ -89,20 +73,17 @@ public class ModuleItemRenderer extends BlockEntityWithoutLevelRenderer {
         float scale = fit ? FIT_SIZE / extent : Math.max(WORLD_SCALE, MIN_WORLD_SIZE / extent);
 
         poseStack.pushPose();
-        // ItemRenderer сдвигает на (-0.5, -0.5, -0.5) для builtin/entity — возвращаем начало в центр.
         poseStack.translate(0.5f, 0.5f, 0.5f);
         poseStack.scale(scale, scale, scale);
         poseStack.translate(-(b[0] + b[3]) * 0.5f, -(b[1] + b[4]) * 0.5f, -(b[2] + b[5]) * 0.5f);
 
         ModuleRenderNode node = new ModuleRenderNode(model, NODE_ID, module.getID(), false);
         if (item instanceof MagazineItem magItem && module instanceof Mag mag) {
-            // Патроны в модели магазина показываются по реальному числу патронов в предмете.
             CompoundTag states = new CompoundTag();
             mag.setAmmoLeft(magItem.getRounds(stack), states);
             node.setStates(new ReadOnlyTag(states));
         }
         float partialTicks = Minecraft.getInstance().getFrameTime();
-        // NONE: без логики 1-го/3-го лица (вспышки, лазеры, прицельная сетка, нагрев) — это просто предмет.
         ModuleRenderContext context = new ModuleRenderContext(null, node, stack, partialTicks, light, overlay,
                 ItemDisplayContext.NONE, null, poseStack, bufferSource);
         try {

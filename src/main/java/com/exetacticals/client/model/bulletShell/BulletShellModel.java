@@ -11,9 +11,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Only visible in first person view, using first person view GunRenderer uniforms
- * */
 @OnlyIn(Dist.CLIENT)
 public class BulletShellModel extends BufferedBatchSingleMeshModel {
     private static final Map<ResourceLocation, BulletShellModel> INSTANCE_MAP = new HashMap<>();

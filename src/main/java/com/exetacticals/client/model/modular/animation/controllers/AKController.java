@@ -41,8 +41,6 @@ public class AKController extends GunController<AKModel> {
 
         subscribe(EventType.SHOOT, 0, (context) -> {
             SingleAnimationSequence animation = shoot;
-            // 卡壳/最后一发由开火线程算好随事件参数带过来（见 GunController#isShootStuck），
-            // 不再回读物品 states：开火线程与渲染线程不同，NBT 跨线程读可能滞后。
             if (isShootStuck(context, view)) {
                 animation = shootStuck;
             } else if (isShootLastRound(context, view)) {
@@ -50,7 +48,6 @@ public class AKController extends GunController<AKModel> {
             }
             SHOOT.play(animation.prepare());
         });
-
 
         subscribe(EventType.CHECK_CHAMBER, 0, (context) -> {
             ReadOnlyTag states = context.getStates();
@@ -83,7 +80,6 @@ public class AKController extends GunController<AKModel> {
             KeyframeAnimator.animate(model, thirdPersonShoot, startTime, 0.9f);
         }
     }
-
 
     @Override
     public boolean assertCompatible(IModularModel model) {

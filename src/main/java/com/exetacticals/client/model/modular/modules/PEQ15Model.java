@@ -18,7 +18,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.awt.*;
 
-
 @OnlyIn(Dist.CLIENT)
 public class PEQ15Model extends ModularModel implements IFlashLightHandlerModel, IStateViewerModel<IFlashLightView>, ILaserSightModel {
     private final FlashLightStatesViewer viewer;

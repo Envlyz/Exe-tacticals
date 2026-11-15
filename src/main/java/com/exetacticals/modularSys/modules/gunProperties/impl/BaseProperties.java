@@ -18,9 +18,7 @@ public class BaseProperties extends Properties {
     public static final String ID = GCR.RL("base").toString();
 
     public final IntProp rpm;
-    //垂直压强
     public final NumProp recoilControl;
-    //水平、随机振动，射击稳定性
     public final NumProp stability;
     public final AccProp weight;
     public final NumProp spread;
@@ -80,8 +78,6 @@ public class BaseProperties extends Properties {
         }
         return fireSoundSuppressed;
     }
-
-
 
     public CompoundTag pick(ItemStack itemStack, IGun gun) {
         CompoundTag propertiesTag = gun.getPropertiesTag(itemStack);

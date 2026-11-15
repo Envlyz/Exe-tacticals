@@ -15,7 +15,6 @@ public class CantedRail extends SlotProviderVoxelModule {
         super(id, false, weight, Direction.UPPER, provider, voxelHandler);
     }
 
-
     @Override
     public void onMutated(IWriteableAccessor accessor, Unit thisUnit) {
         super.onMutated(accessor, thisUnit);

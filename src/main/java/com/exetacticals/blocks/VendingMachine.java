@@ -28,12 +28,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
 public class VendingMachine extends HorizontalDirectionalBlock {
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final VoxelShape VOXEL_SHAPE = Block.box(0.5, 0, 0.5, 15.5, 16, 15.5);
-
 
     public VendingMachine(Properties pProperties) {
         super(pProperties);

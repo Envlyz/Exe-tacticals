@@ -10,7 +10,6 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
 
-
 public class FireModeSwitchTask extends GunTask<IGun> {
     public FireModeSwitchTask(ItemStack itemStack, IGun gun) {
         super(itemStack, gun, 1);

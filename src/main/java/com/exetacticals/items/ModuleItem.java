@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-
 public class ModuleItem<T extends IModular> extends NoRepairNoEnchantmentItem {
     private final T module;
 
@@ -30,18 +29,14 @@ public class ModuleItem<T extends IModular> extends NoRepairNoEnchantmentItem {
     public void appendHoverText(@NotNull ItemStack stack, @NotNull net.minecraft.world.level.Level context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
         module.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        // Specific receiver/stock/handguard/module compatibility only;
-        // generic rail attachments intentionally have no firearm list.
         AttachmentCompatibilityTooltip.append(module, tooltipComponents);
     }
 
-    /** Обвесы и магазины рисуются 3D-моделью модуля (GunItem переопределяет это своим рендером). */
     @Override
     public void initializeClient(@NotNull java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
         consumer.accept(ModuleItemClientExtensions.INSTANCE);
     }
 
-    /** Характеристики полосками — отдельный блок тултипа сразу под названием. */
     @Override
     public @NotNull java.util.Optional<net.minecraft.world.inventory.tooltip.TooltipComponent> getTooltipImage(@NotNull ItemStack stack) {
         List<com.exetacticals.items.tooltip.StatRow> rows = new java.util.ArrayList<>();

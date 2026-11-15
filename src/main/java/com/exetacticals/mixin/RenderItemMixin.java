@@ -1,6 +1,5 @@
 package com.exetacticals.mixin;
 
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.exetacticals.Client;
 import com.exetacticals.client.render.IGunRenderer;

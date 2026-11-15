@@ -19,11 +19,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
-/**
- * Оформление тултипов предметов мода: MSDF-шрифт SF Pro из ExeInventory ({@link MsdfFont}),
- * своя тёмная стеклянная подложка со скруглением и акцентной полосой под названием.
- * Тултипы чужих предметов не трогаются.
- */
 @OnlyIn(Dist.CLIENT)
 public final class TooltipStyle {
     private static final int PADDING_X = 8;
@@ -46,7 +41,6 @@ public final class TooltipStyle {
         return id != null && GCR.MODID.equals(id.getNamespace());
     }
 
-    /** Строки текста заменяются на {@link TextLine} — их рисует MSDF-шрифт SF Pro; первая — название. */
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onGather(RenderTooltipEvent.GatherComponents event) {
         if (!isOurs(event.getItemStack()) || MsdfFont.regular() == null || MsdfFont.medium() == null) {
@@ -61,7 +55,6 @@ public final class TooltipStyle {
         }
     }
 
-    /** Ванильная отрисовка отменяется, тултип рисуется на своей подложке. */
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onPre(RenderTooltipEvent.Pre event) {
         if (event.isCanceled() || !isOurs(event.getItemStack())) {
@@ -85,7 +78,6 @@ public final class TooltipStyle {
             contentW = Math.max(contentW, c.getWidth(font));
             contentH += c.getHeight() + (i == 0 && components.size() > 1 ? TITLE_GAP : 0);
         }
-        // у последней текстовой строки снизу лишний пиксель межстрочного интервала
         contentH -= 1;
         int boxW = contentW + PADDING_X * 2;
         int boxH = contentH + PADDING_Y * 2;
@@ -113,7 +105,6 @@ public final class TooltipStyle {
             rowY[i] = y;
             y += components.get(i).getHeight();
             if (i == 0 && components.size() > 1) {
-                // разделитель под названием: акцент слева, гаснет вправо
                 float lineY = y + TITLE_GAP / 2f - 0.5f;
                 GuiPanelRender.gradient(g, x, lineY, contentW, 1f, 0.5f, 0x22FFFFFF, 0x22FFFFFF);
                 GuiPanelRender.fill(g, x, lineY, Math.min(components.get(0).getWidth(font), contentW), 1f, 0.5f, GuiPanelRender.ACCENT);

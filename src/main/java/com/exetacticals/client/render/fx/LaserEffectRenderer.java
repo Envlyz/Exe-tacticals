@@ -35,10 +35,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * TaCZ Additions-style block-face laser dots. The gun model supplies the animated
- * emitter orientation; world raycasts and world RenderType draw the actual dot.
- */
 @OnlyIn(Dist.CLIENT)
 public final class LaserEffectRenderer {
     private static final RenderType DOT_TYPE = LaserDotType.make();
@@ -108,7 +104,6 @@ public final class LaserEffectRenderer {
         for (NodeState node : NODES.values()) {
             Vector3f dir = new Vector3f(node.localDirection).rotate(rotation).normalize();
             if (!valid(dir) || dir.dot(cameraForward) < 0.25f) {
-                // An invalid muzzle transform must not create backwards rays.
                 dir.set(cameraForward);
             }
             Vector3f offset = new Vector3f(node.localOrigin).rotate(rotation);
@@ -160,7 +155,6 @@ public final class LaserEffectRenderer {
                 ? new Vector3f(1, 0, 0) : new Vector3f(0, 1, 0);
         Vector3f tangent = axis.cross(n, new Vector3f()).normalize();
         Vector3f bitangent = n.cross(tangent, new Vector3f()).normalize();
-        // Compact core, modest halo expansion over distance.
         float radius = Math.min(0.075f, 0.040f + distance * 0.0003f);
         tangent.mul(radius);
         bitangent.mul(radius);
@@ -168,7 +162,6 @@ public final class LaserEffectRenderer {
         int red = (color >>> 16) & 255;
         int green = (color >>> 8) & 255;
         int blue = color & 255;
-        // Colored laser halo with a brighter central pixel from the alpha texture.
         vertex(consumer, pose, renderPos, tangent, bitangent, -1,-1, 0,1, red,green,blue);
         vertex(consumer, pose, renderPos, tangent, bitangent, -1, 1, 0,0, red,green,blue);
         vertex(consumer, pose, renderPos, tangent, bitangent,  1, 1, 1,0, red,green,blue);
@@ -195,7 +188,6 @@ public final class LaserEffectRenderer {
         long lastRecorded;
     }
 
-    /** Mirrors the custom world-pass RenderType used by TaCZ Additions. */
     private static final class LaserDotType extends RenderType {
         private LaserDotType() {
             super("gcr_laser_dot", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS,

@@ -107,8 +107,6 @@ public class BufferedPlayerArmModel extends BufferedBoneMeshModel {
         return false;
     }
 
-
-
     public static ResourceLocation getPlayerSkin() {
         AbstractClientPlayer abstractClientPlayer = Minecraft.getInstance().player;
         if (abstractClientPlayer != null) {

@@ -13,10 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Длина полосы «абсолютной» характеристики — доля от наибольшего значения среди модулей той же группы
- * (всё оружие / все обвесы) в их исходном виде, с запасом 15%. Считается один раз.
- */
 @OnlyIn(Dist.CLIENT)
 final class StatReference {
     private static final float HEADROOM = 1.15f;

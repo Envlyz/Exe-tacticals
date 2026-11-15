@@ -6,11 +6,6 @@ import com.exetacticals.sound.ModSounds;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
-/**
- * GP25 枪管下挂榴弹发射器。
- *
- * <p>行为全部继承自 {@link GrenadeLauncher}：没有独立的击发后状态，击发即回到 {@code empty}。</p>
- */
 public class GP25 extends GrenadeLauncher implements IGP25View {
 
     public GP25(ResourceLocation id, float weight, IVoxelHandler voxelHandler, AdditionalPropModifier modifier,

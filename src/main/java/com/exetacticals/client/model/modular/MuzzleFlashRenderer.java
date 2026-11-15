@@ -42,19 +42,16 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
     public static final List<Triple<MuzzleEntry, PoseStack.Pose, Long>> MUZZLE_FLASH_QUEUE = new ArrayList<>();
     public static final Map<String, SmokeTasks> MUZZLE_SMOKE_TASKS = new HashMap<>();
     public static final int MAX_SMOKE_EFFECT_TASKS = 5;
-    /** slow smoke 的 task 队列，key 与 fast smoke 区分开 */
     public static final Map<String, SlowSmokeTasks> SLOW_MUZZLE_SMOKE_TASKS = new HashMap<>();
-    /** 每个枪口最多同时保留多少个 slow smoke task（双向队列上限） */
     public static final int MAX_SLOW_SMOKE_TASKS = 10;
     private static final String SLOW_SMOKE_ID_SUFFIX = ":slow_smoke";
     private static final Vector3f DISTANCE_SORTING = new Vector3f();
     private static final List<RenderEntry> UNIFIED_RENDER_QUEUE = new ArrayList<>();
-    // 对象池，避免每帧 new RenderEntry
     private static final ArrayDeque<RenderEntry> ENTRY_POOL = new ArrayDeque<>();
 
     private static final class RenderEntry {
         float z;
-        byte type; // 0 = fast smoke, 1 = flash, 2 = slow smoke
+        byte type;
         MuzzleSmokeTask smokeTask;
         SlowSmokeTask slowSmokeTask;
         MuzzleEntry muzzleEntry;
@@ -71,7 +68,6 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
             this.z = z; this.type = 1; this.muzzleEntry = entry; this.bonePose = pose; this.startTime = time;
         }
     }
-
 
     private static RenderEntry acquireEntry() {
         RenderEntry e = ENTRY_POOL.poll();
@@ -90,7 +86,6 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
 
     public static class SlowSmokeTasks{
         public long lastCall;
-        /** 双向队列，最多 {@link #MAX_SLOW_SMOKE_TASKS} 个，新的从头部进，最老的从尾部丢 */
         public Deque<SlowSmokeTask> queue;
 
         public SlowSmokeTasks(long lastCall) {
@@ -121,7 +116,6 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
         recordOrRender(context, model, effectListener, effectModuleId);
     }
 
-
     public void recordOrRender(ModuleRenderContext context, IMuzzleFlashRendererModel model, GunEffect effectListener, String effectModuleId) {
         if (IrisCompat.isRenderingShadowPass()) {
             return;
@@ -129,10 +123,6 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
         if (context.entity == null) {
             return;
         }
-        // Water is handled by GcrBulletWaterEffects (bubbles, splashes).
-        // A submerged shooter must not produce terrestrial muzzle flame,
-        // instantaneous/lingering smoke or associated flash lighting.
-        // Apply before ANY first/third-person effect is queued.
         if (context.entity.isEyeInFluid(FluidTags.WATER)) {
             return;
         }
@@ -195,16 +185,12 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
                         String id = context.currentRenderNode().id + entry.getName() + SLOW_SMOKE_ID_SUFFIX;
                         SlowSmokeTasks tasks = SLOW_MUZZLE_SMOKE_TASKS.get(id);
                         if (tasks == null) {
-                            // 时间戳可能已经过期（GunEffectManager 会一直保留最后一次射击的时间），
-                            // 这种时候不要再补一个已经淡出完的 task
                             if (!slowSmoke.isExpired(startTime, smokeEntry)) {
                                 tasks = new SlowSmokeTasks(startTime);
-                                // SlowSmokeTask 内部会复制射击那一刻的矩阵位置
                                 tasks.queue.addFirst(slowSmoke.createTask(bonePose, startTime, smokeEntry, context.light));
                                 SLOW_MUZZLE_SMOKE_TASKS.put(id, tasks);
                             }
                         } else if (tasks.lastCall != startTime) {
-                            // 队列有上限，超出时先丢掉最老的那一次
                             if (tasks.queue.size() >= MAX_SLOW_SMOKE_TASKS) {
                                 tasks.queue.pollLast();
                             }
@@ -219,21 +205,12 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
         }
     }
 
-    /**
-     * 统一的半透明排序键：{@code key = -pose 平移的 z}。
-     * <p>
-     * 这个姿态空间里 -Z 是枪口前方（远离相机），所以 key 越大 = 离相机越远。
-     * 所有特效（fast smoke / slow smoke / muzzle flash）都用同一个约定，
-     * 排序时按 key 降序（由远到近）画，这是半透明的标准绘制顺序。
-     */
     private static float sortKey(PoseStack.Pose pose) {
         return -pose.pose().getTranslation(DISTANCE_SORTING).z;
     }
 
     public static void renderAllFirstPerson(MultiBufferSource bufferSource) {
-        // ── 1. 收集 Smoke ────────────────────────────────────────────────
         if (!MUZZLE_SMOKE_TASKS.isEmpty()) {
-            // 直接用 entrySet 迭代器删除，省掉 idToRemove Set 分配
             Iterator<Map.Entry<String, SmokeTasks>> mapIt = MUZZLE_SMOKE_TASKS.entrySet().iterator();
             while (mapIt.hasNext()) {
                 SmokeTasks tasks = mapIt.next().getValue();
@@ -257,7 +234,6 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
             }
         }
 
-        // ── 1.5 收集 Slow Smoke ──────────────────────────────────────────
         if (!SLOW_MUZZLE_SMOKE_TASKS.isEmpty()) {
             Iterator<Map.Entry<String, SlowSmokeTasks>> slowMapIt = SLOW_MUZZLE_SMOKE_TASKS.entrySet().iterator();
             while (slowMapIt.hasNext()) {
@@ -270,7 +246,6 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
                         it.remove();
                         continue;
                     }
-                    // 用烟雾推进后的位置作为排序键，和 flash / fast smoke 一起做 z 轴半透明排序
                     RenderEntry re = acquireEntry();
                     re.setSlowSmoke(task.sortDepth(), task);
                     UNIFIED_RENDER_QUEUE.add(re);
@@ -282,7 +257,6 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
             }
         }
 
-        // ── 2. 收集 Flash ────────────────────────────────────────────────
         for (Triple<MuzzleEntry, PoseStack.Pose, Long> pair : MUZZLE_FLASH_QUEUE) {
             PoseStack.Pose bonePose = pair.getMiddle();
             float z = sortKey(bonePose);
@@ -291,16 +265,10 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
             UNIFIED_RENDER_QUEUE.add(re);
         }
 
-        // ── 3. 排序 ──────────────────────────────────────────────────────
         if (UNIFIED_RENDER_QUEUE.size() > 1) {
             UNIFIED_RENDER_QUEUE.sort((a, b) -> Float.compare(b.z, a.z));
         }
 
-        // ── 4. 渲染 ──────────────────────────────────────────────────────
-        // 每画完一条就把它的批次立刻发出去：
-        // MC 的 BufferSource 只在"切换到另一个渲染类型"时才会把上一批发出去，
-        // 缓存/复用同一个 RenderType 时批次会被合并或延后，导致 GPU 的绘制顺序和这里的 z 排序不一致。
-        // 显式 endBatch(type) 之后，绘制顺序严格等于排序顺序（且类型会从 startedBuilders 里移除，不会越积越多）。
         for (RenderEntry re : UNIFIED_RENDER_QUEUE) {
             RenderType usedType = null;
             if (re.type == 0) {
@@ -317,7 +285,6 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
             if (usedType != null && bufferSource instanceof MultiBufferSource.BufferSource batched) {
                 batched.endBatch(usedType);
             }
-            // 归还对象池
             re.smokeTask = null;
             re.slowSmokeTask = null;
             re.muzzleEntry = null;
@@ -325,7 +292,6 @@ public final class MuzzleFlashRenderer implements IMuzzleFlashRenderer{
             ENTRY_POOL.offer(re);
         }
 
-        // ── 5. 清理 ──────────────────────────────────────────────────────
         UNIFIED_RENDER_QUEUE.clear();
         MUZZLE_FLASH_QUEUE.clear();
     }

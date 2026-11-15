@@ -31,7 +31,6 @@ import com.exetacticals.network.s2c.GunFireAckPacket;
 import com.exetacticals.network.s2c.GunStuckSyncPacket;
 import com.exetacticals.network.s2c.InitClientGunDataPacket;
 
-/** Forge 1.20.1 network; explicit registration order is part of the wire protocol. */
 public final class GCRNetwork {
     private static final String VERSION = "exe_tacticals-forge1201-upstream-aim-v2";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
@@ -64,7 +63,6 @@ public final class GCRNetwork {
         add(GunStuckSyncPacket.class, GunStuckSyncPacket::encode, GunStuckSyncPacket::decode);
         add(InitClientGunDataPacket.class, InitClientGunDataPacket::encode, InitClientGunDataPacket::decode);
         add(PhysicalMagazinePacket.class, PhysicalMagazinePacket::encode, PhysicalMagazinePacket::decode);
-        // Append packet IDs to keep existing public magazine protocol stable.
         add(BulletImpactPacket.class, BulletImpactPacket::encode, BulletImpactPacket::decode);
         add(com.exetacticals.network.c2s.CraftGunPacket.class,
                 com.exetacticals.network.c2s.CraftGunPacket::encode, com.exetacticals.network.c2s.CraftGunPacket::decode);

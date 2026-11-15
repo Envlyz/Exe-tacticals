@@ -17,7 +17,6 @@ public class GunEffectManager {
     private static int updateDelay = 0;
     private static final Map<Integer, Map<String, Map<GunEffect, Long>>> EFFECT_TIMESTAMPS = new HashMap<>();
 
-
     public static long getEffectTimestampNano(LivingEntity livingEntity, GunEffect effect, String moduleId) {
         if (livingEntity == null) {
             return -1;

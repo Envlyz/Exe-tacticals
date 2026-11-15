@@ -21,7 +21,6 @@ import net.minecraft.core.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/** Replaces NeoForge 1.21.1 attachments with a 1.20.1 Forge capability. */
 @Mod.EventBusSubscriber(modid = GCR.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class ModData {
     public static final Capability<PlayerCommonStatus> PLAYER_STATUS =

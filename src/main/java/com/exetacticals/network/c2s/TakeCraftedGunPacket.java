@@ -11,9 +11,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 
-/** Клиент нажал F, глядя на верстак с оружием на столе; сервер проверяет расстояние и отдаёт оружие игроку. */
 public class TakeCraftedGunPacket implements IPacket<TakeCraftedGunPacket> {
-    /** С запасом к обычной дальности руки (4.5 блока) — до центра стола. */
     private static final double MAX_DISTANCE = 6.0;
     public final BlockPos pos;
 

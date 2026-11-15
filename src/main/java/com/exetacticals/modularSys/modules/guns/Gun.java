@@ -75,15 +75,8 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
     private final Map<String, IFireMode<?>> fireModeMap;
     private final SplittableRandom random = new SplittableRandom((long) (Math.random() * 100000));
 
-    /**
-     * 预计算的 InitialDataTag 母本，与当前 {@link Gun} 实例（即当前枪械物品）绑定。
-     *
-     * <p>由启动阶段通过 {@link #warmUpInitialDataTag(String)} 填充；只有 {@code volatile}
-     * 写入、内容一经生成便不再改动。{@code null} 表示尚未预热。</p>
-     */
     private volatile @Nullable CompoundTag cachedInitialDataTag;
 
-    /** 生成重入保护：生成过程本身若间接读回 InitialDataTag，必须直接生成而不是取缓存。 */
     private boolean generatingInitialDataTag;
 
     public Gun(ResourceLocation id, BaseProperties baseProperties, DisplayData displayData, RecoilData recoilData, List<IFireMode<?>> fireModes) {
@@ -106,7 +99,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
 
     @Override
     public void modifyProperties(PropertiesAccessor accessor) {
-        //这里不干任何事情
     }
 
     @Override
@@ -114,7 +106,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
 
     @Override
     public void loadFromJson(JsonObject jsonObject) {}
-
 
     @Override
     public void fullSyncFromServer(ItemStack itemStack, CompoundTag data) {
@@ -131,10 +122,8 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         }
         GunEffectManager.updateEffectTimestamp(player.getId(), GunEffect.SHOOT, rootNodeId(itemStack), System.currentTimeMillis());
         Client.WEAPON_STATUS.lastShoot = System.nanoTime();
-        // вспышка освещает окружение только в кадре (GunfireLights), мир не меняется
         com.exetacticals.client.render.fx.GunfireLights.onShot(player, this, itemStack);
         Client.getGunRenderer().dispatchAnimationEvent(EventType.CLEAR_TRACK, Map.of("name", "check"));
-        //ModularModel.debugHeat = Mth.clamp(ModularModel.debugHeat + 0.1f, 0, 1);
     }
 
     @Override
@@ -147,7 +136,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         float yaw = shooter.getYRot();
         float pitch = shooter.getXRot();
 
-        // Authoritative wall tuck: the server raises the actual projectile, not just the model.
         pitch -= AftermatchWallTuck.check(shooter, 1f).raiseDegrees();
         pitch += packet.gunKickPitch + packet.motionPitch;
         yaw += packet.gunKickYaw + packet.motionYaw;
@@ -175,8 +163,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         bullet.setTracer(firedTracer(itemStack));
         bullet.start();
         level.addFreshEntity(bullet);
-        // Свет от выстрела в мир НЕ ставится (раньше — блок minecraft:light на 3 тика): каждый выстрел
-        // пересчитывал освещение и перестраивал чанки у всех игроков. Вспышка — только экранный шейдер у стрелка.
         int latency = 0;
         if (shooter instanceof ServerPlayer player) {
             latency = player.latency;
@@ -210,11 +196,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         );
     }
 
-    /**
-     * Был ли только что выстреливший патрон трассером. Вызывается ПОСЛЕ расхода патрона (useAmmo):
-     * учёт магазина на оружии (типы на момент вставки) + сколько патронов из него уже ушло.
-     * Если в патроннике снова патрон — он взят из магазина после выстрела, выстрелил предыдущий.
-     */
     protected boolean firedTracer(ItemStack itemStack) {
         if (!(this instanceof ISlottedGun slotted) || itemStack.getTag() == null) {
             return false;
@@ -233,8 +214,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
 
     @Override
     public void serverShootRejected(ServerPlayer player, ItemStack itemStack, int shootID) {
-        // 拒绝意味着客户端对弹药/卡壳的本地预测至少有一项是错的，把物品数据标脏让容器同步
-        // 把服务端权威状态整份推回客户端，顺手修掉客户端本地多扣的那一发。
         notifyDataChanged(itemStack);
         GCRNetwork.sendToPlayer(
                 player,
@@ -321,7 +300,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         }
         return orDefault;
     }
-
 
     @Override
     public ListTag getModulesTag(ItemStack itemStack) {
@@ -531,7 +509,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         return baseProperties.weight.get(compound);
     }
 
-    //TODO: 接入数据模型之后替换为详细计算
     @Override
     public float getAimingSpeed(ItemStack itemStack) {
         CompoundTag compound = baseProperties.pick(itemStack, this);
@@ -577,7 +554,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         return ratio * baseProperties.stability.value;
     }
 
-
     @Override
     public Map<String, IProperties> getProperties() {
         return propertiesMap;
@@ -614,26 +590,13 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         }
     }
 
-    /**
-     * 取该枪械的初始数据模板。
-     *
-     * <p>优先返回启动阶段预热好的缓存；缓存不可用时按原逻辑现算（并顺手补上缓存），
-     * 保证行为与改造前一致。缓存生成失败在预热阶段会直接崩游戏，详见
-     * {@link #warmUpInitialDataTag(String)}。</p>
-     *
-     * <p>返回的是缓存的<b>副本</b>：调用方（{@code checkAndGetRaw} 等）拿到的引用会被写进
-     * {@code CUSTOM_DATA} 并被原地修改，直接交出母本会让同一款枪的所有 ItemStack 共享同一个
-     * CompoundTag。</p>
-     */
     @NotNull
     protected final CompoundTag getInitialDataTag() {
         if (generatingInitialDataTag) {
-            //生成过程中的间接回读：直接用正在构造的那一份，避免递归
             return generateInitialDataTag();
         }
         CompoundTag cached = cachedInitialDataTag;
         if (cached == null) {
-            //缓存缺失（例如预热之后又发生了资源重载）：补算，不静默返回半成品
             GCR.LOGGER.warn("InitialDataTag cache miss for gun {}, generating on demand", id);
             cached = generateInitialDataTag();
             cachedInitialDataTag = cached;
@@ -641,16 +604,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         return cached.copy();
     }
 
-    /**
-     * 启动阶段预热：生成并缓存 InitialDataTag 母本。
-     *
-     * <p>成功与失败都会打日志，日志里带上端（client/dedicated_server）、枪械 id 与实现类、
-     * 耗时，以及生成出来的整份数据。生成过程中的任何异常都会带上枪械 id 重新抛出，
-     * 由调用方在启动阶段中断游戏——避免游戏中途才发现数据错误，导致存档数据被写坏。</p>
-     *
-     * @param gunId 该枪械在 {@code ModuleRegister} 中的注册 id，仅用于日志与异常信息
-     * @throws IllegalStateException 生成失败时抛出，内含枪械 id 与原始异常
-     */
     public void warmUpInitialDataTag(@NotNull String gunId) {
         String side = FMLEnvironment.dist.isClient() ? "client" : "dedicated_server";
         long startedAt = System.nanoTime();
@@ -671,7 +624,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         }
         cachedInitialDataTag = generated;
         if (GCR.LOGGER.isInfoEnabled()) {
-            //参数化日志的 toString 是在调用点求值的，先判级别再拼字符串，避免无谓开销
             GCR.LOGGER.info("""
                     [InitialDataTag] precomputed on {} | gun={} ({}) | took {} ms | size={} bytes\n{}""",
                     side, gunId, getClass().getName(), (System.nanoTime() - startedAt) / 1_000_000L,
@@ -679,20 +631,10 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         }
     }
 
-    /**
-     * 丢弃已预热的缓存，供资源重载后重新预热使用。
-     *
-     * <p>清空与随后的重新预热必须成对调用（见 {@code GCR#reWarmUpGunInitialData}），
-     * 否则窗口期内 {@link #getInitialDataTag()} 会退化成按需现算并打日志。</p>
-     */
     public void clearInitialDataTagCache() {
         cachedInitialDataTag = null;
     }
 
-    /**
-     * 真正生成 InitialDataTag 的母本。这是唯一允许构建初始数据的地方，
-     * 外部一律经过 {@link #getInitialDataTag()} 取副本。
-     */
     @NotNull
     protected CompoundTag generateInitialDataTag() {
         CompoundTag dataModel = new CompoundTag();
@@ -707,10 +649,8 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         ListTag gcrModules = warehouse.write();
         dataModel.put(MODULES_KEY, gcrModules);
 
-
         String rootNodeId = gcrModules.getCompound(0).getString(Unit.IN_TIME_ID);
         dataModel.putString(ROOT_NODE_ID_KEY, rootNodeId);
-
 
         ShadowNode shadowTree = warehouse.getShadowTree();
         CompoundTag statesTag = onStatesInit(shadowTree);
@@ -752,13 +692,9 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         float impulse = getImpulseRatio(stack) * 100f;
         float baseDamage = getCurrBaseDamage(stack);
 
-        // характеристики показываются полосками: см. appendStatRows
         String string = Component.translatable("tooltip.util.gun_modify").getString();
         String msg = string.replace("$key", KeyBinds.OPEN_GUN_MODIFY_SCREEN.getTranslatedKeyMessage().getString());
         tooltipComponents.add(Component.literal(msg).setStyle(Style.EMPTY.withColor(Color.GRAY.getRGB())));
-        // Physical magazine / chamber gestures. The reload key name is read
-        // from the actual KeyMapping so the tooltip stays correct after a
-        // player's key rebind. These are separate from ammo/stats descriptions.
         Component reloadKey = KeyBinds.RELOAD.getTranslatedKeyMessage();
         tooltipComponents.add(Component.translatable("tooltip.exe_tacticals.gun_reload_header")
                 .withStyle(net.minecraft.ChatFormatting.GOLD));
@@ -872,7 +808,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         return baseProperties.spread.get(pick);
     }
 
-
     @Override
     public float getShootHeat(ItemStack itemStack) {
         CompoundTag pick = baseProperties.pick(itemStack, this);
@@ -887,18 +822,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
 
     @Override
     public float getCurrHeat(ItemStack itemStack, long now) {
-//        CompoundTag states = rootNodeTag(itemStack);
-//        float heat = getHeat(states);
-//        long lastShootTime = getLastShootTime(states);
-//        boolean coolDown = now - lastShootTime > 40;
-//        if (coolDown) {
-//            long heatLastUpdate = getHeatLastUpdate(states);
-//            float heatDecSpeed = getHeatDecSpeed(itemStack);
-//            int tickNum = (int) (now - heatLastUpdate);
-//            float heatDec = heatDecSpeed * tickNum;
-//            heat -= heatDec;
-//        }
-//        return Mth.clamp(heat, 0, 1);
         return calcHeat(itemStack, now);
     }
 
@@ -994,7 +917,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
     public float getWeight() {
         return 3.75f;
     }
-
 
     @Override
     public float getAdsSpeedModifier() {
@@ -1104,9 +1026,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
             float heatStuckRate = calcHeatStuckRate(allNodesOfThisTree);
             context.set(HEAT_STUCK_RATIO, heatStuckRate);
         } else {
-            /*
-              如果不是可装配件的枪械，瞄具模块直接默认使用当前节点,弹药源模块同理
-              */
             context.set(USING_SIGHT, context.thisNodeId());
             context.set(USING_AMMO_SOURCE, context.thisNodeId());
             context.set(LEFT_ARM_HOLD, context.thisNodeId());
@@ -1158,7 +1077,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         return FIRE_SOUND_NORMAL;
     }
 
-
     protected String findUsingSightID(List<ShadowNode> nodes, int maxSightPriority) {
         String id = nodes.get(0).nodeId;
         for (ShadowNode node : nodes) {
@@ -1174,7 +1092,6 @@ public class Gun extends Module implements IGun, ISight, IArmHandlerModular {
         }
         return id;
     }
-
 
     @Override
     public final int getPriority(boolean rightArm) {

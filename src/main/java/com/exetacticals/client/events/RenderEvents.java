@@ -60,14 +60,6 @@ public class RenderEvents {
         Client.getGunRenderer().renderTickPost(event.renderTickTime);
     }
 
-    /**
-     * Replace only the vanilla crosshair overlay for the equipped GCR weapon.
-     *
-     * Forge's overlay id is a ResourceLocation, NOT the VanillaGuiOverlay enum
-     * instance. Comparing those two types made the old cancellation dead code.
-     * Draw in this same guaranteed overlay event instead of relying on a
-     * separate RenderGuiEvent.Post callback that may be covered by other HUD.
-     */
     @SubscribeEvent
     public static void onRenderCrosshair(RenderGuiOverlayEvent.Pre event) {
         if (!VanillaGuiOverlay.CROSSHAIR.id().equals(event.getOverlay().id())) {
@@ -80,11 +72,6 @@ public class RenderEvents {
         event.setCanceled(true);
     }
 
-    /**
-     * Post-HUD drawing prevents an overlay canceled in Pre from swallowing
-     * the replacement reticle. Flush explicitly so the 2px dot reaches the
-     * screen after any other mod's buffered HUD decorations.
-     */
     @SubscribeEvent
     public static void onRenderHipfireDot(RenderGuiEvent.Post event) {
         if (GcrHipfireDot.draw(event.getGuiGraphics(), event.getPartialTick())) {
@@ -174,7 +161,6 @@ public class RenderEvents {
         WeaponStatus status = Client.WEAPON_STATUS;
         Minecraft mc = Minecraft.getInstance();
 
-
         if (status.isHoldingGun() && status.isAiming()) {
             Node activeSight = status.getActiveSight();
 
@@ -184,7 +170,7 @@ public class RenderEvents {
 
                 CompoundTag scopeStates = gun.getNodeStatesTag(itemStack, activeSight.getID());
 
-                float rate = scope.getRate(scopeStates); // [1,+Inf)
+                float rate = scope.getRate(scopeStates);
                 float aimingProgress = status.getAimingProgress();
 
                 float p = aimingProgress * aimingProgress * (3.0f - 2.0f * aimingProgress);
@@ -216,14 +202,5 @@ public class RenderEvents {
             }
         }
     }
-
-//    @SubscribeEvent
-//    public static void fpsMeter(RenderGuiEvent.Post event) {
-//        if (!GCR.IS_DEVELOPMENT) {
-//            return;
-//        }
-//        GuiGraphics guiGraphics = event.getGuiGraphics();
-//        guiGraphics.drawString(Minecraft.getInstance().font, "FPS: " + Minecraft.getInstance().getFps(), 10, 10, 0xFFFFFF);
-//    }
 
 }

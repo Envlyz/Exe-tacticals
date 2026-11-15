@@ -1,11 +1,9 @@
 package com.exetacticals.client.recoil;
 
 public record RecoilController(
-        // 线性恢复
         float linearZStiffness,
         float linearZDamping,
 
-        // 角恢复
         float pitchStiffness,
         float pitchDamping,
 
@@ -18,7 +16,6 @@ public record RecoilController(
         float rollStiffness,
         float rollDamping,
 
-        // ADS 修正
         float motionAdsModifierStiff,
         float motionAdsModifierDamp,
 

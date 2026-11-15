@@ -1,6 +1,5 @@
 package com.exetacticals;
 
-
 import com.exetacticals.client.ClientWeaponLooper;
 import com.exetacticals.client.DrawHolsterHandler;
 import com.exetacticals.client.WeaponStatus;
@@ -39,12 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Client {
-    /**
-     * 客户端武器线程：只跑一个长期存活的 {@link ClientWeaponLooper}。
-     *
-     * <p>开火时间轴、后座力推进、动画推进现在都由这一个循环按各自的截止时刻驱动，
-     * 保证它们仍然串行在同一个线程上（{@code RecoilUpdater} 之类并不线程安全）。</p>
-     */
     @OnlyIn(Dist.CLIENT)
     public static final ScheduledExecutorService WEAPON_SCHEDULER = Executors.newSingleThreadScheduledExecutor();
     @OnlyIn(Dist.CLIENT)
@@ -121,30 +114,14 @@ public class Client {
     @OnlyIn(Dist.CLIENT)
     public static int MAX_SHADER_TEXTURES = 16;
 
-
     @OnlyIn(Dist.CLIENT)
     public static void onClientSetup(FMLClientSetupEvent event) {
-        // 旧实现是三个固定周期任务（开火 5ms / 后座力 10ms / 动画 10ms）：开火被量化到
-        // 整数个 5ms 步进上，实际射速永远对不上理论值。现在换成一个按绝对截止时刻驱动的
-        // 小循环，开火与那两路 100Hz 推进仍然串行在同一个线程上，详见 ClientWeaponLooper。
         WEAPON_SCHEDULER.execute(new ClientWeaponLooper());
 
         ClientTestingResources.init(event);
 
     }
 
-
-    /**
-     * 在武器线程上尝试打出这一发。调用方（{@link ClientWeaponLooper}）只在确实要开火时才进来，
-     * 因此这里的锁是真开火事件才付出代价。
-     *
-     * <p>锁的纪律：客户端主线程在整个 tick（{@code ClientTickEvent.Pre ~ Post}）里持有这把锁，
-     * 本方法也在持锁状态下改物品数据、卡壳缓存、后座力，两边因此不会同时动同一份状态。
-     * 拿锁期间不能反过来去等主线程（例如 {@code Minecraft.execute} 之后 join），否则会死锁。</p>
-     *
-     * @return 这一发打出后到下一发的精确间隔（纳秒）；{@code <= 0} 表示这一发没打出去
-     *         （拔枪动画未完成 / 没有开火模式 / 冲刺 / 换弹 / 空仓 / 卡壳）
-     */
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("unchecked")
     public static long handleClientShoot(ItemStack stack, IGun gun, Player player) {
@@ -160,7 +137,6 @@ public class Client {
             }
             IFireMode.FireControl fireControl = fireMode.clientIntentToFire(player, stack, gun);
             if (fireControl == IFireMode.FireControl.ALLOW_FIRE) {
-                // 间隔取「开火之前」的枪械状态：这一发本身可能打空弹匣、卡壳或触发换弹，改掉射速
                 long interval = WEAPON_STATUS.getFireIntervalNanos();
                 try {
                     fireMode.triggerClientShoot(player, stack, gun);
@@ -243,7 +219,6 @@ public class Client {
 
     }
 
-
     public static boolean isAiming() {
         return WEAPON_STATUS.isAiming();
     }
@@ -260,17 +235,4 @@ public class Client {
         return (System.nanoTime() - WEAPON_STATUS.lastShoot) * 1e-9f;
     }
 
-//    public static void syncGunHeatData(SyncHeatDataPacket packet) {
-//        LocalPlayer player = Minecraft.getInstance().player;
-//        if (player != null) {
-//            ItemStack mainHandItem = player.getMainHandItem();
-//            if (mainHandItem.getItem() instanceof GunItem gunItem) {
-//                IGun gun = gunItem.getGun();
-//                String identityID = gun.getIdentityID(mainHandItem);
-//                if (Objects.equals(identityID, packet.gunId)) {
-//                    gun.setCurrHeat(mainHandItem, packet.heat, packet.lastHeatUpdateTime, packet.lastShootTime);
-//                }
-//            }
-//        }
-//    }
 }

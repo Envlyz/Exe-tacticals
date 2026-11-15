@@ -42,24 +42,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * 挂载式榴弹发射器（枪管下挂副武器）的公共实现。
- *
- * <p>M203 与 GP25 的全部行为都是共享的，只有四件事随型号变化，由子类提供：</p>
- * <ul>
- *     <li>{@link #getFireSound()} —— 客户端与服务端开火音效；</li>
- *     <li>{@link #getProjectileModelType()} —— 生成的 {@link GrenadeEntity} 外观；</li>
- *     <li>{@link #getChamberStatusAfterFire()} —— 击发后的弹膛状态
- *         （M203 是 {@code fired}，GP25 直接回到 {@code empty}）；</li>
- *     <li>{@link #getCheckAnimationName()} —— 检视动画名。</li>
- * </ul>
- *
- * <p>子类只需要声明自己实现的型号视图接口，其余（按键、装填、开火、广播、tooltip）全部继承。</p>
- */
 public abstract class GrenadeLauncher extends SubWeapon
         implements IVoxelHandlerModule, IArmHandlerModular, IStateModular, IGrenadeLauncherView {
 
-    /** 检视（check）动作的默认动画名。 */
     public static final String DEFAULT_CHECK_ANIMATION = "check_grenade";
 
     private final IVoxelHandler voxelHandler;
@@ -94,28 +79,15 @@ public abstract class GrenadeLauncher extends SubWeapon
         this.explodeRadius = explodeRadius;
     }
 
-    // ==================== 型号差异 ====================
-
-    /** 开火音效（客户端与服务端共用）。 */
     protected abstract SoundEvent getFireSound();
 
-    /** 生成的榴弹实体外观类型。 */
     protected abstract int getProjectileModelType();
 
-    /**
-     * 击发后写入弹膛 states 的状态。
-     *
-     * @see IGrenadeLauncherView#CHAMBER_EMPTY
-     * @see IGrenadeLauncherView#CHAMBER_LOADED
-     */
     protected abstract String getChamberStatusAfterFire();
 
-    /** 检视动作使用的动画名，对应状态视图/控制器里注册的检视动画。 */
     protected String getCheckAnimationName() {
         return DEFAULT_CHECK_ANIMATION;
     }
-
-    // ==================== 模块接口 ====================
 
     @Override
     public IVoxelHandler getHandler() {
@@ -146,8 +118,6 @@ public abstract class GrenadeLauncher extends SubWeapon
         return CHAMBER_STATUS.get(states);
     }
 
-    // ==================== 服务端 ====================
-
     @Override
     public void serverReload(SubWeaponReloadPacket packet, ItemStack itemStack, ServerPlayer player, IGun gun, SubWeapon subWeapon) {
         CompoundTag nodeStatesTag = gun.getNodeStatesTag(itemStack, packet.nodeId);
@@ -177,7 +147,6 @@ public abstract class GrenadeLauncher extends SubWeapon
 
         int latency = player.latency;
         ModSounds.sound(3F, (float) (0.9f + Math.random() * 0.1f), player, getFireSound());
-        // 广播开火事件
         GCRNetwork.sendToPlayersTrackingEntity(player, new BroadcastLivingFirePacket(
                 player.getId(),
                 packet.nodeId,
@@ -185,8 +154,6 @@ public abstract class GrenadeLauncher extends SubWeapon
                 latency
         ));
     }
-
-    // ==================== 客户端 ====================
 
     @OnlyIn(Dist.CLIENT)
     @Override
@@ -240,7 +207,6 @@ public abstract class GrenadeLauncher extends SubWeapon
         CHAMBER_STATUS.set(getChamberStatusAfterFire(), states);
     }
 
-    /** 开火/装填/检视前退出疾跑，并判断当前是否不该执行开火。 */
     @OnlyIn(Dist.CLIENT)
     protected boolean shouldNotHandleShoot() {
         SprintingHandler.INSTANCE.exitSprinting(20);
@@ -251,8 +217,6 @@ public abstract class GrenadeLauncher extends SubWeapon
     private void clearCheckTrack() {
         Client.getGunRenderer().dispatchAnimationEvent(EventType.CLEAR_TRACK, Map.of("name", "check"));
     }
-
-    // ==================== Tooltip ====================
 
     @Override
     public void appendHoverText(ItemStack stack, net.minecraft.world.level.Level context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {

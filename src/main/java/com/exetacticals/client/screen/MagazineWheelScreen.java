@@ -26,31 +26,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Adaptive radial magazine picker: equal angular petals for 1..8 distinct
- * loaded magazine variants, grouping physically equivalent magazines by
- * module type, round count, capacity and canonical cartridge composition.
- * One original inventory slot / ItemStack snapshot is retained per petal
- * for the existing server-authoritative selected reload validation.
- */
 public final class MagazineWheelScreen extends Screen {
     private static final int PAGE_SIZE = 8;
     private static final double TWO_PI = Math.PI * 2.0;
     private static final double CANCEL_RADIUS = 43.0;
     private static final double PETAL_INNER_RADIUS = 50.0;
-    /** вид как у колеса Inventory (Desktop/Inventory, Inventorywheel): чёрный сектор с альфой 235 */
     private static final int SECTOR = 0xEB000000;
-    /** выбранный сектор: от почти чёрного у центра к бирюзовому на внешнем краю */
     private static final int SELECT_INNER = 0xEB000101;
     private static final int SELECT_OUTER = 0xFF02D3AC;
     private static final int LABEL_SELECTED = 0xFFFFFF00;
     private int soundHovered = -2;
-    /** модель магазина в лепестке — во сколько раз больше обычной иконки 16 px; масштаб подписей */
     private static final float ITEM_SCALE = 2.0f;
-    /** размеры шрифта подписей (MSDF, как в тултипах и верстаке), GUI */
     private static final float NAME_SIZE = 8.5f;
     private static final float SMALL_SIZE = 7.5f;
-    /** высота строк названия и мелких подписей */
     private static final int NAME_LINE = 10;
     private static final int SMALL_LINE = 9;
 
@@ -63,7 +51,6 @@ public final class MagazineWheelScreen extends Screen {
         return f == null ? font.width(s) * size / 9f : f.width(s, size);
     }
 
-    /** Обрезает строку до {@code max} единиц GUI, добавляя «…». */
     private String ellipsize(String s, float max, float size, boolean medium) {
         if (textWidth(s, size, medium) <= max) return s;
         String cut = s;
@@ -76,10 +63,6 @@ public final class MagazineWheelScreen extends Screen {
     private static final int AMMO_BALL_COLOR = 0xFFF0C94A;
     private static final int AMMO_TRACER_COLOR = 0xFFFF5A46;
 
-    /**
-     * Строка состава: «обыч. 20 · трас. 10» (обычные жёлтым, трассеры красным, в порядке расхода).
-     * Если не влезает — только числа «20 · 10» теми же цветами.
-     */
     private void ammoLine(GuiGraphics gfx, int ball, int tracers, float cx, float top, float max) {
         String ballName = Component.translatable("exe_tacticals.wheel.ammo_ball").getString();
         String tracerName = Component.translatable("exe_tacticals.wheel.ammo_tracer").getString();
@@ -112,7 +95,6 @@ public final class MagazineWheelScreen extends Screen {
         }
     }
 
-    /** Строка по центру {@code cx}, верх строки — {@code top}; MSDF-шрифт с тенью (без шрифта — ванильный). */
     private void label(GuiGraphics gfx, String text, float cx, float top, float size, int color, boolean medium) {
         var f = msdf(medium);
         if (f == null) {
@@ -128,7 +110,6 @@ public final class MagazineWheelScreen extends Screen {
         f.draw(gfx, net.minecraft.util.FormattedCharSequence.forward(text, net.minecraft.network.chat.Style.EMPTY),
                 cx - w / 2f, top + f.ascent(size), size, color, true);
     }
-    /** бирюзовый акцент, как у колеса Inventory */
     private static final float[] ACCENT_RGB = {0.008f, 0.827f, 0.675f};
     private final GuiPanelRender.Fade[] petalFade = new GuiPanelRender.Fade[PAGE_SIZE];
     private final GuiPanelRender.Fade centerFade = new GuiPanelRender.Fade(14f);
@@ -204,12 +185,6 @@ public final class MagazineWheelScreen extends Screen {
         return false;
     }
 
-    /**
-     * The open Screen releases mouse capture, so looking around stays blocked.
-     * Minecraft also releases KeyMappings on opening a GUI: re-synchronize
-     * only movement keys with the physical keyboard every GUI tick.
-     * Firing, item use and other gameplay actions remain unavailable.
-     */
     private static void mirrorMovementKey(KeyMapping mapping, long window) {
         InputConstants.Key key = mapping.getKey();
         if (key.getType() == InputConstants.Type.KEYSYM && key.getValue() >= 0) {
@@ -260,8 +235,6 @@ public final class MagazineWheelScreen extends Screen {
             hovered = -1;
             return;
         }
-        // The nearest sector is selected even beyond the wheel's edge, making
-        // long mouse gestures reliable. Only the center represents cancellation.
         double angle = Math.atan2(dx, -dy);
         if (angle < 0) angle += TWO_PI;
         int n = displayed();
@@ -269,7 +242,6 @@ public final class MagazineWheelScreen extends Screen {
         hovered = page * PAGE_SIZE + index;
     }
 
-    /** звук при смене лепестка (как в колесе Inventory) */
     private void playHoverSound() {
         int now = cancelHover ? -1 : hovered;
         if (now != soundHovered) {
@@ -285,7 +257,6 @@ public final class MagazineWheelScreen extends Screen {
     protected void init() {
         super.init();
         if (minecraft != null) {
-            // курсор не рисуется — выбор по направлению мыши, как в колесе Inventory
             org.lwjgl.glfw.GLFW.glfwSetInputMode(minecraft.getWindow().getWindow(),
                     org.lwjgl.glfw.GLFW.GLFW_CURSOR, org.lwjgl.glfw.GLFW.GLFW_CURSOR_HIDDEN);
         }
@@ -382,14 +353,12 @@ public final class MagazineWheelScreen extends Screen {
         return out;
     }
 
-    /** Сектор с радиальным градиентом: цвет {@code innerColor} у внутреннего края, {@code outerColor} — у внешнего. */
     private static void ringGradient(BufferBuilder b, double cx, double cy, double inner, double outer,
                                      double start, double stop, int innerColor, int outerColor) {
         int rings = 10;
         for (int k = 0; k < rings; k++) {
             double r0 = inner + (outer - inner) * k / rings;
             double r1 = inner + (outer - inner) * (k + 1) / rings;
-            // как в текстуре wheelselect.png: бирюзовый набирается к краю (≈ t^2)
             int c0 = lerpColor(innerColor, outerColor, Math.pow((double) k / rings, 2.0));
             int c1 = lerpColor(innerColor, outerColor, Math.pow((double) (k + 1) / rings, 2.0));
             int steps = Math.max(8, (int) Math.ceil((stop - start) / Math.toRadians(4)));
@@ -450,11 +419,6 @@ public final class MagazineWheelScreen extends Screen {
         RenderSystem.disableBlend();
     }
 
-    /**
-     * Колесо шейдером {@code radial_wheel}: стеклянные лепестки со скруглёнными углами и зазорами,
-     * у выбранного — градиент к бирюзовому, свечение и яркая кромка (плавно), центр — кнопка отмены.
-     * Без шейдера — прежняя геометрия ({@link #renderSectors}).
-     */
     private boolean renderWheelShader(GuiGraphics gfx, int cx, int cy, double outer) {
         ShaderInstance shader = com.exetacticals.client.render.Shaders.radialWheel;
         if (shader == null) {
@@ -509,7 +473,6 @@ public final class MagazineWheelScreen extends Screen {
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         updateHovered(mouseX, mouseY);
         playHoverSound();
-        // без затемнения фона — видно игру, как в колесе Inventory
 
         int cx = width / 2, cy = height / 2;
         double r = outerRadius();
@@ -523,14 +486,12 @@ public final class MagazineWheelScreen extends Screen {
             MagazineGroup group = groups.get(page * PAGE_SIZE + i);
             var choice = group.selected();
             double a = TWO_PI * i / n;
-            // центр лепестка
             double mid = (PETAL_INNER_RADIUS + r) / 2.0;
             int tx = cx + (int) Math.round(Math.sin(a) * mid);
             int ty = cy - (int) Math.round(Math.cos(a) * mid);
 
             ItemStack display = choice.snapshot();
             boolean selected = !cancelHover && hovered == page * PAGE_SIZE + i;
-            // состав: обычные / трассеры (неизвестные патроны считаем обычными)
             int tracers = 0;
             if (display.getItem() instanceof MagazineItem magItem) {
                 var types = magItem.getRoundTypes(display);
@@ -541,8 +502,6 @@ public final class MagazineWheelScreen extends Screen {
             boolean showAmmo = choice.rounds() > 0;
             int lines = (group.quantity() > 1 ? 3 : 2) + (showAmmo ? 1 : 0);
 
-            // Сколько места у блока «модель + подписи» в лепестке. Блок не повёрнут, лепесток — под углом a:
-            // по радиусу помещается глубина лепестка, поперёк — хорда (у внутреннего края уже, берём с запасом).
             double depth = r - PETAL_INNER_RADIUS - 8;
             double chord = n == 1 ? 2 * mid : 2 * (mid * 0.82 * Math.sin(Math.PI / n)) - 8;
             double sinA = Math.abs(Math.sin(a)), cosA = Math.abs(Math.cos(a));
@@ -551,7 +510,6 @@ public final class MagazineWheelScreen extends Screen {
             double blockH = 0;
             for (int attempt = 0; attempt < 6; attempt++) {
                 blockH = 16 * itemScale + 2 + NAME_LINE + (lines - 1) * SMALL_LINE;
-                // размер блока по радиусу: textW*sinA + blockH*cosA ≤ depth; поперёк: textW*cosA + blockH*sinA ≤ chord
                 double byDepth = sinA < 1e-3 ? 1e4 : (depth - blockH * cosA) / sinA;
                 double byChord = cosA < 1e-3 ? 1e4 : (chord - blockH * sinA) / cosA;
                 textW = Math.min(Math.min(byDepth, byChord), 130);
@@ -584,7 +542,6 @@ public final class MagazineWheelScreen extends Screen {
             }
         }
 
-        // The center uses the SAME golden hover state as magazine petals.
         label(gfx, "R", cx, cy - 13, 11f, GcrUITheme.AMBER, true);
         label(gfx, ellipsize(Component.translatable("exe_tacticals.wheel.cancel").getString(),
                         (float) (CANCEL_RADIUS * 1.6), SMALL_SIZE, false), cx, cy + 2, SMALL_SIZE,

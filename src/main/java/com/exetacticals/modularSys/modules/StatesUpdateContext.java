@@ -18,7 +18,6 @@ public class StatesUpdateContext {
     private ShadowNode thisNode;
     private CompoundTag thisStatesData;
 
-
     public StatesUpdateContext(IGun gun, ShadowNode root, CompoundTag statesData) {
         this.gun = gun;
         this.root = root;

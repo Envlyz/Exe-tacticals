@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
-
 @OnlyIn(Dist.CLIENT)
 public class MuzzleFlashTexture {
     private static final float BASE_ALPHA = 0.9f;
@@ -22,7 +21,6 @@ public class MuzzleFlashTexture {
     private final RenderType renderType;
 
     public MuzzleFlashTexture(ResourceLocation texture, int count) {
-        //quadSize = 1f / count;
         this.count = count;
         this.renderType = RenderTypes.getMuzzleFlash(texture);
     }
@@ -31,10 +29,6 @@ public class MuzzleFlashTexture {
         return count;
     }
 
-    /**
-     * @return 实际写入的 {@link RenderType}，没有画则返回 null
-     *         （调用方拿到后可以立即 {@code bufferSource.endBatch(renderType)}，保证绘制顺序 = 排序顺序）
-     */
     @Nullable
     public RenderType render(int index, PoseStack.Pose pose, MultiBufferSource buffer, boolean isFirstPerson) {
         if (index >= 0 && index < count) {

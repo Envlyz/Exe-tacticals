@@ -9,7 +9,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-/** Shared client/server obstacle ray: never trusts a client-supplied bullet direction. */
 public final class AftermatchWallTuck {
     public record State(float progress, float distance, float raiseDegrees, boolean fireBlocked) {
         public static final State CLEAR = new State(0f, Float.POSITIVE_INFINITY, 0f, false);

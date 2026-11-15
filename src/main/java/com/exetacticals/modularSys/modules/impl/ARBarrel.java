@@ -25,7 +25,6 @@ public class ARBarrel extends SlotProviderModule implements IVoxelHandlerModule,
 
     }
 
-    //中性
     public ARBarrel(ResourceLocation id, float weight, float spreadDec, float heatSensitive,
                     ISlotProvider slotProvider, IVoxelHandler voxelHandler) {
         this(id, weight, spreadDec, heatSensitive, 0, 0, 0, 0, slotProvider, voxelHandler);

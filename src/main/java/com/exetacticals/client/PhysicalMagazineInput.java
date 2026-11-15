@@ -25,14 +25,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
 
-/**
- * R on guns: double-tap removes magazine, then double-tap again (with no
- * magazine) ejects the chambered round. A short hold + release quick-reloads;
- * a longer hold opens the radial selector, whose selection commits on R release.
- * A jammed gun takes precedence: a single R press starts full jam clearing.
- * The action continues after R is released.
- * Loose magazines are loaded in the inventory (see MagazineItem), not by holding keys.
- */
 public final class PhysicalMagazineInput {
     private static final int DOUBLE_TAP = 8;
     private static final int HOLD = 10;
@@ -81,7 +73,6 @@ public final class PhysicalMagazineInput {
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.screen instanceof MagazineWheelScreen wheel) {
-            // Screen owns the mouse and the R-release event while it is open.
             if (!mc.isWindowActive() || mc.player == null) wheel.onClose();
             return;
         }
@@ -96,8 +87,6 @@ public final class PhysicalMagazineInput {
             pendingAction = -1;
             tapWindow = 0;
             trackedGunId = "";
-            // Зарядка/разрядка магазина — в инвентаре (ПКМ магазином по патронам / по пустому слоту),
-            // см. MagazineItem.overrideStackedOnOther; удержание R/ПКМ с магазином в руке больше ничего не делает.
             heldTicks = 0;
             unloadHeldTicks = 0;
             wasDown = down;
@@ -131,8 +120,6 @@ public final class PhysicalMagazineInput {
             }
         }
 
-        // GUI key-release can arrive before the KeyMapping updates: never treat
-        // the residual held key as a new tap or a second reload.
         if (suppressUntilRelease) {
             if (!down) {
                 suppressUntilRelease = false;
@@ -140,7 +127,6 @@ public final class PhysicalMagazineInput {
             }
             return;
         }
-        // The task owns the animation independently of the key-up event.
         if (clearingJam && !GunTaskHandler.INSTANCE.hasTask()) {
             clearingJam = false;
         }
@@ -150,7 +136,6 @@ public final class PhysicalMagazineInput {
             heldTicks = 0;
             consumedHold = false;
             if (ClientGunStuckCache.get().isStuck(stack, gun)) {
-                // Jammed R takes precedence over all reload gestures, immediately.
                 consumedHold = true;
                 secondTap = false;
                 tapWindow = 0;
@@ -168,8 +153,6 @@ public final class PhysicalMagazineInput {
         if (down) {
             heldTicks++;
             if (!clearingJam && !consumedHold && heldTicks >= RADIAL_HOLD && pendingAction == -1) {
-                // No reload is executed at the hold threshold. Releasing R over
-                // a wheel entry will commit one specifically chosen magazine.
                 List<MagazineChoice> choices = availableMagazines(gun, stack);
                 consumedHold = true;
                 secondTap = false;
@@ -187,7 +170,6 @@ public final class PhysicalMagazineInput {
         }
 
         if (!down && wasDown) {
-            // A normal key release must never cancel the unjam animation.
             if (!clearingJam && !consumedHold) {
                 if (secondTap && heldTicks < HOLD) {
                     tapWindow = 0;
@@ -210,8 +192,6 @@ public final class PhysicalMagazineInput {
 
     private static void beginMagazine(IGun gun, ItemStack stack, int action, MagazineChoice selected) {
         if (Client.WEAPON_STATUS == null || !Client.WEAPON_STATUS.isHoldingGun()) return;
-        // Do not queue another command while an earlier reload animation is still
-        // waiting to apply its server-authoritative magazine/chamber change.
         if (pendingAction != -1) return;
         String identity = gun.getIdentityID(stack);
         if (identity == null || IGun.NONE.equals(identity)) return;
@@ -219,16 +199,11 @@ public final class PhysicalMagazineInput {
         if (action == PhysicalMagazinePacket.INSERT && availableMagazines(gun, stack).isEmpty()) return;
         if (action == PhysicalMagazinePacket.SELECTED_INSERT && selected == null) return;
 
-        // REMOVE means "unload one stage": magazine first, then the chamber on
-        // the next double-R. Server repeats the check to prevent duplication.
         boolean ejectChamber = false;
         if (action == PhysicalMagazinePacket.REMOVE && gun instanceof ISlottedGun slotted) {
             ejectChamber = slotted.getMagAttachment(stack) == null;
             if (ejectChamber && slotted.getGunAmmoLeft(stack) <= 0) return;
         }
-        // A dedicated eject_round clip does not exist yet. All five guns
-        // already register check_chamber, which is a safe temporary bolt-action
-        // animation; no missing-animation key is ever dispatched.
         boolean replacing = gun instanceof ISlottedGun slotted && slotted.getMagAttachment(stack) != null;
         String animation = action == PhysicalMagazinePacket.REMOVE
                 ? (ejectChamber ? "check_chamber" : "mag_reload")
@@ -242,7 +217,6 @@ public final class PhysicalMagazineInput {
         pendingSnapshot = selected == null ? ItemStack.EMPTY : selected.snapshot().copy();
     }
 
-    /** A wheel entry refers to one exact vanilla inventory slot and NBT snapshot. */
     public record MagazineChoice(int slot, ItemStack snapshot, String magazineType, int rounds, int capacity) {}
 
     public static List<MagazineChoice> availableMagazines(IGun gun, ItemStack gunStack) {
@@ -268,15 +242,11 @@ public final class PhysicalMagazineInput {
                 result.add(new MagazineChoice(slot, candidate.copy(), mag.getID(), rounds, magazine.capacity()));
             }
         } catch (Exception ignored) {
-            // On partial equipment synchronization, do not make an unsafe guess.
         }
         return result;
     }
 
-    /** Called only by the radial GUI on R-release (or cancellation). */
     public static void onWheelClosed(String gunIdentity, MagazineChoice choice) {
-        // Vanilla may not propagate key-up events to KeyMapping while a Screen
-        // captures the keyboard. Explicitly release R to avoid a stuck hold.
         net.minecraft.client.KeyMapping.set(KeyBinds.RELOAD.getKey(), false);
         tapWindow = 0;
         secondTap = false;

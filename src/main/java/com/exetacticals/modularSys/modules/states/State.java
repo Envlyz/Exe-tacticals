@@ -14,7 +14,6 @@ public abstract class State<T> {
         this.defaultValue = defaultValue;
     }
 
-
     public T getDefaultValue() {
         return defaultValue;
     }

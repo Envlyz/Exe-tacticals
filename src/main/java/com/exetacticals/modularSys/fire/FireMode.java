@@ -1,6 +1,5 @@
 package com.exetacticals.modularSys.fire;
 
-
 import com.exetacticals.Client;
 import com.exetacticals.client.render.AftermatchWeaponMotion;
 import com.exetacticals.Utils;
@@ -50,21 +49,11 @@ public abstract class FireMode<T extends IGun> implements IFireMode<T>{
     @OnlyIn(Dist.CLIENT)
     protected abstract FireControl onClientIntentToFire(Player player, ItemStack stack, T gun);
 
-    /**
-     * 取下一个开火 id。与发包分离是为了让调用方能在发包之前先把本地卡壳预测登记好，
-     * 否则服务端极快地回执时会出现“回执先到、预测后登记”的竞态。
-     */
     @OnlyIn(Dist.CLIENT)
     protected static int nextShootId() {
         return Client.CLIENT_SHOOT_ID.incrementAndGet();
     }
 
-    /**
-     * 把这一发发给服务端。
-     *
-     * @param stuck 客户端在开火那一刻判定的卡壳结果，服务端校验后直接采信
-     * @param gunId 开火时手持枪的 identityID，服务端据此确认这一发属于哪把枪
-     */
     @OnlyIn(Dist.CLIENT)
     protected void sendPacket(int shootId, boolean stuck, String gunId) {
         IRecoilUpdater recoilUpdater = RecoilHandler.INSTANCE.getRecoilUpdater();

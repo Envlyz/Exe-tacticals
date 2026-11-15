@@ -38,7 +38,6 @@ public class NumProp extends Prop {
         ratio.set(r, tag);
     }
 
-
     @Override
     public float get(CompoundTag properties) {
         float r = getRatio(properties);
@@ -66,7 +65,6 @@ public class NumProp extends Prop {
         r = Mth.clamp(r - decRate, minRatio, maxRatio);
         ratio.set(r, tag);
     }
-
 
     @Override
     public void writeToJson(JsonObject jsonObject) {

@@ -18,10 +18,6 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-/**
- * 最小的 glTF 2.0 (.gltf, JSON) 读取器，只实现模型加载需要的部分：
- * 节点、网格、蒙皮和 accessor 数据（base64 内嵌或相对路径的外部 .bin）。
- */
 @OnlyIn(Dist.CLIENT)
 public class GltfDocument {
     public static final int BYTE = 5120;
@@ -54,7 +50,6 @@ public class GltfDocument {
         }
     }
 
-    /** 从已经打开的流解析（不关闭流）。 */
     public static GltfDocument parse(ResourceLocation location, InputStream stream) throws IOException {
         JsonObject json = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
         return new GltfDocument(location, json);
@@ -97,12 +92,10 @@ public class GltfDocument {
         return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
     }
 
-    /** accessor 的元素数量 */
     public int count(int accessorIndex) {
         return array("accessors").get(accessorIndex).getAsJsonObject().get("count").getAsInt();
     }
 
-    /** 每个元素的分量数（SCALAR=1, VEC2=2 ...） */
     public int components(int accessorIndex) {
         String type = array("accessors").get(accessorIndex).getAsJsonObject().get("type").getAsString();
         return switch (type) {
@@ -116,7 +109,6 @@ public class GltfDocument {
         };
     }
 
-    /** 把 accessor 读成 float 数组（整数类型按原值读取，normalized 时按规范归一化）。 */
     public float[] readFloats(int accessorIndex) {
         JsonObject accessor = array("accessors").get(accessorIndex).getAsJsonObject();
         int count = accessor.get("count").getAsInt();
@@ -125,7 +117,7 @@ public class GltfDocument {
         boolean normalized = accessor.has("normalized") && accessor.get("normalized").getAsBoolean();
         float[] out = new float[count * components];
         if (!accessor.has("bufferView")) {
-            return out; // 规范：没有 bufferView 时数据全为 0
+            return out;
         }
         View view = view(accessor, componentType, components);
         for (int i = 0; i < count; i++) {
@@ -147,7 +139,6 @@ public class GltfDocument {
         return out;
     }
 
-    /** 把整数类型的 accessor（索引、骨骼编号）读成 int 数组。 */
     public int[] readInts(int accessorIndex) {
         JsonObject accessor = array("accessors").get(accessorIndex).getAsJsonObject();
         int count = accessor.get("count").getAsInt();

@@ -56,9 +56,7 @@ public class GunModifyContext {
 
     private static final Vector3f OUT_SCREEN = new Vector3f(Float.NaN, Float.NaN, Float.NaN);
 
-    /** 判断导轨朝向时沿导轨采样的距离（单位：方块） */
     private static final float RAIL_DIRECTION_SAMPLE_STEP = 0.05f;
-    /** 导轨在屏幕上的最小水平位移（像素），低于该值认为水平方向无法判断 */
     private static final float RAIL_DIRECTION_MIN_SCREEN_DELTA = 0.5f;
 
     public ItemStack itemStack;
@@ -76,7 +74,6 @@ public class GunModifyContext {
     private final Map<SlotInstance, Matrix4f> slotRenderPos = new HashMap<>();
     private final Map<ModuleRenderNode, Node> renderNodeToNode = new HashMap<>();
 
-
     private ModuleRenderNode selectedRenderNode;
     private Node selectedNode;
     private SlotInstance selectedSlot;
@@ -92,8 +89,6 @@ public class GunModifyContext {
     private int lastMutateId;
 
     private boolean collisionDirty = false;
-    // Memoized once per work-space change so rendering 60+ FPS never runs
-    // the physics simulation for rails every frame.
     private final Map<SlotInstance, Boolean> railRoomCache = new IdentityHashMap<>();
     private int railRoomRevision = Integer.MIN_VALUE;
 
@@ -112,14 +107,7 @@ public class GunModifyContext {
         return RailSpace.findPosition((WorkSpace) builder.getWorkspace(), slot, module) >= 0f;
     }
 
-
-    /**
-     * 导轨移动方向：
-     * +1 表示 scrollbar 值增大时模块在屏幕上向右移动，可以直接映射；
-     * -1 表示模块在屏幕上向左移动，需要把 scrollbar 的值反转后再映射到导轨上。
-     */
     private int railScrollSign = 1;
-    /** 模型姿态变化导致导轨方向翻转时置位，等待 tick 中重新同步 scrollbar 的位置 */
     private boolean railScrollResyncPending = false;
 
     public GunModifyContext(ItemStack itemStack) {
@@ -159,15 +147,10 @@ public class GunModifyContext {
         return selectedSlot;
     }
 
-    /** Слот, к которому относится выделение: выбранный пустой слот или слот выбранного модуля. */
     public SlotInstance getActiveSlot() {
         return selectedNode != null ? selectedNode.getBelongsTo() : selectedSlot;
     }
 
-    /**
-     * Выделение в виде, который переживает пересборку дерева после ответа сервера:
-     * id выбранного узла либо id узла-владельца выбранного слота + имя слота.
-     */
     public record Selection(String nodeId, String slotOwnerId, String slotName) {}
 
     public Selection saveSelection() {
@@ -188,7 +171,6 @@ public class GunModifyContext {
         return null;
     }
 
-    /** Дев-инструмент: выбрать по имени слота пустой слот или модуль, который в нём стоит. */
     public boolean debugSelectSlot(String slotName) {
         for (Map.Entry<ModuleRenderNode, Node> entry : renderNodeToNode.entrySet()) {
             Node node = entry.getValue();
@@ -212,7 +194,6 @@ public class GunModifyContext {
         return false;
     }
 
-    /** Выбирает то, что описал {@link #saveSelection}, если оно ещё есть в этом дереве. */
     public void restoreSelection(Selection selection) {
         String id = selection.nodeId() != null ? selection.nodeId() : selection.slotOwnerId();
         Node[] found = {null};
@@ -240,7 +221,6 @@ public class GunModifyContext {
         }
     }
 
-
     public boolean addUnit(IModular modular) {
         if (selectedSlot == null) return false;
         WorkSpace workspace = (WorkSpace) builder.getWorkspace();
@@ -250,8 +230,6 @@ public class GunModifyContext {
 
         final boolean[] added = {false};
         builder.getWorkspace().addChild(target, modular).ifPresentOrElse(unit -> {
-            // A newly installed rail module is moved to its physically free
-            // segment BEFORE rebuilding the model and opening its slider.
             if (target.getSlot() instanceof IRail rail) {
                 rail.setChildPosition(unit, accessor, freePosition);
                 workspace.increaseMutateId();
@@ -399,12 +377,6 @@ public class GunModifyContext {
         }
     }
 
-
-    /**
-     * scrollbar 的值 -> 模块在导轨上的位置。
-     * 模型被旋转后模块在屏幕上的移动方向会和 scrollbar 滑块相反，
-     * 这里根据当前视角下导轨的朝向决定是否需要把值反转。
-     */
     public void trySetSelectedNodePos(float scrollValue) {
         if (selectedNode == null || selectedNode.isFixedPosition() || selectedRenderNode == null) {
             return;
@@ -421,28 +393,20 @@ public class GunModifyContext {
         }
     }
 
-    /** 导轨上的归一化位置 -> scrollbar 的值（与 {@link #scrollValueToRailPos} 互为逆运算） */
     public float railPosToScrollValue(float railPos) {
         return railScrollSign >= 0 ? railPos : 1f - railPos;
     }
 
-    /** scrollbar 的值 -> 导轨上的归一化位置 */
     public float scrollValueToRailPos(float scrollValue) {
         return railScrollSign >= 0 ? scrollValue : 1f - scrollValue;
     }
 
-    /** 模型姿态变化使导轨方向翻转时返回 true，调用方需要重新同步 scrollbar 的位置 */
     public boolean consumeRailScrollResync() {
         boolean pending = railScrollResyncPending;
         railScrollResyncPending = false;
         return pending;
     }
 
-    /**
-     * 根据当前渲染出的槽位姿态更新导轨的移动方向。
-     * 槽位骨骼的局部 +Z 是模块移动的正方向，而导轨位置增大时模块向局部 -Z 移动，
-     * 所以采样两点比较它们在屏幕上的水平位移即可得到方向和 scrollbar 是否一致。
-     */
     private void updateRailScrollSign() {
         if (selectedNode == null || selectedNode.isFixedPosition()) {
             return;
@@ -465,9 +429,6 @@ public class GunModifyContext {
         }
     }
 
-    /**
-     * 返回 +1 表示导轨位置增大时模块在屏幕上向右移动，-1 表示向左移动，0 表示无法判断。
-     */
     private int computeRailScrollSign(Matrix4f slotPose, float zOffset) {
         Matrix4f from = new Matrix4f(slotPose).translate(0, 0, zOffset);
         Matrix4f to = new Matrix4f(slotPose).translate(0, 0, zOffset - RAIL_DIRECTION_SAMPLE_STEP);
@@ -566,17 +527,12 @@ public class GunModifyContext {
         handler.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
-
     private BiConsumer<Node, SlotInstance> onSelectionChange = (node, slot) -> {};
 
     public void setOnSelectionChange(BiConsumer<Node, SlotInstance> onSelectionChange) {
         this.onSelectionChange = onSelectionChange;
     }
 
-
-
-    // Physical magazines are handled with R, not through this UI.
-    // Hide the empty MAG slot and installed magazine markers, including clicks.
     private static boolean isPhysicalMagazineSlot(SlotInstance slot) {
         return slot != null && "MAG".equals(slot.slotName());
     }
@@ -658,7 +614,6 @@ public class GunModifyContext {
         return false;
     }
 
-    /** радиус, в котором клик попадает в точку модуля / слота на модели (единицы GUI) */
     private static final float NODE_HIT_RADIUS = 4.5f;
     private static final float SLOT_HIT_RADIUS = 5.5f;
 
@@ -667,7 +622,6 @@ public class GunModifyContext {
         double scale = mc.getWindow().getGuiScale();
         float mouseX = (float) (mc.mouseHandler.xpos() / scale);
         float mouseY = (float) (mc.mouseHandler.ypos() / scale);
-        // пульс выбранной точки
         float pulse = 0.5f + 0.5f * Mth.sin((System.currentTimeMillis() % 1400L) / 1400f * Mth.TWO_PI);
 
         if (renderNodeIcon) {
@@ -722,10 +676,6 @@ public class GunModifyContext {
         }
     }
 
-    /**
-     * 槽位已经被占满（不能再放入模块）。
-     * 占满的槽位不再渲染也不可点击，避免玩家误以为还能继续添加模块。
-     */
     public boolean isSlotOccupied(SlotInstance slot) {
         return !canAddToSlot(slot);
     }
@@ -811,7 +761,6 @@ public class GunModifyContext {
         }
         return res.get();
     }
-
 
     private static class CollisionRes{
         private final List<Pair<String, String>> nodesToNodes;

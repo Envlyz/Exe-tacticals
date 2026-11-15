@@ -1,4 +1,3 @@
-
 package com.exetacticals.client.recoil;
 
 import org.jetbrains.annotations.NotNull;
@@ -11,8 +10,8 @@ public final class FixedRingQueue<T> implements Iterable<T> {
     private final int capacity;
     private final Object[] buffer;
 
-    private int head = 0; // 指向最旧元素
-    private int tail = 0; // 指向下一个写入位置
+    private int head = 0;
+    private int tail = 0;
     private int size = 0;
 
     public FixedRingQueue(int capacity) {
@@ -24,7 +23,6 @@ public final class FixedRingQueue<T> implements Iterable<T> {
         this.buffer = new Object[capacity];
     }
 
-    /** 入队（满时覆盖最旧元素） */
     public void offer(T value) {
         buffer[tail] = value;
         tail++;
@@ -44,7 +42,6 @@ public final class FixedRingQueue<T> implements Iterable<T> {
         }
     }
 
-    /** 出队 */
     @SuppressWarnings("unchecked")
     public T poll() {
         if (size == 0) {
@@ -62,7 +59,6 @@ public final class FixedRingQueue<T> implements Iterable<T> {
         return value;
     }
 
-    /** 查看队首元素 */
     @SuppressWarnings("unchecked")
     public T peek() {
         if (size == 0) {
@@ -72,7 +68,6 @@ public final class FixedRingQueue<T> implements Iterable<T> {
         return (T) buffer[head];
     }
 
-    /** 按插入顺序遍历（不移除元素） */
     @SuppressWarnings("unchecked")
     public void forEachOrdered(Consumer<? super T> action) {
         int index = head;
@@ -87,34 +82,28 @@ public final class FixedRingQueue<T> implements Iterable<T> {
         }
     }
 
-    /** 当前元素数量 */
     public int size() {
         return size;
     }
 
-    /** 是否为空 */
     public boolean isEmpty() {
         return size == 0;
     }
 
-    /** 是否已满 */
     public boolean isFull() {
         return size == capacity;
     }
 
-    /** 队列容量 */
     public int capacity() {
         return capacity;
     }
 
-    /** 清空 */
     public void clear() {
         head = 0;
         tail = 0;
         size = 0;
     }
 
-    /** 按插入顺序的 Iterator（for-each 支持） */
     @Override
     public @NotNull Iterator<T> iterator() {
         return new Iterator<>() {

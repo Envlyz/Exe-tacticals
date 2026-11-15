@@ -18,11 +18,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-/**
- * TaCZ Additions-style, server-authoritative water entry / exit and underwater
- * bullet wake. Called from GCR's existing bullet sweep, with no changes to
- * trajectory, damage, collisions or bullet lifetime.
- */
 public final class GcrBulletWaterEffects {
     private static final double SAMPLE_STEP = 0.25;
     private static final int MAX_SAMPLES = 160;

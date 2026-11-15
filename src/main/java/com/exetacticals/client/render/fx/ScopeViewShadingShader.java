@@ -24,7 +24,6 @@ public class ScopeViewShadingShader {
 
     public static int programId = -1;
 
-    // Uniform locations
     public static int uResolutionLoc = -1;
     public static int uLensCenterLoc = -1;
     public static int uLensRadiusLoc = -1;
@@ -64,8 +63,6 @@ public class ScopeViewShadingShader {
         return sceneColorTarget.getColorTextureId();
     }
 
-
-    // fullscreen quad
     public static int vaoId = -1;
     public static int vboId = -1;
     public static int posLoc = -1;

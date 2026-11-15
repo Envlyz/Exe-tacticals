@@ -15,7 +15,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.TickEvent;
 import com.exetacticals.network.GCRNetwork;
 
-
 public class PlayerStatusEvents {
 
     @SubscribeEvent
@@ -25,7 +24,6 @@ public class PlayerStatusEvents {
         PlayerCommonStatus status = ModData.get(player);
 
         if (player.level().isClientSide()) {
-            // --- 客户端逻辑：向服务器同步状态 ---
             if (status.dataChanged) {
                 GCRNetwork.sendToServer(new SyncPlayerStatusPacket(
                         status.getGcrCredit(),
@@ -34,7 +32,6 @@ public class PlayerStatusEvents {
                 status.dataChanged = false;
             }
         } else {
-            // --- 服务器逻辑：向客户端广播状态 ---
             if (status.dataChanged) {
                 GCRNetwork.sendToPlayersTrackingEntity(
                         player,
@@ -64,7 +61,7 @@ public class PlayerStatusEvents {
     }
 
     @SubscribeEvent
-    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {//server side
+    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         ServerPlayer player = (ServerPlayer) event.getEntity();
         if (!ModData.has(player)) {
             ModData.set(player, new PlayerCommonStatus());
@@ -83,8 +80,6 @@ public class PlayerStatusEvents {
             ModData.set(player, new PlayerCommonStatus());
         }
         PlayerCommonStatus data = ModData.get(player);
-        // Client packets must never change server-owned currency balances.
-        // Only the animation/reload state is accepted here.
         data.reloading = packet.isReloading;
         data.dataChanged = true;
     }

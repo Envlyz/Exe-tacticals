@@ -25,7 +25,6 @@ public class FabulousDepthTextureHandler {
     public static void update(RenderLevelStageEvent event) {
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER &&
                 Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
-            //merge depth for fabulous mode
             if (updateFrame && Minecraft.useShaderTransparency()) {
                 Minecraft minecraft = Minecraft.getInstance();
                 LevelRenderer levelRenderer = event.getLevelRenderer();

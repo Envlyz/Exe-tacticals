@@ -24,14 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-/**
- * Дев-инструмент: снимки экрана модификации оружия без ручного прохода.
- *
- * <p>С {@code -Dexe_tacticals.shotModify=true}: с главного меню загружает первый мир из {@code run/saves},
- * выдаёт игроку оружие ({@code -Dexe_tacticals.shotModifyGun=m4a1}) и все обвесы, открывает экран модификации,
- * выбирает слоты по очереди ({@code -Dexe_tacticals.shotModifySlots=SCOPE,MUZZLE}) и сохраняет
- * {@code run/screenshots/modify_N.png}. С {@code -Dexe_tacticals.shotModifyExit=true} потом закрывает игру.</p>
- */
 @OnlyIn(Dist.CLIENT)
 public final class ModifyScreenShot {
     private static final boolean ENABLED = Boolean.getBoolean("exe_tacticals.shotModify");
@@ -110,12 +102,10 @@ public final class ModifyScreenShot {
         }
     }
 
-    /** Снимок — в конце кадра, когда экран уже нарисован. */
     private static void onScreenRender(ScreenEvent.Render.Post event) {
         if (!shotPending || !(event.getScreen() instanceof GunModifyScreen)) {
             return;
         }
-        // кадр со свежим выделением: подождать ещё пару тиков после выбора
         shotPending = false;
         event.getGuiGraphics().flush();
         Minecraft mc = Minecraft.getInstance();

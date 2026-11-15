@@ -7,10 +7,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.event.TickEvent;
 
-
 public class GunHeatHandler {
-
-
 
     @SubscribeEvent
     public static void onServerPlayerTickPre(TickEvent.PlayerTickEvent event) {

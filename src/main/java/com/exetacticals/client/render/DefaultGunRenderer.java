@@ -89,7 +89,6 @@ public class DefaultGunRenderer implements IGunRenderer {
     private final List<DelayedEvent> delayedEvents = new ArrayList<>();
     private long fpRenderTimeStamp = 0;
 
-    /** FP 上下文尚未建立时排队的事件：参数必须一起排队，否则带参数的事件（如 SHOOT 的卡壳标记）会被丢掉。 */
     private record DelayedEvent(EventType type, @Nullable Map<String, String> params) {
     }
 
@@ -113,7 +112,6 @@ public class DefaultGunRenderer implements IGunRenderer {
         setUpLightDir();
         IGunModel gunModel = (IGunModel) ModuleModelRegister.get(gun);
         if (Client.isUsingIrisShader) {
-            //光影包下缩小模型，避免光影后处理出现问题
             firstPersonPoseStack.scale(0.25f, 0.25f, 0.25f);
         }
         HardCodeAnimationHandler.getInstance().applyTransformPre(firstPersonPoseStack, gun, partialTicks, player);
@@ -127,7 +125,6 @@ public class DefaultGunRenderer implements IGunRenderer {
         GunPoseHandler.INSTANCE.handleFirstPersonTransform(firstPersonPoseStack, displayData, partialTicks);
         firstPersonPoseStack.last().pose().getTranslation(GUN_LOCAL_POS);
         HardCodeAnimationHandler.getInstance().applyTransformPost(firstPersonPoseStack, gun, partialTicks, player);
-        // Aftermatch-only visual motion: affects gun and both animated hands.
         AftermatchWeaponMotion.INSTANCE.apply(firstPersonPoseStack, player, partialTicks);
 
         TEST_STACK.setIdentity();
@@ -207,7 +204,6 @@ public class DefaultGunRenderer implements IGunRenderer {
         }
     }
 
-
     @Override
     public void renderTickPre(float partialTicks) {
 
@@ -246,7 +242,6 @@ public class DefaultGunRenderer implements IGunRenderer {
             } else {
                 RenderEvents.setFinalStageDelayedRenderTask(() -> {
                     if (Minecraft.getInstance().screen instanceof com.exetacticals.client.screen.modify.GunModifyScreen) {
-                        // мир за оружием размывается здесь, пока оружия ещё нет в кадре
                         com.exetacticals.client.screen.GuiPanelRender.blurFrame(
                                 com.exetacticals.client.screen.modify.GunModifyScreen.BACKGROUND_BLUR,
                                 com.exetacticals.client.screen.modify.GunModifyScreen.BACKGROUND_TINT);
@@ -287,7 +282,6 @@ public class DefaultGunRenderer implements IGunRenderer {
         return TEST_STACK;
     }
 
-
     private void renderGunModifyScreen(ItemStack itemStack, IGun gun, ModuleRenderNode node,
                                        float x, float y, float rx, float ry, float scale, Consumer<ModifyScreenRenderContext> guiCallback, DisplayData displayData) {
         gunModifyPoseStack.setIdentity();
@@ -320,10 +314,6 @@ public class DefaultGunRenderer implements IGunRenderer {
         bulletShellHandlerNodeID = "";
     }
 
-    /**
-     * 让所有缓存了模型/渲染树的状态失效，下一次渲染会重新从 {@link com.exetacticals.client.model.modular.ModuleModelRegister}
-     * 取模型。热重载替换模型实例后必须调用，否则会继续绘制已经被释放的旧模型。
-     */
     @Override
     public void invalidateRenderCache() {
         clearCache();
@@ -460,8 +450,6 @@ public class DefaultGunRenderer implements IGunRenderer {
         if (cachedFPContext != null) {
             animationEventBus.dispatch(eventType, cachedFPContext, params);
         } else {
-            // 上下文还没建好（这一枪发生在第一帧渲染之前）：连参数一起排队，
-            // 否则带参数的事件会被静默丢掉——卡壳那一发就播不出 shoot_stuck 了。
             delayedEvents.add(new DelayedEvent(eventType, params));
         }
     }

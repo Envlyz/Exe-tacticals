@@ -1,6 +1,5 @@
 package com.exetacticals.modularSys.slot;
 
-
 import com.google.common.collect.ImmutableSet;
 import com.exetacticals.modularSys.Direction;
 import com.exetacticals.modularSys.IModular;

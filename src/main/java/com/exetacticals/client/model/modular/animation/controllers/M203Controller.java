@@ -5,10 +5,6 @@ import com.exetacticals.client.model.modular.modules.M203Model;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-/**
- * M203 的动画控制器。动画资源与 GP25 不同，其余行为继承
- * {@link GrenadeLauncherController}。
- */
 @OnlyIn(Dist.CLIENT)
 public class M203Controller extends GrenadeLauncherController<M203Model> {
 

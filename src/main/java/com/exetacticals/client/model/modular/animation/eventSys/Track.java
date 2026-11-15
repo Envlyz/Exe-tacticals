@@ -18,10 +18,6 @@ public class Track<T extends IModularModel> {
     private List<Consumer<IAnimationSequence>> onPlayedCallbacks;
     private List<AppliedCallback<T>> onAppliedCallbacks;
 
-    // 使用 ThreadLocal 保存每个线程独立的节点绑定名称，避免多线程环境下
-    // (例如渲染线程与其他并发线程同时调用 onUsingNode/getCurrName)
-    // 互相覆盖导致的 track 节点 id 绑定错乱问题。
-    // 初始值为 null，表示尚未绑定节点，此时 getCurrName() 回退到 name。
     private final ThreadLocal<String> currName = ThreadLocal.withInitial(() -> null);
 
     public Track(String name) {
@@ -104,11 +100,6 @@ public class Track<T extends IModularModel> {
         }
     }
 
-    /**
-     * 获取当前正在执行的动画序列
-     *
-     * @return 返回与当前名称关联的动画序列，如果不存在则返回null
-     */
     @Nullable
     public IAnimationSequence getAnimating() {
         return AnimationHandler.INSTANCE.get(getCurrName());
@@ -129,11 +120,6 @@ public class Track<T extends IModularModel> {
         return animatingInstance != null ? animatingInstance.animation : null;
     }
 
-    /**
-     * 获取当前动画序列的总进度
-     *
-     * @return 返回动画进度值，范围为0.0到1.0之间，如果无动画则返回0
-     */
     public float getProgress() {
         IAnimationSequence animating = getAnimating();
         if (animating == null) {
@@ -143,11 +129,6 @@ public class Track<T extends IModularModel> {
         }
     }
 
-    /**
-     * 获取当前动画序列中正在播放的动画的进度
-     *
-     * @return 返回动画进度值，范围为0.0到1.0之间，如果无动画则返回0
-     */
     public float getCurrentAnimatingProgress() {
         IAnimationSequence animating = getAnimating();
         if (animating == null) {
@@ -157,13 +138,7 @@ public class Track<T extends IModularModel> {
         }
     }
 
-    /**
-     * 每帧将动画应用到指定的模型对象上
-     *
-     * @param model 需要应用动画的模型对象
-     */
     public void applyToModel(T model, ModuleRenderContext context) {
-        // 如果动画已激活，则通过动画处理器将指定名称的动画应用到模型上
         if (activated && hasAnimation()) {
             AnimationHandler.INSTANCE.apply(model, getCurrName(), context);
             if (onAppliedCallbacks != null) {

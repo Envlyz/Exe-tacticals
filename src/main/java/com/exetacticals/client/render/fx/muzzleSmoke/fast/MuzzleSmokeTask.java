@@ -15,7 +15,6 @@ public class MuzzleSmokeTask {
     private final int randomSeed;
     private final int light;
     private final float scale;
-    /** 这一帧实际写入的渲染类型，供渲染器立即 endBatch，保证绘制顺序 = 排序顺序 */
     @Nullable
     private RenderType lastRenderType;
 
@@ -39,7 +38,6 @@ public class MuzzleSmokeTask {
         return finished;
     }
 
-    /** 这一帧实际写入的渲染类型，可能为 null（这一帧没画） */
     @Nullable
     public RenderType lastRenderType() {
         return lastRenderType;

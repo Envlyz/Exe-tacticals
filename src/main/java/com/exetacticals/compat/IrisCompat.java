@@ -7,12 +7,6 @@ import org.joml.Matrix4f;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-/**
- * Oculus / Iris bridge for Forge 1.20.1.
- *
- * <p>Everything is resolved reflectively so GCR has neither a compile-time nor a runtime dependency on Oculus:
- * when the mod is absent every query falls back to the ordinary (vanilla shader) rendering path.</p>
- */
 public final class IrisCompat {
     private static final String[] MOD_IDS = {"oculus", "iris"};
 
@@ -51,7 +45,6 @@ public final class IrisCompat {
                 shadowModelView = shadow.getField("MODELVIEW");
                 shadowProjection = shadow.getField("PROJECTION");
             } catch (Throwable ignored) {
-                // shadow matrices are optional
             }
             present = true;
         } catch (Throwable t) {

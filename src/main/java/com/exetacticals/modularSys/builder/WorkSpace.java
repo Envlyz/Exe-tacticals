@@ -1,6 +1,5 @@
 package com.exetacticals.modularSys.builder;
 
-
 import com.exetacticals.modularSys.IDGenerator;
 import com.exetacticals.modularSys.IModular;
 import com.exetacticals.modularSys.ISlotProviderModular;
@@ -39,7 +38,6 @@ public class WorkSpace implements IWorkSpace {
 
     public Node getRoot() { return root; }
 
-
     public String getID(Unit unit) {
         Node node = unitToNode.get(unit);
         return node == null ? Node.EMPTY_ID : node.getID();
@@ -54,9 +52,6 @@ public class WorkSpace implements IWorkSpace {
         return unitToNode.values();
     }
 
-    /**
-     * 深度拷贝，用于 commit 和 revert 操作。
-     */
     @Override
     public WorkSpace deepCopy() {
         WorkSpace newWorkSpace = new WorkSpace();
@@ -146,7 +141,6 @@ public class WorkSpace implements IWorkSpace {
             throw new IllegalArgumentException("root module must implement ISlotProviderModular");
         }
     }
-
 
     @Override
     public Optional<Unit> addChild(Unit parentUnit, String parentSlotName, String childModuleID) {

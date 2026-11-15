@@ -14,7 +14,6 @@ public class BoneRenderStatus {
     public final int vertexCount;
     public boolean visible = false;
 
-
     public BoneRenderStatus(int boneIndex, int vertexStart, int vertexEnd) {
         this.boneIndex = boneIndex;
         this.vertexStart = vertexStart;

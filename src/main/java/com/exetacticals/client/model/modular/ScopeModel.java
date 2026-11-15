@@ -59,11 +59,8 @@ public class ScopeModel extends AbstractScopeModel{
     private final float texMagnification;
     private float flashSensitivity = 1f;
 
-    // ---- параллакс из старого порта (Elcan / Razor) ----
-    /** смещение тени на градус отставания оружия от взгляда, в радиусах линзы; 0 — выключено */
     private float mouseParallax = 0;
     private static final float MOUSE_PARALLAX_MAX = 0.7f;
-    /** пятно в линзе «въезжает» при вскидывании, пока прицел не на оси глаза — линза тёмная */
     private boolean shadowReveal = false;
     private static final float REVEAL_NEAR = 0.3f;
     private static final float REVEAL_FAR = 1.6f;
@@ -99,9 +96,6 @@ public class ScopeModel extends AbstractScopeModel{
         this.texMagnification = texMagnification;
     }
 
-    /**
-     * 镜内闪光感光强度：0 关闭，1 为默认强度，大于 1 增强。
-     */
     public ScopeModel setFlashSensitivity(float flashSensitivity) {
         if (!Float.isFinite(flashSensitivity) || flashSensitivity < 0) {
             throw new IllegalArgumentException("Flash sensitivity must be finite and non-negative");
@@ -110,9 +104,6 @@ public class ScopeModel extends AbstractScopeModel{
         return this;
     }
 
-    /**
-     * 没有使用iris的情况下，直接使用深度检测做镜片剔除
-     */
     @Override
     public void preFirstPersonRender(FirstPersonRenderContext context) {
         super.preFirstPersonRender(context);
@@ -201,7 +192,6 @@ public class ScopeModel extends AbstractScopeModel{
                 GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
                 GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
 
-                //还原深度缓冲
                 GL11.glDepthFunc(GL11.GL_ALWAYS);
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
                 GL11.glDepthMask(true);
@@ -216,14 +206,12 @@ public class ScopeModel extends AbstractScopeModel{
                 GL11.glDepthFunc(GL11.GL_LEQUAL);
 
                 renderCrosshairTexture(crosshairPose, crosshairZPose);
-                //防止光影漏光
                 rearLensBone.renderStatus.pose = com.exetacticals.Utils.copyPose(rearLensPose);
                 renderRearLensWithStencil(0.0008f);
 
                 copyStencil();
                 clearAndDisableStencil();
 
-                //延迟任务只记录一次!
                 if (context.getLocalStorage(DEFERRED_TASK_PUSHED) == null) {
                     final Matrix4f modelViewMat = RenderSystem.getModelViewMatrix();
                     Stage.LOW.addTask(
@@ -344,9 +332,6 @@ public class ScopeModel extends AbstractScopeModel{
         float reveal = 1f;
         float toRadius = distance * shadingSensitivity;
         if (shadowReveal && toRadius > 1.0e-4f) {
-            // «Въезд» пятна при вскидывании: смещение линзы относительно глаза сглаживается по времени,
-            // поэтому светлое пятно выезжает из края линзы, а не появляется сразу. Пока прицел далеко от оси глаза —
-            // линза чёрная (из старого порта, SHADOW_REVEAL).
             Vector2f target = new Vector2f(offsetX, offsetY).mul(toRadius);
             float length = target.length();
             if (length > REVEAL_OFFSET_MAX) {
@@ -356,8 +341,6 @@ public class ScopeModel extends AbstractScopeModel{
             float delta = (now - lastRevealTime) / 1.0e9f;
             lastRevealTime = now;
             if (delta > 0.25f) {
-                // линза только что появилась (начало прицеливания): пятно стартует за краем — со стороны,
-                // где сейчас прицел относительно глаза (или снизу), и въезжает к центру
                 if (length > 1.0e-3f) {
                     REVEAL_OFFSET.set(target).normalize().mul(REVEAL_OFFSET_MAX);
                 } else {
@@ -373,8 +356,6 @@ public class ScopeModel extends AbstractScopeModel{
         }
         LocalPlayer player = Minecraft.getInstance().player;
         if (mouseParallax > 0 && player != null && toRadius > 1.0e-4f) {
-            // Поворот мышью: оружие отстаёт от взгляда (тот же сигнал, что качает оружие), глаз уходит с оси прицела —
-            // тёмный серп появляется с противоположной повороту стороны.
             float partialTicks = Minecraft.getInstance().getFrameTime();
             float yawLag = Mth.wrapDegrees(player.getViewYRot(partialTicks) - Mth.lerp(partialTicks, player.yBobO, player.yBob));
             float pitchLag = player.getViewXRot(partialTicks) - Mth.lerp(partialTicks, player.xBobO, player.xBob);
@@ -397,7 +378,6 @@ public class ScopeModel extends AbstractScopeModel{
         GL20.glUniform1f(ScopeViewShadingShader.uEyeDistanceLoc, distance);
         GL20.glUniform2f(ScopeViewShadingShader.uResolutionLoc, width, height);
         GL20.glUniform1f(ScopeViewShadingShader.uLensRadiusLoc, viewEdge);
-        // getScreenPos считает y сверху вниз, в шейдере пиксельные координаты снизу вверх
         GL20.glUniform2f(ScopeViewShadingShader.uLensCenterLoc, screenPos.x, height - screenPos.y);
         GL20.glUniform1f(ScopeViewShadingShader.uRevealLoc, reveal);
         GL20.glUniform1f(ScopeViewShadingShader.uSensitivityLoc, shadingSensitivity);

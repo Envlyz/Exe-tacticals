@@ -12,7 +12,6 @@ public class Num extends State<Float>{
         super(name, 0.0f);
     }
 
-
     @Override
     public Float read(@NotNull CompoundTag states) {
         return states.getFloat(name);

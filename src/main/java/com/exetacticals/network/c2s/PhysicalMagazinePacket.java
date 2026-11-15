@@ -29,10 +29,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * Physical magazine action. Both inventory changes and NBT module-tree changes
- * happen atomically on the server thread, never according to a client-supplied tree.
- */
 public final class PhysicalMagazinePacket implements IPacket<PhysicalMagazinePacket> {
     public static final ResourceLocation ID = GCR.RL("physical_magazine");
     private static final String MAG_AMMO_KEY = MagazineItem.ROUNDS_TAG;
@@ -45,9 +41,8 @@ public final class PhysicalMagazinePacket implements IPacket<PhysicalMagazinePac
     public static final int START_UNJAM = 3;
     public static final int STOP_UNJAM = 4;
     public static final int UNLOAD_ROUND = 5;
-    public static final int ROUND_LOAD_TICKS = 16; // 0.8 seconds
-    public static final int ROUND_UNLOAD_TICKS = 10; // 0.5 seconds
-    /** Manually chosen inventory slot, validated against an exact ItemStack snapshot. */
+    public static final int ROUND_LOAD_TICKS = 16;
+    public static final int ROUND_UNLOAD_TICKS = 10;
     public static final int SELECTED_INSERT = 6;
     public static final String JAM_START_KEY = "gcr_aftermatch_jam_start";
     public static final String JAM_GUN_KEY = "gcr_aftermatch_jam_identity";
@@ -182,11 +177,6 @@ public final class PhysicalMagazinePacket implements IPacket<PhysicalMagazinePac
             int insertedAmmo = 0;
             if (msg.action == REMOVE) {
                 if (installedUnit == null || installedNode == null) {
-                    // The magazine is already gone. A SECOND double-R ejects the
-                    // independent chambered round without modifying module slots.
-                    // Both the chamber check and cartridge transfer run on the
-                    // server. Return the round to inventory, like unloading a
-                    // physical magazine; drop only the remaining item if full.
                     if (!(gun instanceof ISlottedGun slotted) || slotted.getGunAmmoLeft(held) <= 0) return;
                     ItemStack ejected = chamberedCartridgeFor(gun);
                     if (ejected.isEmpty()) return;
@@ -205,8 +195,6 @@ public final class PhysicalMagazinePacket implements IPacket<PhysicalMagazinePac
                 int oldAmmo = oldMag.getAmmoLeft(gun.getNodeStatesTag(held, installedNode.getID()));
                 removedStack = new ItemStack(oldMag.getBindItem());
                 oldItem.setRounds(removedStack, oldAmmo);
-                // Preserve cartridge identity stored when this magazine was inserted.
-                // Trim it to the actual number of rounds left after gunfire.
                 CompoundTag attachedTypes = held.getOrCreateTag().getCompound(ATTACHED_AMMO_TYPES_KEY);
                 oldItem.setRoundTypes(removedStack,
                         MagazineItem.trimRoundTypes(attachedTypes, oldAmmo));
@@ -214,8 +202,6 @@ public final class PhysicalMagazinePacket implements IPacket<PhysicalMagazinePac
             } else {
                 if (!magSlot.allow(OperationType.ADD)) return;
                 if (msg.action == SELECTED_INSERT) {
-                    // The selected inventory stack must still be the *same*
-                    // physical magazine that was highlighted in the wheel.
                     if (msg.selectedSlot < 0 || msg.selectedSlot >= player.getInventory().items.size()) return;
                     ItemStack candidate = player.getInventory().items.get(msg.selectedSlot);
                     if (candidate.isEmpty() || msg.selectedSnapshot.isEmpty()
@@ -227,10 +213,6 @@ public final class PhysicalMagazinePacket implements IPacket<PhysicalMagazinePac
                     insertedMag = item.getModule();
                     insertedAmmo = item.getRounds(candidate);
                 } else {
-                    // Prefer the manually selected magazine type, then choose
-                    // the fullest loaded compatible magazine within that type.
-                    // If unavailable, use the fullest of ALL compatible types.
-                    // Preserve inventory order on equal ammunition counts.
                     String preferred = held.hasTag()
                             ? held.getTag().getString(PREFERRED_MAG_KEY) : "";
                     ItemStack fullest = ItemStack.EMPTY;
@@ -262,18 +244,13 @@ public final class PhysicalMagazinePacket implements IPacket<PhysicalMagazinePac
                         insertedMag = preferredFullestMag;
                         insertedAmmo = preferredRounds;
                     } else {
-                        // A stale remembered type must not override a valid
-                        // compatible magazine with more rounds.
                         consumedStack = fullest;
                         insertedMag = fullestMag;
                         insertedAmmo = Math.max(0, fullestRounds);
                     }
                 }
-                // Empty magazines are excluded from both selection modes.
                 if (insertedMag == null || consumedStack.isEmpty()) return;
 
-                // Replacing an installed magazine is a single atomic server
-                // operation; the independent chambered round remains intact.
                 if (installedUnit != null) {
                     if (installedNode == null || !magSlot.allow(OperationType.REMOVE)) return;
                     Mag oldMag = (Mag) installedUnit.getModule();
@@ -313,17 +290,12 @@ public final class PhysicalMagazinePacket implements IPacket<PhysicalMagazinePac
                 gun.setModulesTag(held, updatedModules);
                 gun.setStatesTag(held, states);
                 gun.setPropertiesTag(held, updatedProps);
-                // An inserted loaded magazine also chambers its first round
-                // if the firearm was empty, consuming exactly one round from
-                // the magazine. An empty magazine must stay empty.
                 if (insertedMag != null && insertedAmmo > 0
                         && gun instanceof com.exetacticals.modularSys.modules.guns.ISlottedGun slotted
                         && slotted.getGunAmmoLeft(held) == 0) {
                     slotted.setGunAmmoLeft(held, 1);
                     slotted.setMagAmmoLeft(held, insertedAmmo - 1);
                 }
-                // The weapon's magazine tree stores the number of rounds but
-                // not their item types. Keep the item type ledger on the gun.
                 if (msg.action == INSERT || msg.action == SELECTED_INSERT) {
                     MagazineItem selected = (MagazineItem) consumedStack.getItem();
                     int remaining = insertedAmmo;
@@ -336,7 +308,6 @@ public final class PhysicalMagazinePacket implements IPacket<PhysicalMagazinePac
                     held.getOrCreateTag().remove(ATTACHED_AMMO_TYPES_KEY);
                 }
                 if (msg.action == SELECTED_INSERT) {
-                    // Only an explicit wheel choice updates the preferred type.
                     held.getOrCreateTag().putString(PREFERRED_MAG_KEY, insertedMag.getID());
                 }
                 gun.notifyDataChanged(held);
@@ -358,11 +329,6 @@ public final class PhysicalMagazinePacket implements IPacket<PhysicalMagazinePac
         });
     }
 
-    /**
-     * A loose round must have the right caliber, including when no magazine
-     * remains to identify it. The five supported firearms have fixed calibers.
-     * Do not clear a chamber if its cartridge item cannot be resolved.
-     */
     private static ItemStack chamberedCartridgeFor(IGun gun) {
         if (gun == GCRModules.M4A1 || gun == GCRModules.AK24) {
             return new ItemStack(GCR.AMMO_556X45_ITEM.get());
@@ -379,12 +345,6 @@ public final class PhysicalMagazinePacket implements IPacket<PhysicalMagazinePac
         return ItemStack.EMPTY;
     }
 
-    /**
-     * Magazines accept ammunition based on caliber, not weapon name.
-     * M4A1 and AK-24 share the same 5.56x45mm round and magazines.
-     * The legacy items are accepted so existing inventory stacks are not
-     * lost; magazine NBT always writes the new caliber-based ID.
-     */
     public static boolean isCompatibleCartridge(ItemStack cartridge, Mag mag) {
         if (mag.hasTag("5.56x45")) {
             return cartridge.is(GCR.AMMO_556X45_ITEM.get())

@@ -7,7 +7,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
-/** Клиент нажал «Создать» в меню оружейного верстака; сервер сам проверяет меню, расстояние и ресурсы. */
 public class CraftGunPacket implements IPacket<CraftGunPacket> {
     public final ResourceLocation recipeId;
 

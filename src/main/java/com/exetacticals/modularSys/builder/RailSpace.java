@@ -12,14 +12,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Tests actual mounting space on a rail (physical footprint + engine
- * collisions/boundaries). A slot's maxCapacity is only an upper bound,
- * NOT evidence that an additional attachment will fit.
- *
- * Results are calculated against a copy of the workspace. Never move
- * installed attachments when searching for an empty position.
- */
 public final class RailSpace {
     private static final float MIN_FOOTPRINT = 0.085f;
     private static final float CLEARANCE = 0.008f;
@@ -27,10 +19,6 @@ public final class RailSpace {
 
     private RailSpace() {}
 
-    /**
-     * A regular one-capacity slot retains its traditional behavior.
-     * For a rail, search real compatible items and stop on the first fit.
-     */
     public static boolean hasRoom(WorkSpace workspace, SlotInstance slot) {
         if (slot == null || slot.isHidden()
                 || workspace.getNodes(slot).size() >= slot.getSlot().maxCapacity()) return false;
@@ -42,16 +30,12 @@ public final class RailSpace {
         return false;
     }
 
-    /** Negative means the chosen attachment cannot be fitted anywhere. */
     public static float findPosition(WorkSpace workspace, SlotInstance slot, IModular module) {
         if (slot == null || module == null || !slot.accepts(module)
                 || workspace.getNodes(slot).size() >= slot.getSlot().maxCapacity())
             return -1f;
         if (!(slot.getSlot() instanceof IRail rail)) return 0f;
 
-        // First attachment is allowed to occupy the ordinary pivot position.
-        // The expensive geometric search applies when there is already
-        // another attachment occupying the same rail.
         if (workspace.getNodes(slot).isEmpty())
             return rail.getNormalizedOriginOffest();
 
@@ -73,8 +57,6 @@ public final class RailSpace {
         float[] positions = positions(rail);
         for (float position : positions) {
             rail.setChildPosition(candidate, writable, position);
-            // CollisionHandler caches transforms by mutation id; offsets
-            // mutate in place and therefore need an explicit invalidation.
             probe.increaseMutateId();
             collision.update();
             Pair<Boolean, Boolean> boundary = collision.collisionWithRailBoundary(candidate);
@@ -91,7 +73,6 @@ public final class RailSpace {
         if (rail instanceof MLokRail mlok)
             return mlok.getNormalizedDiscreteNodes().clone();
 
-        // Prefer near the mounting pivot, then search along the whole rail.
         List<Float> values = new ArrayList<>();
         float origin = rail.getNormalizedOriginOffest();
         values.add(origin);
@@ -112,15 +93,11 @@ public final class RailSpace {
             Unit other = existing.getUnit();
             if (other == candidate) continue;
             float[] otherSpan = span(other, accessor);
-            // Relative offsets are in local rail Z coordinates. Consider
-            // the mounting footprint, not the entire visual screen position.
             if (candidateSpan[0] < otherSpan[1] + CLEARANCE
                     && candidateSpan[1] > otherSpan[0] - CLEARANCE)
                 return true;
         }
         float half = rail.getLength();
-        // The collision handler handles the physical bounds; this extra
-        // check catches missing/underspecified collision voxels.
         float rear = rail.getNormalizedOriginOffest() * half;
         float front = -(1f - rail.getNormalizedOriginOffest()) * half;
         return candidateSpan[0] < front - EPS || candidateSpan[1] > rear + EPS;
@@ -137,8 +114,6 @@ public final class RailSpace {
                 if (Double.isFinite(box.minZ) && Double.isFinite(box.maxZ)) {
                     min = (float) box.minZ;
                     max = (float) box.maxZ;
-                    // Some models have a very small collision-box cross
-                    // section; preserve a minimum rail mounting footprint.
                     float center = (min + max) * .5f;
                     if (max - min < MIN_FOOTPRINT) {
                         min = center - MIN_FOOTPRINT * .5f;

@@ -58,7 +58,6 @@ public class M433<T extends Entity> extends EntityModel<T> {
         root.render(poseStack, vertexConsumer, packedLight, packedOverlay);
     }
 
-
     @Override
     public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer,  int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         root.render(poseStack, vertexConsumer, packedLight, packedOverlay);

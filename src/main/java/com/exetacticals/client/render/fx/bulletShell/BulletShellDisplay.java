@@ -14,16 +14,16 @@ public class BulletShellDisplay implements IJsonSync {
     public float up;
     public float upRandomDeg;
     public float frontRandomDeg;
-    public float velocity;//弹壳行进速度，默认向x轴正方向
-    public float velocityRandom;//随机比例
+    public float velocity;
+    public float velocityRandom;
     public float rotatePitchRandomOffset;
     public float rotateYawRandomOffset;
     public float rotateYawSpeed;
     public float rotateYawSpeedRandom;
     public float rotatePitchSpeed;
     public float rotatePitchSpeedRandom;
-    public int lifeTime;//弹壳生命时长， 毫秒
-    public float drop;//下落
+    public int lifeTime;
+    public float drop;
 
     public BulletShellDisplay(String bindBoneName, ResourceLocation modelID,
                               float front, float up,

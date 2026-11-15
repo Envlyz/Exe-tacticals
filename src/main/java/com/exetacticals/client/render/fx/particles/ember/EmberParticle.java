@@ -61,25 +61,21 @@ public class EmberParticle extends TextureSheetParticle {
         }
     }
 
-
     @Override
     public void render(@NotNull VertexConsumer buffer, @NotNull Camera camera, float partialTicks) {
         float ageProgress = ((float) this.age + partialTicks) / (float) this.lifetime;
-        this.alpha = 1.0F - ageProgress; // 渐隐
+        this.alpha = 1.0F - ageProgress;
         if (this.alpha <= 0.0F) return;
-
 
         net.minecraft.world.phys.Vec3 cameraPos = camera.getPosition();
         float renderX = (float) (Mth.lerp(partialTicks, this.xo, this.x) - cameraPos.x());
         float renderY = (float) (Mth.lerp(partialTicks, this.yo, this.y) - cameraPos.y());
         float renderZ = (float) (Mth.lerp(partialTicks, this.zo, this.z) - cameraPos.z());
 
-
         float u0 = this.getU0();
         float u1 = this.getU1();
         float v0 = this.getV0();
         float v1 = this.getV1();
-
 
         Quaternionf quaternion = new Quaternionf();
         quaternion.set(camera.rotation());

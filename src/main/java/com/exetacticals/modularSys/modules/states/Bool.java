@@ -12,7 +12,6 @@ public class Bool extends State<Boolean>{
         super(name, false);
     }
 
-
     @Override
     public Boolean read(@NotNull CompoundTag states) {
         return states.getBoolean(name);

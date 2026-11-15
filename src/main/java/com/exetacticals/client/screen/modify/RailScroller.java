@@ -13,10 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-/**
- * 水平滑条，用来调整导轨上模块的位置。
- * 只能拖动滑块；点击轨道和鼠标滚轮都不改变数值（滚轮留给模型缩放）。
- */
 @OnlyIn(Dist.CLIENT)
 public class RailScroller extends AbstractWidget {
     private static final int THUMB_WIDTH = 12;
@@ -47,7 +43,6 @@ public class RailScroller extends AbstractWidget {
         return this;
     }
 
-    /** 设置数值；数值真的变化时通知监听者（与原 LDLib 滑条的行为一致）。 */
     public void setValue(float newValue) {
         newValue = Mth.clamp(newValue, minValue, maxValue);
         if (newValue != value) {
@@ -76,11 +71,9 @@ public class RailScroller extends AbstractWidget {
         int tx = thumbX();
         boolean hot = dragging || (isHovered && mouseX >= tx && mouseX < tx + THUMB_WIDTH);
         float active = activeFade.update(hot);
-        // дорожка: пройденная часть подсвечена акцентом
         GuiPanelRender.fill(g, x, trackY, w, trackH, trackH / 2f, 0xA0101013);
         GuiPanelRender.fill(g, x, trackY, tx - x + THUMB_WIDTH / 2f, trackH, trackH / 2f, GuiPanelRender.ACCENT_SOFT);
         GuiPanelRender.stroke(g, x, trackY, w, trackH, trackH / 2f, 0.5f, 0x26FFFFFF);
-        // деления
         for (int i = 1; i < 10; i++) {
             float dx = x + THUMB_WIDTH / 2f + (w - THUMB_WIDTH) * i / 10f;
             GuiPanelRender.fill(g, dx - 0.25f, trackY + trackH + 1.5f, 0.5f, i == 5 ? 3f : 2f, 0f, 0x40FFFFFF);

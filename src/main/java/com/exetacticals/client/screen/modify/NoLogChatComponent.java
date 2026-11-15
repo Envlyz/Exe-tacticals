@@ -31,17 +31,8 @@ public class NoLogChatComponent {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Component DELETED_CHAT_MESSAGE = Component.translatable("chat.deleted_marker").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC);
     private final Minecraft minecraft;
-    /**
-     * A list of messages previously sent through the chat GUI
-     */
     private final ArrayDeque<String> recentChat = new ArrayDeque<>(100);
-    /**
-     * Chat lines to be displayed in the chat box
-     */
     private final List<GuiMessage> allMessages = Lists.newArrayList();
-    /**
-     * List of the ChatLines currently drawn
-     */
     private final List<GuiMessage.Line> trimmedMessages = Lists.newArrayList();
     private int chatScrollbarPos;
     private boolean newMessageSinceScroll;
@@ -168,11 +159,6 @@ public class NoLogChatComponent {
         return d0 * d0;
     }
 
-    /**
-     * Clears the chat.
-     *
-     * @param clearSentMsgHistory Whether to clear the user's sent message history
-     */
     public void clearMessages(boolean clearSentMsgHistory) {
         this.minecraft.getChatListener().clearQueue();
         this.messageDeletionQueue.clear();
@@ -283,9 +269,6 @@ public class NoLogChatComponent {
         return this.recentChat;
     }
 
-    /**
-     * Adds this string to the list of sent messages, for recall using the up/down arrow keys
-     */
     public void addRecentChat(String message) {
         if (!message.equals(this.recentChat.peekLast())) {
             if (this.recentChat.size() >= 100) {

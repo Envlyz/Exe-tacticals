@@ -19,10 +19,8 @@ public class EmberOption implements ParticleOptions {
     public int lifetime;
     public float scale;
 
-
     public boolean shouldSort;
     public final List<Entry> entries = new ArrayList<>();
-
 
     public EmberOption(ParticleType<EmberOption> type, int gridSize, EasingType easing, int lifetime, float scale, boolean shouldSort) {
         this.type = type;
@@ -33,12 +31,10 @@ public class EmberOption implements ParticleOptions {
         this.shouldSort = shouldSort;
     }
 
-
     public EmberOption(ParticleType<EmberOption> type, int gridSize, EasingType easing, int lifetime, float scale, boolean shouldSort, List<Entry> entries) {
         this(type, gridSize, easing, lifetime, scale, shouldSort);
         this.entries.addAll(entries);
     }
-
 
     public EmberOption addEntry(float dx, float dy, float dz) {
         this.entries.add(new Entry(dx, dy, dz));
@@ -49,7 +45,6 @@ public class EmberOption implements ParticleOptions {
     public @NotNull ParticleType<?> getType() {
         return this.type;
     }
-
 
     public record Entry(float dx, float dy, float dz) {
         public static final Codec<Entry> CODEC = RecordCodecBuilder.create(inst -> inst.group(

@@ -22,7 +22,6 @@ public class Handguard extends AttachmentModule implements ISlotProviderModular,
     private final IVoxelHandler handler;
     private final AdditionalPropModifier additionalPropModifier;
 
-
     public Handguard(ResourceLocation id, float weight, float recoilControlInc, ISlotProvider slotProvider, IVoxelHandler handler, AdditionalPropModifier additionalPropModifier) {
         super(id, true, weight, Direction.NONE);
         this.slotProvider = slotProvider;
@@ -30,7 +29,6 @@ public class Handguard extends AttachmentModule implements ISlotProviderModular,
         this.additionalPropModifier = additionalPropModifier;
         defPropInc(BaseProperties.class, (p) -> p.recoilControl, recoilControlInc);
     }
-
 
     @Override
     public @NotNull ISlotProvider getSlotProvider() {

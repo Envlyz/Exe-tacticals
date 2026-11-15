@@ -3,13 +3,6 @@ package com.exetacticals.compat;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.entity.PartEntity;
 
-/**
- * Keeps the firing entity's own multipart hitboxes from intercepting its
- * bullets and laser rays. Other entities' anatomical parts remain hittable.
- *
- * Uses only the standard Forge PartEntity API, so AftermatchDayZ is an
- * optional runtime integration rather than a required compile dependency.
- */
 public final class OwnMultipartHitFilter {
     private OwnMultipartHitFilter() {}
 

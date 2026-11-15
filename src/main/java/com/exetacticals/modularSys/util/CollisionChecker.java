@@ -12,18 +12,14 @@ public class CollisionChecker {
     private static final float ROT_EPSILON = 1e-4f;
 
     public static boolean isCollided(IVoxel voxel, Matrix4f voxelPos, Vector3f pivot, Matrix4f pivotPos) {
-        // voxel 的包围盒
         AABB boundingBox = voxel.getBoundingBox();
 
-        // pivot 在世界坐标中的位置
         Vector3f pivotWorld = new Vector3f(pivot).mulPosition(pivotPos);
 
-        // voxel 的旋转情况
         Vector3f rot = voxelPos.getEulerAnglesXYZ(new Vector3f());
         boolean rotated = hasRotation(rot);
 
         if (!rotated) {
-            // 无旋转时：退化为 AABB vs 点
             Vector3f trans = voxelPos.getTranslation(new Vector3f());
 
             if (!boundingBox.move(trans.x(), trans.y(), trans.z()).contains(pivotWorld.x, pivotWorld.y, pivotWorld.z)) {
@@ -41,7 +37,6 @@ public class CollisionChecker {
             return false;
         }
 
-        // 有旋转时：OBB vs 点
         OBB obb = OBB.fromAABB(boundingBox, voxelPos);
         if (!obb.intersects(pivotWorld)) {
             return false;
@@ -115,8 +110,6 @@ public class CollisionChecker {
         }
         return false;
     }
-
-
 
     private static boolean hasRotation(Vector3f rot) {
         return Math.abs(rot.x) > ROT_EPSILON ||

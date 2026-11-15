@@ -2,10 +2,6 @@ package com.exetacticals.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-/**
- * Shared wall-obstruction settings. The server independently validates shot
- * blocking and trajectory; clients use the same formulas for presentation.
- */
 public final class AftermatchWallConfig {
     public static final ForgeConfigSpec SPEC;
     public static final ForgeConfigSpec.BooleanValue ENABLE_GUN_TUCK;

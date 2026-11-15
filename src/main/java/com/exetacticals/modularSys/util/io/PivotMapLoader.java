@@ -17,9 +17,6 @@ import org.joml.Vector3f;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Loads bedrock format model as PivotMap both in the client side and server side.
- * */
 public class PivotMapLoader extends AbstractDeferredLoader<PivotMap> implements ResourceManagerReloadListener {
 
     private static PivotMapLoader SERVER;
@@ -101,7 +98,6 @@ public class PivotMapLoader extends AbstractDeferredLoader<PivotMap> implements 
         }
         return root == null ? null : new PivotMap(root);
     }
-
 
     @Override
     public void onResourceManagerReload(@NotNull ResourceManager resourceManager) {

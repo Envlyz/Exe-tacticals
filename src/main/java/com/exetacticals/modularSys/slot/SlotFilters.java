@@ -8,8 +8,6 @@ import java.util.function.Function;
 
 public class SlotFilters {
 
-    // ===== TAG 相关 =====
-
     public static ISlotFilter hasTag(String tag) {
         return m -> m.getTags().contains(tag);
     }
@@ -40,8 +38,6 @@ public class SlotFilters {
         return m -> !m.getTags().containsAll(tags);
     }
 
-    // ===== modular ID =====
-
     public static ISlotFilter modular(String id) {
         return m -> id.equals(m.getID());
     }
@@ -57,8 +53,6 @@ public class SlotFilters {
     public static ISlotFilter modularIn(Set<String> ids) {
         return m -> ids.contains(m.getID());
     }
-
-    // ===== 自定义 =====
 
     public static ISlotFilter custom(Function<IModular, Boolean> func) {
         return func::apply;

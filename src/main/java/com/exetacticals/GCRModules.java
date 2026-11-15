@@ -29,8 +29,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.List;
 import java.util.Map;
 
-
-/** Gun and attachment module definitions. */
 public final class GCRModules {
 
     private GCRModules() {
@@ -110,7 +108,6 @@ public final class GCRModules {
 
     public static final IModular SPEAR_MAG_20R = new Mag(RL( "spear_mag_20r"), 0.20f, 20).addTags("mag", "mcx_spear", "6.8x51");
 
-
     public static final IModular CAR_15_HANDGUARD = new SplitARHandguard(
             RL("car_15_handguard"),
             0.26f, 0.03f,
@@ -139,7 +136,6 @@ public final class GCRModules {
             new VoxelHandler(RL("common/voxel_shapes/a2_carry_handle.geo.json"))
                     .setCustomBoundaryCollisionConfig((slot) -> slot.hasTag("ar_sight") ? Pair.of(true, true) : Pair.of(false, false)),
             0.1f, true);
-
 
     public static final IModular KAC_FOLDING_SIGHT_FAR = new FoldingFarIronSight(
             RL( "kac_folding_sight_far"),
@@ -170,7 +166,6 @@ public final class GCRModules {
             false,
             1.0f
     ).addTags("sight", "iron_sight", "upper", "on_rail");
-
 
     public static final IModular ACOG = new Scope(
             RL( "acog"),
@@ -220,13 +215,11 @@ public final class GCRModules {
                     )
     ).addTags("stock", "mcx");
 
-
     public static final IModular A2_FLASH_HINDER = new Muzzle(RL( "a2_flash_hinder"), 0.035f, 0.1f, 0.05f, IGun.FIRE_SOUND_NORMAL, 0, 1.0f, false).addTags("muzzle", "ar", "5.56x45");
     public static final IModular SOCOM_RC2 = new Muzzle(RL( "socom_rc2"), 0.48f, 0.15f, 0.075f, IGun.FIRE_SOUND_SUPPRESSED, -0.35f, 1.8f, true).addTags("muzzle", "ar", "5.56x45");
     public static final IModular AR15_MUZZLE_BRAKE = new Muzzle(RL( "ar15_muzzle_brake"), 0.045f, 0.2f, 0.1f, IGun.FIRE_SOUND_NORMAL, 0.1f, 1.0f, false).addTags("muzzle", "ar", "5.56x45");
     public static final IModular ASE_FLASH_HIDER = new Muzzle(RL( "ase_flash_hider"), 0.05f, 0.13f, 0.075f, IGun.FIRE_SOUND_NORMAL, 0, 1.0f, false).addTags("muzzle", "ar", "5.56x45");
     public static final IModular CLUTCH_LOK_QD_FLASH_HIDER = new Muzzle(RL( "clutch_lok_qd_flash_hider"), 0.09f, 0.12f, 0.06f, IGun.FIRE_SOUND_NORMAL, 0, 1.0f, false).addTags("muzzle", "ar", "5.56x45", "6.8x51", "mcx_spear");
-
 
     public static final IModular AK74_MUZZLE_BRAKE = new Muzzle(RL( "ak74_muzzle_brake"), 0.05f, 0.2f, 0.13f, IGun.FIRE_SOUND_NORMAL, 0.1f, 1.0f, false).addTags("muzzle", "ak", "5.45x39");
     public static final IModular PBS_4 = new Muzzle(RL( "pbs_4"), 0.65f, 0.18f, 0.07f, IGun.FIRE_SOUND_SUPPRESSED, -0.38f, 1.8f, true).addTags("muzzle", "ak", "5.45x39");
@@ -234,7 +227,6 @@ public final class GCRModules {
     public static final IModular DTKP_545 = new Muzzle(RL( "dtkp_545"), 0.58f, 0.19f, 0.065f, IGun.FIRE_SOUND_SUPPRESSED, -0.4f, 1.85f, true).addTags("muzzle", "ak", "5.45x39");
     public static final IModular SLX_SUPPRESSOR = new Muzzle(RL( "slx_suppressor"), 0.54f, 0.15f, 0.075f, IGun.FIRE_SOUND_SUPPRESSED, -0.35f, 1.7f, true).addTags("muzzle", "mcx_spear", "6.8x51");
     public static final IModular AKM_MUZZLE_BRAKE = new Muzzle(RL( "akm_muzzle_brake"), 0.01f, 0.15f, 0.1f, IGun.FIRE_SOUND_NORMAL, 0.0f, 1.0f, false).addTags("muzzle", "akm", "7.62x39");
-
 
     public static final IModular KAC_RAS_HANDGUARD = new SplitSlottedARHandguard(
             RL( "kac_ras_handguard"),
@@ -302,7 +294,6 @@ public final class GCRModules {
                     new IArmHandlerModular.AdditionalPropModifier(0.1f,0.12f,0.1f, 0.065f)
             ).addTags("handguard", "ar");
 
-
     public static final IModular AK24A_HANDGUARD = new Handguard
             (RL( "ak24a_handguard"),
                     0.31f, 0.025f,
@@ -340,7 +331,6 @@ public final class GCRModules {
             new VoxelHandler(RL("common/voxel_shapes/ak_polymer_handguard_upper_voxel.geo.json"))
     )
             .addTags("handguard", "ak", "upper");
-
 
     public static final IModular AK_WOODEN_HANDGUARD_LOWER = new Handguard
             (RL("ak_wooden_handguard_lower"),
@@ -534,11 +524,8 @@ public final class GCRModules {
                 workspace.addChild(root, "HANDGUARD", CAR_15_HANDGUARD.getID());
                 workspace.addChild(root, "REAR_GRIP", A2_PISTOL_GRIP.getID());
                 workspace.addChild(root, "STOCK", M4_CARBINE_STOCK.getID());
-                // New guns start with no physical magazine installed.
-                // Magazine models are attached only when a MAG module is installed.
                 workspace.addChild(root, "SCOPE", A2_CARRY_HANDLE.getID());
             });
-
 
     public static final IModular AK24 = new AR(
             RL( "ak24"),
@@ -613,8 +600,6 @@ public final class GCRModules {
                 });
                 workspace.addChild(root, "REAR_GRIP", SAKO_ARG_GRIP.getID());
                 workspace.addChild(root, "STOCK", CTR_STOCK.getID());
-                // New guns start with no physical magazine installed.
-                // Magazine models are attached only when a MAG module is installed.
                 workspace.addChild(root, "SCOPE", MAGPUL_MBUS_PRO_SIGHT_REAR.getID()).ifPresent(rearSight -> accessor.getBelongsTo(rearSight).ifPresent(slotInstance -> {
                     if (slotInstance.getSlot() instanceof Rail rail) {
                         rail.setChildPosition(rearSight, accessor, 0.075f);
@@ -697,8 +682,6 @@ public final class GCRModules {
                 workspace.addChild(root, "STOCK", MCX_STOCK_TUBE.getID()).ifPresent(stockTube -> {
                     workspace.addChild(stockTube, "STOCK", MAGPUL_SL_M_STOCK.getID());
                 });
-                // New guns start with no physical magazine installed.
-                // Magazine models are attached only when a MAG module is installed.
                 workspace.addChild(root, "SCOPE", KAC_FOLDING_SIGHT_REAR.getID()).ifPresent(rearSight -> accessor.getBelongsTo(rearSight).ifPresent(slotInstance -> {
                     if (slotInstance.getSlot() instanceof Rail rail) {
                         rail.setChildPosition(rearSight, accessor, 0.01f);
@@ -798,8 +781,6 @@ public final class GCRModules {
                 workspace.addChild(root, "HANDGUARD_UPPER", AK_POLYMER_HANDGUARD_UPPER.getID());
                 workspace.addChild(root, "REAR_GRIP", AK_POLYMER_GRIP.getID());
                 workspace.addChild(root, "STOCK", STOCK_6P34.getID());
-                // New guns start with no physical magazine installed.
-                // Magazine models are attached only when a MAG module is installed.
                 workspace.addChild(root, "DUSTCOVER", DUSTCOVER_6P34.getID());
             });
 
@@ -868,8 +849,6 @@ public final class GCRModules {
                 workspace.addChild(root, "HANDGUARD_UPPER", AK_WOODEN_HANDGUARD_UPPER.getID());
                 workspace.addChild(root, "REAR_GRIP", AK_BAKELITE_GRIP.getID());
                 workspace.addChild(root, "STOCK", AKM_STOCK.getID());
-                // New guns start with no physical magazine installed.
-                // Magazine models are attached only when a MAG module is installed.
                 workspace.addChild(root, "DUSTCOVER", AK_RIBBED_DUSTCOVER.getID());
             });
 

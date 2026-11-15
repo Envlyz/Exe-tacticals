@@ -65,7 +65,6 @@ public class Scope extends AttachmentModule implements IVoxelHandlerModule, ISco
         return voxelHandler;
     }
 
-
     @Override
     public float getAdsSpeedModifier() {
         return adsSpeedModifier;

@@ -24,11 +24,6 @@ public class ModuleModelRegister {
         return true;
     }
 
-    /**
-     * 移除某个模块的模型并返回被移除的实例，供热重载释放旧模型。
-     *
-     * @return 该模块原本登记的模型；没有登记过则返回 null
-     */
     @Nullable
     public static IModularModel remove(IModular module) {
         IModularModel removed = MODULE_TO_MODEL.remove(module);

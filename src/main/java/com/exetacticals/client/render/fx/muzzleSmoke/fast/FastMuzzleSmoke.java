@@ -43,12 +43,6 @@ public class FastMuzzleSmoke {
         return randomRotate;
     }
 
-    /**
-     * 渲染这一帧的烟雾
-     *
-     * @return 实际写入的 {@link RenderType}，没有画则返回 null
-     *         （调用方拿到后可以立即 {@code bufferSource.endBatch(renderType)}，保证绘制顺序 = 排序顺序）
-     */
     @Nullable
     public RenderType render(long lastShoot, PoseStack.Pose pose, MultiBufferSource bufferSource, int randomSeed, int light) {
         long timeDist = System.currentTimeMillis() - lastShoot;

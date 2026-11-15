@@ -11,9 +11,7 @@ import java.util.List;
 
 public class MLokRail extends Rail {
 
-    // 保存归一化后的离散点位置 [0.0 ~ 1.0]
     private final float[] discreteNodes;
-
 
     public static MLokRail of(String name, Direction direction, float rearEndZ, float pivotZ, float farEndZ, float firstNode, float nodeStep, int nodeCount, String... tags) {
         if (firstNode > rearEndZ) {
@@ -64,16 +62,12 @@ public class MLokRail extends Rail {
         }
     }
 
-
     @Override
     public void setChildPosition(Unit selected, IWriteableAccessor accessor, float normalizedPos) {
         float snappedPos = snapToNearest(normalizedPos);
         super.setChildPosition(selected, accessor, snappedPos);
     }
 
-    /**
-     * 核心机制：获取离输入位置最近的离散节点
-     */
     private float snapToNearest(float normalizedPos) {
         normalizedPos = Mth.clamp(normalizedPos, 0, 1);
         if (discreteNodes == null || discreteNodes.length == 0) {

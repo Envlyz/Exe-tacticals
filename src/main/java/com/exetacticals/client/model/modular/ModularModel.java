@@ -109,8 +109,6 @@ public class ModularModel extends BufferedBoneMeshModel implements IModularModel
             }
             if (progress < 0.1f) {
                 progress = progress >= 0.04f ? 0 : (0.04f - progress) * 25f;
-                // подсветка самой модели в руках: слабее и короче, чем раньше (2.5 на радиусе ~3.75 засвечивало
-                // всё оружие вплоть до мушки и целика), и зависит от дульного устройства
                 float r = Client.WEAPON_STATUS.getMuzzleFlashRadius() * MODEL_FLASH_RADIUS;
                 if (Client.isUsingIrisShader) {
                     r *= 0.25f;
@@ -216,7 +214,6 @@ public class ModularModel extends BufferedBoneMeshModel implements IModularModel
     public @Nullable ResourceLocation getHeatMapTexPath() {
         return heatMapTexPath;
     }
-
 
     public Bone getOrThrow(String boneName) {
         Bone bone = getBone(boneName);

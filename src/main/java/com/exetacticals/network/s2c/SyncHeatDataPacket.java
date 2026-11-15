@@ -42,7 +42,6 @@ public class SyncHeatDataPacket implements IPacket<SyncHeatDataPacket> {
     @Override
     public void onClient(SyncHeatDataPacket packet, PacketContext context) {
         context.enqueueWork(() -> {
-            //Client.syncGunHeatData( packet);
         });
     }
 

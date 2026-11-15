@@ -21,12 +21,6 @@ public class GunFireAckPacket implements IPacket<GunFireAckPacket> {
     public int ammoLeft;
     public int shootId;
     public boolean stuck;
-    /**
-     * 服务端是否真的打出了这一发。
-     *
-     * <p>{@code false} 表示这一发被拒（服务端已经卡壳，或者客户端上报的枪不是当前主手）。
-     * 客户端用它和本地预测配对：只要服务端处理过这一发就一定回执，客户端就不需要靠超时自愈。</p>
-     */
     public boolean fired;
 
     public GunFireAckPacket(String gunId, int ammoLeft, int shootId, boolean stuck, boolean fired) {
@@ -57,8 +51,6 @@ public class GunFireAckPacket implements IPacket<GunFireAckPacket> {
     @Override
     public void onClient(GunFireAckPacket packet, PacketContext context) {
         context.enqueueWork(() -> {
-            // 先让卡壳缓存和服务端对齐：回执是按 gunId 路由的，不要求这把枪此刻在主手，
-            // 因此在切枪之后才到的回执也能正确解除/确认本地预测。
             ClientGunStuckCache.get().onServerAck(packet.gunId, packet.shootId, packet.stuck, packet.fired);
 
             Minecraft instance = Minecraft.getInstance();
@@ -67,7 +59,6 @@ public class GunFireAckPacket implements IPacket<GunFireAckPacket> {
                 ItemStack mainHand = player.getMainHandItem();
                 IGun gun = gunItem.getGun();
                 if (packet.gunId.equals(gun.getIdentityID(mainHand))) {
-                    // 手上就是这把枪：沿用原有路径把服务端权威状态写回物品 states
                     Client.serverShootAck(packet, mainHand, gun);
                 }
             }

@@ -6,7 +6,6 @@ import com.exetacticals.network.c2s.SwitchUsingSightPacket;
 import net.minecraft.world.item.ItemStack;
 import com.exetacticals.network.GCRNetwork;
 
-
 public class SwitchUsingSightTask extends GunTask<SlottedGunMainPart> {
     public SwitchUsingSightTask(ItemStack itemStack, SlottedGunMainPart gun) {
         super(itemStack, gun, 1);

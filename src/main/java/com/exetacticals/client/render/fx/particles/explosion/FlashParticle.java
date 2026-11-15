@@ -28,12 +28,6 @@ public class FlashParticle extends TextureSheetParticle {
         this.setSpriteFromAge(sprites);
     }
 
-//    public @NotNull AABB getRenderBoundingBox(float partialTicks) {
-//        float size = this.getQuadSize(partialTicks) * 64;
-//        return new AABB(this.x - (double)size, this.y - (double)size, this.z - (double)size, this.x + (double)size, this.y + (double)size, this.z + (double)size);
-//    }
-
-
     @Override
     public int getLightColor(float partialTick) {
         return LightTexture.FULL_BRIGHT;

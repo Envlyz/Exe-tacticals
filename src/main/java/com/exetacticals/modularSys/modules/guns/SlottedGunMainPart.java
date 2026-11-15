@@ -87,10 +87,10 @@ public abstract class SlottedGunMainPart extends Gun implements ISlotProviderMod
             if (!shouldReload(itemStack)) {
                 return null;
             }
-            return getReloadTask(itemStack);//new ARReloadTask(itemStack, this);
+            return getReloadTask(itemStack);
         }
         if (type == IGunTask.TaskType.REMOVE_STUCK && isStuck(itemStack)) {
-            return getRemoveStuckTask(itemStack);//new ARRemoveStuckTask(itemStack, this);
+            return getRemoveStuckTask(itemStack);
         }
         return super.getTask(itemStack, type, args);
     }
@@ -166,7 +166,7 @@ public abstract class SlottedGunMainPart extends Gun implements ISlotProviderMod
         allPriority.sort(Comparator.naturalOrder());
         boolean removeGunBaseTier = false;
         if (sightMap.containsKey(ISight.GUN_BASE) && sightMap.size() > 1) {
-            if (sightMap.containsKey(ISight.SIDE) && maxPriority > ISight.GUN_BASE) {//GUN_BASE无效
+            if (sightMap.containsKey(ISight.SIDE) && maxPriority > ISight.GUN_BASE) {
                 removeGunBaseTier = true;
             } else if (minPriority >= ISight.GUN_BASE) {
                 removeGunBaseTier = true;

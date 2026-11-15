@@ -18,11 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-/**
- * Дев-тест зарядки магазина кликами в инвентаре ({@code -Dexe_tacticals.magClickTest=true}):
- * загружает первый мир, кладёт пустой магазин АКМ и 64 патрона 7.62, берёт магазин на курсор,
- * ПКМ по патронам (зарядка), ПКМ по пустому слоту (разрядка), пишет результат в лог и закрывает игру.
- */
 @OnlyIn(Dist.CLIENT)
 public final class MagazineClickTest {
     private static final boolean ENABLED = Boolean.getBoolean("exe_tacticals.magClickTest");
@@ -72,7 +67,6 @@ public final class MagazineClickTest {
                 sp.getInventory().setItem(10, new ItemStack(GCR.AMMO_762X39_ITEM.get(), 64));
                 sp.inventoryMenu.broadcastChanges();
             });
-            // меню инвентаря: слоты 9..35 = основной инвентарь 9..35
             case 60 -> mc.gameMode.handleInventoryMouseClick(menu, 9, 0, ClickType.PICKUP, mc.player);
             case 70 -> mc.gameMode.handleInventoryMouseClick(menu, 10, 1, ClickType.PICKUP, mc.player);
             case 80 -> log("after load", sp);

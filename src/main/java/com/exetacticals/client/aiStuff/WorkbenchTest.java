@@ -32,16 +32,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-/**
- * Дев-тест оружейного верстака ({@code -Dexe_tacticals.workbenchTest=true}): ставит верстак перед игроком,
- * снимок {@code workbench_world.png}; выдаёт часть ресурсов, открывает меню, снимок {@code workbench_menu.png}; закрывает игру.
- * С {@code workbenchCraftTest}: крафт M4A1 (творческий режим), снимок оружия на столе {@code workbench_table.png},
- * подбор пакетом {@code TakeCraftedGunPacket}, оружие в руку.
- */
 @OnlyIn(Dist.CLIENT)
 public final class WorkbenchTest {
     private static final boolean ENABLED = Boolean.getBoolean("exe_tacticals.workbenchTest");
-    /** -Dexe_tacticals.workbenchCraftTest=true: скрафтить M4A1 через меню, взять в руку и следить, не зависнет ли игра */
     private static final boolean CRAFT = Boolean.getBoolean("exe_tacticals.workbenchCraftTest");
     private static volatile long lastRender = System.nanoTime();
     private static boolean worldRequested;
@@ -110,7 +103,6 @@ public final class WorkbenchTest {
                         level.setBlock(new BlockPos(px + dx, ground - 1, pz + dz), Blocks.STONE_BRICKS.defaultBlockState(), 3);
                     }
                 }
-                // игрок смотрит на юг, сверху вниз; верстак повёрнут к игроку (на север), в 3 блоках впереди
                 sp.teleportTo(level, px + 0.5, ground, pz - 0.5, 0f, 38f);
                 BlockState state = ModWorkbench.BLOCK.get().defaultBlockState()
                         .setValue(GunWorkbenchBlock.FACING, Direction.NORTH);
@@ -121,7 +113,6 @@ public final class WorkbenchTest {
                 sp.getInventory().add(new ItemStack(Items.REDSTONE, 3));
                 sp.getInventory().add(new ItemStack(Items.BLACK_DYE, 8));
                 sp.getInventory().add(new ItemStack(Items.COPPER_INGOT, 5));
-                // крафт-тест: в творческом рецепт бесплатный, ресурсов не нужно
                 sp.setGameMode(CRAFT ? net.minecraft.world.level.GameType.CREATIVE : net.minecraft.world.level.GameType.SURVIVAL);
             });
             case 90 -> pendingShot = "workbench_world";
@@ -186,7 +177,6 @@ public final class WorkbenchTest {
         }
     }
 
-    /** Если кадры перестали рисоваться дольше 6 с — пишет стеки потоков рендера и сервера в лог. */
     private static void watchdog() {
         boolean dumped = false;
         while (true) {

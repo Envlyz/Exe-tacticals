@@ -13,16 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import com.exetacticals.network.PacketContext;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * 服务端 → 客户端的卡壳状态同步。
- *
- * <p>开火路径上的卡壳由 {@link GunFireAckPacket} 带回，本包只覆盖<b>非开火路径</b>的卡壳变化，
- * 目前就是「清障 / 排障把卡壳解除了」。没有它的话，客户端只能等下一次开火被拒才知道故障已经
- * 解除，而客户端在自认为卡壳时根本不会开火——就会卡死在这个死循环里。</p>
- *
- * <p>服务端处理 {@code RemoveStuckPacket} 后<b>无论是否真的解除过</b>都会回这个包：
- * 客户端据此把本地预测和已确认记录一起了结，这是“虚假卡壳”的最后一道保险。</p>
- */
 public class GunStuckSyncPacket implements IPacket<GunStuckSyncPacket> {
     public static final ResourceLocation ID = GCR.RL("gun_stuck_sync");
 

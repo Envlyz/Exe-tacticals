@@ -228,8 +228,6 @@ public class DebugDisplayDataAdjustScreen extends Screen {
         }
     }
 
-
-
     @Override
     public void onClose() {
         super.onClose();

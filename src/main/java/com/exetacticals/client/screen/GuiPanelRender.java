@@ -21,15 +21,8 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
-/**
- * Скруглённые прямоугольники для GUI шейдером {@code exe_tacticals:gui_panel}:
- * заливка (в т.ч. вертикальный градиент), обводка, мягкая тень и «стекло» — блюр того, что под панелью.
- * Цвета ARGB, размеры в единицах GUI. Если шейдер не загрузился — обычные прямоугольники.
- */
 @OnlyIn(Dist.CLIENT)
 public final class GuiPanelRender {
-    // палитра экрана модификации
-    /** акцентный цвет интерфейса (из конфига, {@link com.exetacticals.config.UiConfig}) */
     public static int ACCENT = 0xFF009091;
     public static int ACCENT_SOFT = 0x55009091;
     public static final int DANGER = 0xFFFF5D5D;
@@ -44,13 +37,11 @@ public final class GuiPanelRender {
 
     private static TextureTarget frameCopy;
 
-    /** Новый акцентный цвет (RGB без альфы). */
     public static void setAccent(int rgb) {
         ACCENT = 0xFF000000 | (rgb & 0xFFFFFF);
         ACCENT_SOFT = 0x55000000 | (rgb & 0xFFFFFF);
     }
 
-    /** Золотой цвет текста ванильного форматирования ({@code ChatFormatting.GOLD}) в интерфейсе мода заменяется акцентом. */
     public static int remapTextColor(int rgb) {
         return (rgb & 0xFFFFFF) == 0xFFAA00 ? ACCENT & 0xFFFFFF : rgb;
     }
@@ -58,11 +49,6 @@ public final class GuiPanelRender {
     private GuiPanelRender() {
     }
 
-    /**
-     * Копирует текущий кадр, чтобы {@link #glass} было что размывать.
-     * Один раз за кадр, до первой стеклянной панели и после всего, что должно просвечивать.
-     */
-    /** id текстуры с копией кадра ({@link #captureFrame()}), 0 — ещё не было копии. */
     public static int frameCopyTexture() {
         return frameCopy == null ? 0 : frameCopy.getColorTextureId();
     }
@@ -83,43 +69,33 @@ public final class GuiPanelRender {
         main.bindWrite(false);
     }
 
-    /** Залитый скруглённый прямоугольник. */
     public static void fill(GuiGraphics g, float x, float y, float width, float height, float radius, int color) {
         draw(g, x, y, width, height, radius, 0f, 0f, 0f, color, color);
     }
 
-    /** Заливка с вертикальным градиентом. */
     public static void gradient(GuiGraphics g, float x, float y, float width, float height, float radius, int top, int bottom) {
         draw(g, x, y, width, height, radius, 0f, 0f, 0f, top, bottom);
     }
 
-    /** Круг с центром в (cx, cy). */
     public static void circle(GuiGraphics g, float cx, float cy, float r, int color) {
         fill(g, cx - r, cy - r, r * 2, r * 2, r, color);
     }
 
-    /** Кольцо с центром в (cx, cy). */
     public static void ring(GuiGraphics g, float cx, float cy, float r, float width, int color) {
         stroke(g, cx - r, cy - r, r * 2, r * 2, r, width, color);
     }
 
-    /** Контур скруглённого прямоугольника, внутрь от края. */
     public static void stroke(GuiGraphics g, float x, float y, float width, float height, float radius,
                               float strokeWidth, int color) {
         draw(g, x, y, width, height, radius, strokeWidth, 0f, 0f, color, color);
     }
 
-    /** Мягкая тень/свечение вокруг прямоугольника, растекается наружу на {@code spread}. */
     public static void shadow(GuiGraphics g, float x, float y, float width, float height, float radius,
                               float spread, int color) {
         draw(g, x - spread, y - spread, width + spread * 2, height + spread * 2, radius + spread,
                 0f, 0f, spread * 2, color, color);
     }
 
-    /**
-     * Прямоугольник с размытым кадром под ним; альфа {@code tint} — насколько оттенок перекрывает блюр.
-     * Нужен {@link #captureFrame()} раньше в этом кадре.
-     */
     public static void glass(GuiGraphics g, float x, float y, float width, float height, float radius,
                              float blur, int tint) {
         if (frameCopy == null) {
@@ -130,7 +106,6 @@ public final class GuiPanelRender {
         draw(g, x, y, width, height, radius, 0f, Math.max(blurPixels, 0.001f), 0f, tint, tint);
     }
 
-    /** Стеклянная панель в стиле экрана: тень, стекло, лёгкий блик сверху и тонкая рамка. */
     public static void panel(GuiGraphics g, float x, float y, float width, float height) {
         panel(g, x, y, width, height, PANEL_RADIUS);
     }
@@ -142,11 +117,6 @@ public final class GuiPanelRender {
         stroke(g, x, y, width, height, radius, 0.5f, PANEL_BORDER);
     }
 
-    /**
-     * Размывает и затемняет весь кадр на месте. В отличие от остальных методов работает вне прохода GUI:
-     * ставит свои матрицы, поэтому годится для прохода мира — до того, как нарисовано то, что должно остаться резким.
-     * {@code blur} в единицах GUI.
-     */
     public static void blurFrame(float blur, int tint) {
         if (Shaders.guiPanel == null) {
             return;
@@ -165,7 +135,6 @@ public final class GuiPanelRender {
         RenderSystem.depthMask(false);
         RenderSystem.disableCull();
 
-        // прямоугольник — сам кадр, размер в пикселях, чтобы сглаживание края осталось за его пределами
         drawQuad(Shaders.guiPanel, new Matrix4f(), 0f, 0f, 1f, 1f, main.width, main.height, 0f, 0f,
                 Math.max(blurPixels, 0.001f), 0f, tint, tint);
 
@@ -182,7 +151,6 @@ public final class GuiPanelRender {
         if (width <= 0 || height <= 0) {
             return;
         }
-        // всё, что GuiGraphics накопил, должно оказаться под этим прямоугольником
         g.flush();
         ShaderInstance shader = Shaders.guiPanel;
         if (shader == null) {
@@ -195,7 +163,6 @@ public final class GuiPanelRender {
                 radius, strokeWidth, blurPixels, softness, top, bottom);
     }
 
-    /** {@code shapeWidth}/{@code shapeHeight} — размер, по которому шейдер скругляет и сглаживает прямоугольник. */
     private static void drawQuad(ShaderInstance shader, Matrix4f matrix, float x, float y, float width, float height,
                                  float shapeWidth, float shapeHeight, float radius, float strokeWidth,
                                  float blurPixels, float softness, int top, int bottom) {
@@ -227,7 +194,6 @@ public final class GuiPanelRender {
                 .color((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, color >>> 24).endVertex();
     }
 
-    /** Линейное смешение двух ARGB-цветов, {@code t} в 0..1. */
     public static int mix(int from, int to, float t) {
         t = Math.max(0f, Math.min(1f, t));
         int a = Math.round((from >>> 24) + ((to >>> 24) - (from >>> 24)) * t);
@@ -237,16 +203,11 @@ public final class GuiPanelRender {
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
-    /** Тот же цвет с другой альфой (0..1 от исходной). */
     public static int alpha(int color, float factor) {
         int a = Math.round((color >>> 24) * Math.max(0f, Math.min(1f, factor)));
         return (a << 24) | (color & 0xFFFFFF);
     }
 
-    /**
-     * Плавно ведёт значение 0..1 к 1, пока {@code active}, и обратно к 0.
-     * Один экземпляр на анимируемый элемент, {@link #update} — раз в кадр.
-     */
     public static class Fade {
         private final float speed;
         private float value;

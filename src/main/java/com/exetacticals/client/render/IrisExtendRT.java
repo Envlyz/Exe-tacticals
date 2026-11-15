@@ -51,11 +51,6 @@ public class IrisExtendRT {
         }
     }
 
-    /*
-    * 必须在iris resize fbo之前进行分辨率检测，然后提前detach，否则N卡平台会：
-    * GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS
-    * 然后直接爆炸！
-    * */
     public static void preFrameCheck(int expectedWidth, int expectedHeight) {
         if (attachmentLayoutLocation == -1) {
             return;
@@ -68,12 +63,10 @@ public class IrisExtendRT {
         }
         int status = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
         if (status != GL30.GL_FRAMEBUFFER_COMPLETE) {
-            // 如果 FBO 不完整，直接 return，不进行后续的销毁和重建
             return;
         }
         System.out.println("[MuzzleRT] Resize detected: " + lastWidth + "x" + lastHeight + " -> " + expectedWidth + "x" + expectedHeight);
 
-        // 如果之前 attach 过，先 detach
         if (lastUsingFbo != -1) {
             GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, lastUsingFbo);
 
@@ -90,13 +83,11 @@ public class IrisExtendRT {
             lastUsingFbo = -1;
         }
 
-        // 删除旧 texture
         if (textureId != -1) {
             GL11.glDeleteTextures(textureId);
             textureId = -1;
         }
 
-        //创建新 texture（用“目标尺寸”，不是从 FBO 读）
         textureId = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
 
@@ -147,13 +138,11 @@ public class IrisExtendRT {
                 GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE
         );
 
-        // 已经 attach 就不用管
         if (type != GL11.GL_NONE) {
             lastUsingFbo = fbo;
             return;
         }
 
-        // attach
         GL30.glFramebufferTexture2D(
                 GL30.GL_FRAMEBUFFER,
                 attachment,
@@ -166,6 +155,5 @@ public class IrisExtendRT {
 
         System.out.println("[MuzzleRT] Attached to FBO " + fbo);
     }
-
 
 }

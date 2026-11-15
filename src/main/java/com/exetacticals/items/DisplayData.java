@@ -19,12 +19,12 @@ public class DisplayData implements IJsonSync {
     public static final int SPRINTING = 5;
 
     private final float[][] displayData = new float[][] {
-            {0,0,0,0,0,0,FIRST_PERSON_SCALE,FIRST_PERSON_SCALE,FIRST_PERSON_SCALE},// First Person
-            {0,0,0,0,0,0,1,1,1},// Third Person
-            {0,0,0,0,0,0,1,1,1},// Ground
-            {0,0,0,0,0,0,1,1,1},// Frame
-            {0,0,0,0,0,0,1,1,1},// Attachment Screen
-            {0,0,0,0,0,0,1,1,1}// Sprinting
+            {0,0,0,0,0,0,FIRST_PERSON_SCALE,FIRST_PERSON_SCALE,FIRST_PERSON_SCALE},
+            {0,0,0,0,0,0,1,1,1},
+            {0,0,0,0,0,0,1,1,1},
+            {0,0,0,0,0,0,1,1,1},
+            {0,0,0,0,0,0,1,1,1},
+            {0,0,0,0,0,0,1,1,1}
     };
 
     private final float[] aimingTranslation = new float[] {
@@ -119,7 +119,6 @@ public class DisplayData implements IJsonSync {
     public float[] getSprintingTranslate() {
         return displayData[SPRINTING];
     }
-
 
     @OnlyIn(Dist.CLIENT)
     private void translateAndRotate(float[] trans, PoseStack poseStack) {

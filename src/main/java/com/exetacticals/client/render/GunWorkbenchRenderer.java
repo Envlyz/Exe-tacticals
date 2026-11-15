@@ -27,45 +27,22 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Скрафченное оружие, лежащее на столе верстака, и его белая обводка.
- *
- * <p>Обводка — свой шейдер ({@link GunOutline}): второй проход мешей сплошным белым ({@link Shaders#solidColor})
- * в маску, затем полноэкранный проход рисует белый контур вокруг силуэта.</p>
- */
 public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlockEntity> {
-    /** Центр свободной части столешницы в пространстве модели (верстак смотрит на север), в блоках. */
     private static final float CENTER_X = 0f;
     private static final float CENTER_Z = 6.6f / 16f;
     private static final float TABLE_Y = 15.5f / 16f;
-    /** Длина оружия на столе, в блоках (стол — 2 блока). */
     private static final float GUN_LENGTH = 1.35f;
-    /** Габариты корневой модели оружия по экземпляру модели (горячая перезагрузка создаёт новый). */
     private static final java.util.Map<Object, float[]> BOUNDS = new java.util.WeakHashMap<>();
-    /** Копии для отрисовки по предмету на столе (у клиента новый объект при каждой синхронизации). */
     private static final java.util.Map<ItemStack, ItemStack> RENDER_COPIES = new java.util.WeakHashMap<>();
-    /** Габариты всей собранной модели по предмету-копии для отрисовки. */
     private static final java.util.Map<ItemStack, float[]> TREE_BOUNDS = new java.util.WeakHashMap<>();
-    /**
-     * Наклон по диагонали (вокруг вертикали), градусы: дуло уходит назад, к стенке (как на эталонном скриншоте).
-     * Чем больше — тем шире след оружия по глубине стола и тем меньше оно получится.
-     */
     private static final float DIAGONAL = 10f;
-    /**
-     * След оружия на столе (полуразмеры, блоки): прямоугольник вокруг (CENTER_X, CENTER_Z), повёрнутый на DIAGONAL;
-     * длина — вдоль ствола, высота — от магазина к верху оружия. Детали модели верстака стоят снаружи с зазором
-     * 0.4 px (проверено скриптом расстановки) — менять вместе с моделью.
-     */
-    /** Толщина коврика-чертежа под оружием (модель блока, `mat`), блоки. */
     private static final float MAT_THICKNESS = 0.05f / 16f;
-    /** Запасной магазин: центр (модель блока, блоки), поворот вокруг вертикали, длинная сторона. */
     private static final float MAG_X = -8.4f / 16f;
     private static final float MAG_Z = 3.0f / 16f;
     private static final float MAG_YAW = 20f;
     private static final float MAG_SIZE = 4.6f / 16f;
     private static final float FOOT_HALF_LEN = 10.9f / 16f;
     private static final float FOOT_HALF_H = 3.7f / 16f;
-    /** 180 — развернуть оружие на столе (дуло влево, магазин к стенке), если модель смотрит не туда. */
     private static final float FLIP = 0f;
     private static final MultiBufferSource DISCARD = type -> NoopVertexConsumer.INSTANCE;
 
@@ -78,7 +55,6 @@ public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlo
         ItemStack stack = be.crafted();
         Minecraft mc = Minecraft.getInstance();
         Direction facing = be.getBlockState().getValue(GunWorkbenchBlock.FACING);
-        // свет над столом: в самой части стола (блок) свет может быть нулевым
         int topLight = be.getLevel() != null ? LevelRenderer.getLightColor(be.getLevel(), be.getBlockPos().above()) : light;
         pose.pushPose();
         transform(pose, facing);
@@ -99,12 +75,11 @@ public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlo
         pose.popPose();
     }
 
-    /** Поворот как у модели блока (blockstate {@code y}), затем в центр столешницы. */
     private static void transform(PoseStack pose, Direction facing) {
         pose.translate(0.5, 0, 0.5);
         pose.mulPose(Axis.YP.rotationDegrees(-facing.toYRot() + 180f));
         pose.translate(-0.5, 0, -0.5);
-        pose.translate(CENTER_X, TABLE_Y, CENTER_Z); // x = 0 — стык двух половин стола
+        pose.translate(CENTER_X, TABLE_Y, CENTER_Z);
     }
 
     private static void draw(ItemStack stack, PoseStack pose, MultiBufferSource buffers, int light, int overlay, boolean silhouette) {
@@ -121,12 +96,6 @@ public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlo
         }
     }
 
-    /**
-     * Оружие плашмя (боком вверх) на столе, дулом вправо и чуть по диагонали, магазином к игроку. Без {@code DisplayData} (там смещения под рамку/руку).
-     * Масштаб и центр — по габаритам всей собранной модели (корпус + все обвесы): они меряются во время отрисовки
-     * ({@link MeasuringContext}) и кэшируются по предмету, первый кадр — по габаритам корпуса.
-     * В модели оружия ствол вдоль Z, верх — Y, бок — X.
-     */
     private static void drawGun(ItemStack crafted, GunItem gun, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         ItemStack stack = renderStack(crafted, gun);
         ModuleRenderNode node = ModuleHandler.buildRenderTree(stack);
@@ -148,14 +117,10 @@ public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlo
         if (extent <= 1e-6f) {
             return;
         }
-        // не больше GUN_LENGTH и целиком в «следе» FOOT_HALF_LEN × FOOT_HALF_H (повёрнут на DIAGONAL):
-        // детали модели верстака расставлены вокруг этого прямоугольника, оружие их не касается
         float scale = Math.min(GUN_LENGTH / extent, Math.min(2f * FOOT_HALF_LEN / sizeZ, 2f * FOOT_HALF_H / sizeY));
         float cx = (b[0] + b[3]) * 0.5f, cy = (b[1] + b[4]) * 0.5f, cz = (b[2] + b[5]) * 0.5f;
         pose.pushPose();
-        pose.translate(0, sizeX * scale * 0.5f + MAT_THICKNESS + 0.003f, 0); // нижний бок — на коврике
-        // модель оружия: дуло в -Z, верх — +Y, бок — +X. На столе (верстак смотрит на игрока): бок вверх,
-        // дуло вправо от игрока (-X модели блока), рукоять и магазин к игроку (-Z), верх оружия к стенке (+Z)
+        pose.translate(0, sizeX * scale * 0.5f + MAT_THICKNESS + 0.003f, 0);
         pose.mulPose(Axis.YP.rotationDegrees(DIAGONAL + FLIP));
         pose.mulPose(Axis.ZP.rotationDegrees(90f));
         pose.mulPose(Axis.XP.rotationDegrees(90f));
@@ -163,7 +128,6 @@ public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlo
         org.joml.Matrix4f inverse = new org.joml.Matrix4f(pose.last().pose()).invert();
         pose.translate(-cx, -cy, -cz);
         float partialTicks = Minecraft.getInstance().getFrameTime();
-        // NONE: без логики 1-го/3-го лица (вспышки, лазеры, прицельная сетка) — оружие просто лежит
         ModuleRenderContext context = measure
                 ? new MeasuringContext(node, stack, partialTicks, light, overlay, gun, pose, buffers, inverse)
                 : new ModuleRenderContext(null, node, stack, partialTicks, light, overlay,
@@ -175,7 +139,6 @@ public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlo
             pose.popPose();
         }
         if (context instanceof MeasuringContext m && m.bounds[0] <= m.bounds[3]) {
-            // замер — в координатах «после масштаба», т.е. уже со сдвигом на -центр; возвращаем в координаты оружия
             TREE_BOUNDS.put(stack, new float[]{m.bounds[0] + cx, m.bounds[1] + cy, m.bounds[2] + cz,
                     m.bounds[3] + cx, m.bounds[4] + cy, m.bounds[5] + cz});
         }
@@ -193,7 +156,6 @@ public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlo
         return b;
     }
 
-    /** Обычная отрисовка, но собирает габариты каждой модели дерева в системе координат оружия. */
     private static final class MeasuringContext extends ModuleRenderContext {
         final float[] bounds = {Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE,
                 -Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE};
@@ -228,11 +190,6 @@ public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlo
         }
     }
 
-    /**
-     * Запасной магазин АКМ на столе (декор, всегда) — модель магазина из мода, а не кубики модели блока.
-     * Лежит на боку спереди справа, под стволом оружия; длинная сторона {@link #MAG_SIZE}, за след оружия не заходит
-     * (место проверено {@code tools/workbench_props.py}).
-     */
     private static void drawSpareMag(PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         IModular module = GCRModules.AKM_STEEL_MAG;
         IModularModel model = ModuleModelRegister.get(module);
@@ -251,16 +208,15 @@ public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlo
         }
         float scale = MAG_SIZE / extent;
         pose.pushPose();
-        // transform() уже стоит в центре стола (CENTER_X, TABLE_Y, CENTER_Z) — MAG_X/Z заданы в координатах модели блока
         pose.translate(MAG_X - CENTER_X, sizeX * scale * 0.5f + MAT_THICKNESS + 0.003f, MAG_Z - CENTER_Z);
         pose.mulPose(Axis.YP.rotationDegrees(MAG_YAW));
-        pose.mulPose(Axis.ZP.rotationDegrees(90f)); // на бок
+        pose.mulPose(Axis.ZP.rotationDegrees(90f));
         pose.scale(scale, scale, scale);
         pose.translate(-(b[0] + b[3]) * 0.5f, -(b[1] + b[4]) * 0.5f, -(b[2] + b[5]) * 0.5f);
         ModuleRenderNode node = new ModuleRenderNode(model, "exe_tacticals_workbench_mag", module.getID(), false);
         if (module instanceof Mag mag) {
             CompoundTag states = new CompoundTag();
-            mag.setAmmoLeft(mag.getMaxCapacity(), states); // полный — видны патроны
+            mag.setAmmoLeft(mag.getMaxCapacity(), states);
             node.setStates(new ReadOnlyTag(states));
         }
         ModuleRenderContext context = new ModuleRenderContext(null, node, ItemStack.EMPTY,
@@ -275,11 +231,6 @@ public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlo
         }
     }
 
-    /**
-     * Свежескрафченное оружие — {@code new ItemStack(предмет)} без NBT: сборки (дерева обвесов) ещё нет, рисовать нечего.
-     * Для отрисовки берётся копия с начальной сборкой ({@code checkAndGetRaw} пишет её в копию); сам предмет на столе
-     * не меняется.
-     */
     private static ItemStack renderStack(ItemStack crafted, GunItem gun) {
         if (crafted.getTag() != null && !crafted.getTag().isEmpty()) {
             return crafted;
@@ -293,14 +244,13 @@ public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlo
         return cached;
     }
 
-    /** Силуэт оружия сплошным белым в маску {@link GunOutline}; саму обводку рисует её шейдер после погоды. */
     private static void drawOutline(Minecraft mc, ItemStack stack, PoseStack pose, int light, int overlay) {
         if (!(stack.getItem() instanceof GunItem) || !GunOutline.available()) {
             return;
         }
         if (Client.isUsingIrisShader) {
             Shaders.diagOnce("wb_outline_iris", "workbench table: outline skipped (Iris shaders)");
-            return; // с шейдерпаком меши рисуются через ванильный шейдер — сплошной цвет недоступен
+            return;
         }
         try {
             GunOutline.beginMask();
@@ -322,7 +272,6 @@ public class GunWorkbenchRenderer implements BlockEntityRenderer<GunWorkbenchBlo
         return true;
     }
 
-    /** Вершины второго прохода (силуэт) не нужны: в нём рисуются только меши. */
     private static final class NoopVertexConsumer implements VertexConsumer {
         static final NoopVertexConsumer INSTANCE = new NoopVertexConsumer();
 

@@ -32,7 +32,6 @@ public class LaserGlowShader {
     public static int posLoc = -1;
     public static int uvLoc = -1;
 
-    // 新增：记录 3D 球体的顶点总数
     public static int vertexCount = 0;
 
     private static boolean isOK = false;
@@ -107,7 +106,6 @@ public class LaserGlowShader {
         isOK = programId != -1;
     }
 
-    // 过程式 3D 经纬度球体网格生成器
     private static float[] generateSphereVertices(int segments, int rings) {
         List<Float> list = new ArrayList<>();
         for (int r = 0; r < rings; r++) {
@@ -139,11 +137,9 @@ public class LaserGlowShader {
                 float v0 = (float) r / rings;
                 float v1 = (float) (r + 1) / rings;
 
-                // 三角形 1
                 addVertex(list, x00, y00, z0, u0, v0);
                 addVertex(list, x10, y10, z0, u1, v0);
                 addVertex(list, x01, y01, z1, u0, v1);
-                // 三角形 2
                 addVertex(list, x10, y10, z0, u1, v0);
                 addVertex(list, x11, y11, z1, u1, v1);
                 addVertex(list, x01, y01, z1, u0, v1);

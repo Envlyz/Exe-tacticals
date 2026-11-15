@@ -24,12 +24,9 @@ public class GCRMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (mixinClassName.equals("com.exetacticals.mixin.IrisShaderCompatMixin")) {
-            return isShaderLoaderModPresent(); // Patches Oculus/Iris shader sources; only meaningful when it is installed.
+            return isShaderLoaderModPresent();
         }
         if (mixinClassName.equals(IRIS_MIXIN_TEXTURES)) {
-            // Iris/Oculus patch the very same constant (12 -> more texture units) in GlStateManager.<clinit>.
-            // Only one @ModifyConstant can consume it, and Oculus requires its injection to succeed, so
-            // when it is installed we must stay out of the way (it already raises the limit for us).
             return !isShaderLoaderModPresent();
         }
         return true;
@@ -63,7 +60,6 @@ public class GCRMixinPlugin implements IMixinConfigPlugin {
 
     private boolean classExists(String className) {
         try {
-            // initialize = false：只做类查找/解析，不触发 <clinit>，避免副作用和循环加载问题
             Class.forName(className, false, this.getClass().getClassLoader());
             return true;
         } catch (Throwable t) {

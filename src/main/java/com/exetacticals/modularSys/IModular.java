@@ -15,7 +15,6 @@ import net.minecraft.world.item.TooltipFlag;
 import java.util.List;
 import java.util.Set;
 
-
 public interface IModular extends IJsonSync {
 
     void modifyProperties(PropertiesAccessor accessor);
@@ -46,7 +45,6 @@ public interface IModular extends IJsonSync {
 
     void appendHoverText(ItemStack stack, net.minecraft.world.level.Level context, List<Component> tooltipComponents, TooltipFlag tooltipFlag);
 
-    /** Характеристики для тултипа полосками ({@link com.exetacticals.items.tooltip.StatTooltip}). */
     default void appendStatRows(ItemStack stack, List<com.exetacticals.items.tooltip.StatRow> rows) {
     }
 }

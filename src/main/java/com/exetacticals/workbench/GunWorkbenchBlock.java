@@ -32,18 +32,6 @@ import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Верстак (оружейный, магазинный, для обвесов — 2×2; для патронов — 1×2), вид — {@link WorkbenchType}.
- *
- * <p>2 блока в ширину, 2 в высоту, 1 в глубину: внизу стол, над ним задняя стенка с инструментами.
- * Состоит из четырёх блоков: {@link Part#MAIN} рисует модель всего верстака (элементы модели выходят за свой блок),
- * остальные три части невидимы и нужны для коллизии. {@code MAIN} — нижний блок, по которому кликнули (левый, если смотреть на верстак
- * со стороны игрока; вторая половина — справа от игрока ({@code facing.getCounterClockWise()}) и вверх.
- * Ломается любая часть — исчезает весь верстак, предмет выпадает один.</p>
- *
- * <p>У {@code MAIN} есть {@link GunWorkbenchBlockEntity}: скрафченное оружие лежит на столе, пока его не заберут (F);
- * при поломке верстака оно выпадает.</p>
- */
 public class GunWorkbenchBlock extends HorizontalDirectionalBlock implements net.minecraft.world.level.block.EntityBlock {
     public enum Part implements StringRepresentable {
         MAIN("main", 0, 0), RIGHT("right", 1, 0), TOP("top", 0, 1), TOP_RIGHT("top_right", 1, 1);
@@ -65,7 +53,6 @@ public class GunWorkbenchBlock extends HorizontalDirectionalBlock implements net
     }
 
     public static final EnumProperty<Part> PART = EnumProperty.create("part", Part.class);
-    /** низ: стол (столешница на 15.5 px) + начало задней стенки; верх: задняя стенка толщиной 3 px — по сторонам света */
     private static final java.util.Map<Direction, VoxelShape> LOWER = new java.util.EnumMap<>(Direction.class);
     private static final java.util.Map<Direction, VoxelShape> UPPER = new java.util.EnumMap<>(Direction.class);
 
@@ -99,12 +86,10 @@ public class GunWorkbenchBlock extends HorizontalDirectionalBlock implements net
         return type;
     }
 
-    /** Части этого верстака: у узкого (ширина 1) нет правых. */
     private Part[] parts() {
         return type.width >= 2 ? Part.values() : new Part[]{Part.MAIN, Part.TOP};
     }
 
-    /** Позиция части {@code part} верстака, у которого {@code MAIN} стоит в {@code main}. */
     public static BlockPos partPos(BlockPos main, Direction facing, Part part) {
         return main.relative(facing.getCounterClockWise(), part.right).above(part.up);
     }
@@ -142,7 +127,6 @@ public class GunWorkbenchBlock extends HorizontalDirectionalBlock implements net
         }
     }
 
-    /** Ломают часть — остальные убираются без дропа; предмет выпадает только за главную часть (лут-таблица). */
     @Override
     public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
         if (!level.isClientSide) {
@@ -167,7 +151,6 @@ public class GunWorkbenchBlock extends HorizontalDirectionalBlock implements net
         }
     }
 
-    /** Часть пропала не от игрока (взрыв, поршень) — верстак разваливается целиком. */
     @Override
     public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighbor,
                                            @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
@@ -210,7 +193,6 @@ public class GunWorkbenchBlock extends HorizontalDirectionalBlock implements net
         return type.keepsOnTable && state.getValue(PART) == Part.MAIN ? new GunWorkbenchBlockEntity(pos, state) : null;
     }
 
-    /** Главный блок верстака, к которому относится {@code pos}, — его блок-сущность (или {@code null}). */
     @Nullable
     public static GunWorkbenchBlockEntity blockEntity(BlockGetter level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
@@ -220,7 +202,6 @@ public class GunWorkbenchBlock extends HorizontalDirectionalBlock implements net
         return level.getBlockEntity(mainPos(pos, state)) instanceof GunWorkbenchBlockEntity be ? be : null;
     }
 
-    /** Главная часть убрана (сломали, взрыв) — оружие со стола выпадает. */
     @Override
     public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState,
                          boolean moved) {

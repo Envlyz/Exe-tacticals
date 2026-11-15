@@ -31,8 +31,6 @@ public class GunReloadPacket implements IPacket<GunReloadPacket> {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
             ItemStack heldItem = player.getMainHandItem();
-            // Disabled: legacy reload created ammunition without cartridge items.
-            // Physical reload is handled by PhysicalMagazinePacket.
         });
     }}
 

@@ -25,28 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * 自带的 glTF 加载器（替代 jME3）。
- *
- * <p>规则与原先基于 jME3 的实现保持一致：</p>
- * <ul>
- *     <li>骨骼 = 第一个 skin 的 joints，编号就是它在 joints 数组里的下标；</li>
- *     <li>骨骼初始姿态 = 节点自身的 translation / rotation（scale 忽略）；</li>
- *     <li>每个顶点归属权重最大的骨骼，并变换到该骨骼的局部空间；</li>
- *     <li>UV 原样使用（glTF 与 Minecraft 都是左上角为原点）；</li>
- *     <li>挂在骨骼节点自身上的 mesh 会被忽略（jME3 同样不读取它们）。</li>
- * </ul>
- */
 @OnlyIn(Dist.CLIENT)
 public class GltfModelLoader {
 
-    /**
-     * 从指定的资源位置加载模型，并返回纯粹的mesh定义，不具备渲染
-     * 此方法主要用于加载包含蒙皮的gltf模型
-     *
-     * @param location 模型的资源位置
-     * @return 返回模型的数据结构，如果模型没有蒙皮则返回null
-     * */
     public static MeshModelData loadModel(ResourceLocation location) {
         GltfDocument doc;
         try {
@@ -57,7 +38,6 @@ public class GltfModelLoader {
         return loadModel(doc);
     }
 
-    /** 从已解析的文档构建模型数据 */
     public static MeshModelData loadModel(GltfDocument doc) {
         ResourceLocation location = doc.getLocation();
         JsonArray skins = doc.array("skins");
@@ -67,12 +47,10 @@ public class GltfModelLoader {
         }
         JsonArray jointNodes = skins.get(0).getAsJsonObject().getAsJsonArray("joints");
 
-        // 节点下标 -> 骨骼编号
         Map<Integer, Integer> nodeToJoint = new HashMap<>();
         for (int i = 0; i < jointNodes.size(); i++) {
             nodeToJoint.put(jointNodes.get(i).getAsInt(), i);
         }
-        // 骨骼编号 -> 父骨骼编号
         Map<Integer, Integer> parentOf = new HashMap<>();
         for (int i = 0; i < jointNodes.size(); i++) {
             JsonArray children = doc.node(jointNodes.get(i).getAsInt()).getAsJsonArray("children");
@@ -95,13 +73,11 @@ public class GltfModelLoader {
             String name = node.has("name") ? node.get("name").getAsString() : "Joint_" + nodeIndex;
             MeshModelData bone = new MeshModelData();
 
-            // 设置根骨骼
             if ("root".equals(name)) {
                 root = bone;
             }
             boneMap.put(i, bone);
 
-            // 处理父子关系
             Integer parent = parentOf.get(i);
             if (parent != null) {
                 MeshModelData parentPart = boneMap.get(parent);
@@ -112,7 +88,6 @@ public class GltfModelLoader {
                 parentPart.addChild(name, bone);
             }
 
-            // 设置骨骼的初始姿态
             Vector3f translation = new Vector3f();
             Quaternionf rotation = new Quaternionf();
             readTransform(node, translation, rotation);
@@ -126,11 +101,9 @@ public class GltfModelLoader {
             throw new RuntimeException("'root' bone unfound, please check your model: " + location);
         }
 
-        // 构建旋转轴点
         Map<MeshModelData, Pair<Matrix4f, Matrix3f>> pivots = new HashMap<>();
         buildPivots(root, pivots, new PoseStack());
 
-        // 收集场景里所有带 mesh 的普通节点（骨骼节点上的 mesh 不读取）
         List<Integer> meshNodes = new ArrayList<>();
         Set<Integer> visited = new HashSet<>();
         JsonArray scenes = doc.array("scenes");
@@ -182,7 +155,7 @@ public class GltfModelLoader {
             for (int i = 0; i < 16; i++) {
                 m[i] = matrix.get(i).getAsFloat();
             }
-            Matrix4f mat = new Matrix4f().set(m); // glTF 与 JOML 都是列主序
+            Matrix4f mat = new Matrix4f().set(m);
             mat.getTranslation(translation);
             mat.getNormalizedRotation(rotation);
             return;
@@ -197,16 +170,12 @@ public class GltfModelLoader {
         }
     }
 
-    /**
-     * 返回单位：弧度
-     * */
     private static float[] quaternionToEulerZYX(Quaternionf q) {
         float x = q.x;
         float y = q.y;
         float z = q.z;
         float w = q.w;
 
-        // 以下按 ZYX 顺序解析欧拉角
         float sinRCosP = 2 * (w * x + y * z);
         float cosRCosP = 1 - 2 * (x * x + y * y);
         float rollX = (float) Math.atan2(sinRCosP, cosRCosP);
@@ -225,16 +194,12 @@ public class GltfModelLoader {
         return new float[] {rollX, pitchY, yawZ};
     }
 
-    /**
-     * 递归构建骨骼的轴点：保存每个骨骼累积变换的逆矩阵（以及对应的法线矩阵），
-     * 用来把模型空间的顶点变换到骨骼的局部空间。
-     */
     protected static void buildPivots(MeshModelData bone, Map<MeshModelData, Pair<Matrix4f, Matrix3f>> pivots, PoseStack poseStack) {
         poseStack.pushPose();
         bone.translateAndRotate(poseStack);
         Matrix4f invert = new Matrix4f(poseStack.last().pose()).invert();
         Matrix3f normal = new Matrix3f();
-        invert.normal(normal); // inverse-transpose 3x3
+        invert.normal(normal);
         pivots.put(bone, Pair.of(invert, normal));
         for (MeshModelData child : bone.getChildren().values()) {
             buildPivots(child, pivots, poseStack);
@@ -242,9 +207,6 @@ public class GltfModelLoader {
         poseStack.popPose();
     }
 
-    /**
-     * 加载一个 primitive 的三角形，每个顶点归入权重最大的骨骼并变换到该骨骼的局部空间。
-     */
     protected static void loadPrimitive(
             GltfDocument doc,
             JsonObject primitive,
@@ -260,7 +222,6 @@ public class GltfModelLoader {
         float[] nor = doc.readFloats(require(attributes, "NORMAL", location));
         float[] uv = doc.readFloats(require(attributes, "TEXCOORD_0", location));
 
-        // JOINTS_n / WEIGHTS_n，每组 4 个
         List<int[]> jointSets = new ArrayList<>();
         List<float[]> weightSets = new ArrayList<>();
         for (int set = 0; attributes.has("JOINTS_" + set) && attributes.has("WEIGHTS_" + set); set++) {
@@ -295,7 +256,6 @@ public class GltfModelLoader {
             float u = uv[vertexIndex * 2];
             float v = uv[vertexIndex * 2 + 1];
 
-            // 找到权重最大的骨骼（权重相同取靠前的；全为 0 时与旧实现一致退回到 1 号骨骼）
             float maxWeight = Float.MIN_VALUE;
             int fineBoneIndex = 1;
             for (int s = 0; s < jointSets.size(); s++) {

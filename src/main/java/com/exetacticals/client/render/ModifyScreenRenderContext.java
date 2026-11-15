@@ -52,7 +52,6 @@ public class ModifyScreenRenderContext extends ModuleRenderContext implements IR
         }
     }
 
-
     protected void handleStates() {
         if (currentRenderNode().model instanceof IStateViewerModel<?> stateViewerModel) {
             IStateViewer<?> viewer = stateViewerModel.getViewer();

@@ -31,26 +31,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * Экран модификации оружия. Обвес ставится кликом по карточке в полосе снизу,
- * каждое изменение без ошибок сразу уходит на сервер (кнопки «сохранить» нет).
- */
 @OnlyIn(Dist.CLIENT)
 public class GunModifyScreen extends Screen {
-    /** насколько размыт (единицы GUI) и затемнён мир за оружием, пока открыт экран */
     public static final float BACKGROUND_BLUR = 5f;
     public static final int BACKGROUND_TINT = 0x400B0B0E;
 
     private static final int WAITING_TINT = 0x8C0D0D0F;
     private static final float WAITING_BLUR = 12f;
-    /** затемнение «ждём сервер» показывается, только если ответа нет дольше этого */
     private static final int WAITING_OVERLAY_DELAY_TICKS = 10;
 
     private static final float MIN_MODEL_SCALE = 0.5f;
     private static final float MAX_MODEL_SCALE = 2.5f;
-    /** 缩放按钮每次变化的量 */
     private static final float MODEL_ZOOM_STEP = 0.2f;
-    /** 鼠标滚轮每一格的缩放量 */
     private static final float MODEL_WHEEL_ZOOM_STEP = 0.1f;
 
     private GunModifyContext context;
@@ -58,9 +50,7 @@ public class GunModifyScreen extends Screen {
     private boolean isRollingModel = false;
     private boolean needUpdate = false;
     private int waitingTicks = 0;
-    /** mutate id сборки, которую сервер/проверка уже отклонили, — чтобы не слать её каждый тик */
     private int rejectedMutateId = -1;
-    /** что было выбрано при отправке; выбирается снова после ответа сервера */
     private GunModifyContext.Selection pendingSelection = null;
     private float modelRX;
     private float modelRY;
@@ -143,7 +133,6 @@ public class GunModifyScreen extends Screen {
             countManager.onTick(this.minecraft.player);
         }
         checkAndCreateContext();
-        // дерево пересобрано из предмета, старое выделение указывает в прежнее
         lastModularSlot = null;
         onSelectionChange(null, null);
         if (context != null && pendingSelection != null) {
@@ -155,12 +144,10 @@ public class GunModifyScreen extends Screen {
         }
     }
 
-    /** Дев-инструмент (снимки экрана): выбрать слот или стоящий в нём модуль по имени слота. */
     public boolean debugSelectSlot(String slotName) {
         return context != null && context.debugSelectSlot(slotName);
     }
 
-    /** Для {@link GunModifyUI}: {@code addRenderableWidget} protected. */
     public <T extends AbstractWidget> T addUiWidget(T widget) {
         return this.addRenderableWidget(widget);
     }
@@ -184,7 +171,6 @@ public class GunModifyScreen extends Screen {
         if (context != null) {
             context.onTick();
             if (context.consumeRailScrollResync()) {
-                // 模型姿态改变后导轨在屏幕上的方向可能翻转，把 scrollbar 重新对齐到模块的实际位置
                 syncScrollerToSelectedNode();
             }
             Node selectedNode = context.getSelectedNode();
@@ -201,16 +187,10 @@ public class GunModifyScreen extends Screen {
         }
     }
 
-    /**
-     * Кнопки «сохранить» нет: каждое изменение, прошедшее проверку, сразу уходит на сервер.
-     * Сборка с ошибками остаётся только в предпросмотре, пока ошибку не исправят.
-     */
     private void tryAutoCommit() {
         if (needUpdate || !context.treeModified() || !context.allowSave()) {
             return;
         }
-        // ползунок планки ещё тянут — положение уйдёт после отпускания.
-        // MouseHandler.isLeftPressed() не обновляется при открытом экране, поэтому спрашиваем GLFW
         if (this.minecraft != null && GLFW.glfwGetMouseButton(
                 this.minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS) {
             return;
@@ -250,7 +230,6 @@ public class GunModifyScreen extends Screen {
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderGunModel();
-        // оружие из прохода мира уже в кадре — панели размывают его вместе с миром
         GuiPanelRender.captureFrame();
         if (context != null && !inspectionMode) {
             context.renderComponents(guiGraphics);
@@ -269,7 +248,6 @@ public class GunModifyScreen extends Screen {
         g.pose().pushPose();
         g.pose().translate(0, 0, 500);
         GuiPanelRender.glass(g, 0, 0, this.width, this.height, 0f, WAITING_BLUR, WAITING_TINT);
-        // три точки, бегущие по кругу
         float time = (System.currentTimeMillis() % 1200L) / 1200f;
         float cx = this.width / 2f;
         float cy = this.height / 2f - 12;
@@ -301,9 +279,6 @@ public class GunModifyScreen extends Screen {
         }
     }
 
-    /**
-     * Клик по обвесу сразу ставит его: в выбранный пустой слот — установка, при выбранном модуле — замена.
-     */
     public void onAttachmentSlotClick(DisplaySlot slot) {
         if (context == null || needUpdate || slot.getValue().isEmpty() || slot.getCount() <= 0 || slot.isInstalled()) {
             return;
@@ -345,7 +320,6 @@ public class GunModifyScreen extends Screen {
         modelScale = Mth.clamp(modelScale - MODEL_ZOOM_STEP, MIN_MODEL_SCALE, MAX_MODEL_SCALE);
     }
 
-    /** Колесо мыши масштабирует модель; над панелями — ничего. */
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
         if (inspectionMode) {
@@ -362,7 +336,6 @@ public class GunModifyScreen extends Screen {
             return true;
         }
         if (GunModifyUI.isOverPanel(mouseX, mouseY)) {
-            // колесо над полосой листает страницы
             if (scrollY != 0 && getMaxPage() > 1) {
                 changePage(scrollY > 0 ? -1 : 1);
             }
@@ -468,7 +441,6 @@ public class GunModifyScreen extends Screen {
         }
     }
 
-    /** Подсказка на стеклянной «таблетке», гаснет за последние 10 тиков. */
     private void renderPill(GuiGraphics g, Component text, int cx, int y, int ticksLeft) {
         float alpha = Math.min(1f, ticksLeft / 10f);
         int w = this.font.width(text) + 16;
@@ -525,7 +497,6 @@ public class GunModifyScreen extends Screen {
         SlotInstance selectedSlot = node == null ? slot : node.getBelongsTo();
         if (node != null && node.getBelongsToSlot() instanceof IRail rail && !node.isFixedPosition()) {
             GunModifyUI.setScrollComponentsVisible(true);
-            // 导轨位置需要按当前视角下的移动方向转换成 scrollbar 的值
             GunModifyUI.setScrollPos(context.railPosToScrollValue(rail.getNormalizedChildPosition(node.getUnit())));
         } else {
             GunModifyUI.setScrollComponentsVisible(false);
@@ -567,7 +538,6 @@ public class GunModifyScreen extends Screen {
         }
     }
 
-    /** 把 scrollbar 的位置同步成当前所选模块在导轨上的位置 */
     private void syncScrollerToSelectedNode() {
         if (context == null) {
             return;
@@ -623,7 +593,6 @@ public class GunModifyScreen extends Screen {
                 module, allSuitableModules.size());
     }
 
-    /** Имя слота: перевод {@code slot.exe_tacticals.<имя>}, иначе «Rail upper» из «RAIL_UPPER». */
     public static Component slotLabel(String slotName) {
         if (slotName == null || slotName.isEmpty()) {
             return Component.empty();
@@ -737,6 +706,5 @@ public class GunModifyScreen extends Screen {
 
     @Override
     public void renderBackground(@NotNull GuiGraphics guiGraphics) {
-        // фон — сам мир (размыт в проходе мира), ванильное затемнение не нужно
     }
 }

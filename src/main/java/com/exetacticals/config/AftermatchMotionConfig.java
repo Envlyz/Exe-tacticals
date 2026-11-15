@@ -2,11 +2,6 @@ package com.exetacticals.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-/**
- * Aftermatch-only first-person presentation options.
- * Sway defaults reproduce the supplied TaCZ Additions client configuration.
- * Wall-tuck is configured separately because it is not in that client TOML.
- */
 public final class AftermatchMotionConfig {
     public static final ForgeConfigSpec SPEC;
 
@@ -24,7 +19,6 @@ public final class AftermatchMotionConfig {
     public static final ForgeConfigSpec.DoubleValue HIP_MAX_PITCH;
     public static final ForgeConfigSpec.DoubleValue HIP_MAX_YAW;
 
-    // Optional test-only inertial roll when the weapon is held at the hip.
     public static final ForgeConfigSpec.BooleanValue ENABLE_HIPFIRE_BANK;
     public static final ForgeConfigSpec.DoubleValue HIPFIRE_BANK_MAX_ANGLE;
     public static final ForgeConfigSpec.DoubleValue HIPFIRE_BANK_TURN_SENSITIVITY;

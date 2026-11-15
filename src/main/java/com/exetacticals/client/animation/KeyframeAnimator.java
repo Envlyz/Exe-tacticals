@@ -15,7 +15,6 @@ import static com.exetacticals.client.animation.AnimationChannel.Targets.POSITIO
 public class KeyframeAnimator {
     private static final Vector3f INTERPOLATION_RESULT_CACHE = new Vector3f(0,0,0);
 
-
     public static void animate(IAnimated root, AnimationDef definition, float progress) {
         _animateWithProgress(root, definition, progress, 0.0625f, 0.0625f, 0.0625f);
     }
@@ -26,12 +25,10 @@ public class KeyframeAnimator {
             float progress,
             float scaleX, float scaleY, float scaleZ) {
 
-
         float clampedProgress = Mth.clamp(progress, 0.0F, 1.0F);
         float timeDist = clampedProgress * definition.lengthInSeconds();
         applyAnimationToBones(root, definition, timeDist, scaleX, scaleY, scaleZ);
     }
-    // ==========================================
 
     public static float dist(
             long startTime, long shift,
@@ -79,13 +76,9 @@ public class KeyframeAnimator {
             return;
         }
 
-        // 提取出公共的骨骼应用方法
         applyAnimationToBones(root, definition, timeDist, scaleX, scaleY, scaleZ);
     }
 
-    /**
-     * 提取出的公共核心方法：遍历所有动画通道并应用到对应的骨骼上
-     */
     private static void applyAnimationToBones(IAnimated root, AnimationDef definition, float timeDist, float scaleX, float scaleY, float scaleZ) {
         for (Map.Entry<String, List<AnimationChannel>> entry : definition.boneAnimations().entrySet()) {
             Optional<IAnimated> optional = root.findByName(entry.getKey());

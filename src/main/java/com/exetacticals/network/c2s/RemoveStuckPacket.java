@@ -14,13 +14,6 @@ import com.exetacticals.network.GCRNetwork;
 import com.exetacticals.network.PacketContext;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * 客户端清障动作完成，请求服务端解除卡壳。
- *
- * <p>带上 gunId 有两个原因：一是玩家可能在清障动画期间切枪，服务端必须去背包里找对那一把，
- * 而不是把解除作用到当前主手武器上；二是服务端处理完必须回 {@link GunStuckSyncPacket}，
- * 客户端用它了结本地预测——客户端在自认为卡壳时不会开火，不能等下一次开火被拒才同步。</p>
- */
 public class RemoveStuckPacket implements IPacket<RemoveStuckPacket> {
     public static final ResourceLocation ID = GCR.RL("remove_stuck");
 
@@ -47,8 +40,6 @@ public class RemoveStuckPacket implements IPacket<RemoveStuckPacket> {
     public void onServer(RemoveStuckPacket packet, PacketContext context) {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
-            // Physical-magazine mechanics: the server accepts clearing only after a held-R
-            // authorization and an actual minimum clearing animation period.
             long started = player.getPersistentData().getLong(PhysicalMagazinePacket.JAM_START_KEY);
             String startedGun = player.getPersistentData().getString(PhysicalMagazinePacket.JAM_GUN_KEY);
             long elapsed = player.level().getGameTime() - started;
@@ -75,10 +66,6 @@ public class RemoveStuckPacket implements IPacket<RemoveStuckPacket> {
         });
     }
 
-    /**
-     * 按 identityID 在玩家身上找那把枪：优先主手，其次背包。
-     * 找不到返回 {@link ItemStack#EMPTY}。
-     */
     private static ItemStack findGun(ServerPlayer player, String gunId) {
         ItemStack mainHand = player.getMainHandItem();
         if (mainHand.getItem() instanceof GunItem gunItem

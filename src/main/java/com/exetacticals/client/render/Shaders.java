@@ -8,28 +8,18 @@ import net.minecraft.server.packs.resources.ResourceProvider;
 public class Shaders {
     private static final java.util.Set<String> DIAG_SEEN = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
-    /** Logs a render-path diagnostic message once per key (avoids per-frame spam). */
     public static void diagOnce(String key, String message) {
         if (DIAG_SEEN.add(key)) {
             GCR.LOGGER.warn("[GCR RenderDiag] {}", message);
         }
     }
 
-
-    /**
-     * Сплошной цвет для {@code entity_cutout_ubo} (RGBA; альфа 0 — обычная отрисовка). Ставится на время прохода силуэта
-     * для обводки ({@code client.render.GunWorkbenchRenderer}) и сразу сбрасывается.
-     */
     public static final float[] solidColor = {0f, 0f, 0f, 0f};
 
     public static ShaderInstance entityCutOutUBO;
-    /** Скруглённые панели GUI (заливка, обводка, стекло с блюром), см. {@code client.screen.GuiPanelRender}. */
     public static ShaderInstance guiPanel;
-    /** MSDF-текст (шрифт тултипов, {@code client.tooltip.MsdfFont}). */
     public static ShaderInstance msdfFont;
-    /** Белая обводка оружия на столе верстака ({@code client.render.fx.GunOutline}). */
     public static ShaderInstance gunOutline;
-    /** Круговое меню магазинов ({@code client.screen.MagazineWheelScreen}): лепестки, подсветка, стекло. */
     public static ShaderInstance radialWheel;
 
     public static ShaderInstance getEntityCutOutUBO() {

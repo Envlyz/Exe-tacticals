@@ -17,10 +17,6 @@ public class MuzzleEntry {
     private final MuzzleFlash muzzleFlash;
     private final FastMuzzleSmoke muzzleSmoke;
     private final float smokeScale;
-    /**
-     * 这一条 MuzzleEntry 自己的 slow smoke 参数（fadeSeconds / localScale / expand / flyDir / flyDirRand），
-     * 每把枪在这里单独配置，null 表示用 {@link SlowSmokeEntry} 的默认参数
-     */
     @Nullable
     private SlowSmokeEntry slowSmokeEntry;
     public boolean enabled;
@@ -79,9 +75,6 @@ public class MuzzleEntry {
         return smokeScale;
     }
 
-    /**
-     * 这条 MuzzleEntry 自己的 slow smoke 参数，可以为 null（表示用 {@link SlowSmokeEntry} 的默认参数）
-     */
     @Nullable
     public SlowSmokeEntry getSlowSmokeEntry() {
         return slowSmokeEntry;

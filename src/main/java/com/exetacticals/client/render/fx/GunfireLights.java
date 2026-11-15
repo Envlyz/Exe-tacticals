@@ -33,20 +33,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Свет от выстрелов — только в кадре каждого клиента, мир не меняется (никаких блоков света и пересчёта освещения).
- *
- * <p>Каждый выстрел (свой и чужой) добавляет короткоживущий точечный источник у дула. После отрисовки мира
- * один полноэкранный проход ({@code shaders/core/gunfire_light.fsh}) по буферу глубины восстанавливает точку мира
- * для пикселя и добавляет тёплый свет с затуханием по расстоянию и с учётом направления поверхности.
- * Проход выполняется только в кадрах, где есть живые вспышки. С шейдерпаком (Iris) не рисуется.</p>
- */
 @OnlyIn(Dist.CLIENT)
 public final class GunfireLights {
     private static final int MAX_LIGHTS = 8;
-    /** длительность вспышки, мс */
     private static final float DURATION_MS = 60f;
-    /** дев-тест: продлить вспышку и держать полную силу, чтобы разглядеть её на снимке */
     public static float debugHoldMs = 0f;
     private static final float COLOR_R = 1.0f;
     private static final float COLOR_G = 0.72f;
@@ -71,9 +61,6 @@ public final class GunfireLights {
     private GunfireLights() {
     }
 
-    // ------------------------------------------------------------------ источники
-
-    /** Выстрел {@code shooter}: свет у дула по направлению взгляда, сила — по дульному устройству. */
     public static void onShot(Entity shooter, IGun gun, ItemStack weapon) {
         if (shooter == null) {
             return;
@@ -97,7 +84,6 @@ public final class GunfireLights {
     @SubscribeEvent
     public static void onRenderTick(TickEvent.RenderTickEvent event) {
         if (event.phase == TickEvent.Phase.START && hasLights() && Minecraft.useShaderTransparency()) {
-            // в «Изумительной» графике глубина собирается из нескольких буферов
             FabulousDepthTextureHandler.mergeDepthThisFrame();
         }
     }
@@ -110,12 +96,9 @@ public final class GunfireLights {
         }
     }
 
-    // ------------------------------------------------------------------ отрисовка
-
     @SubscribeEvent
     public static void onRenderStage(RenderLevelStageEvent event) {
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
-            // матрицы этого кадра: проекция мира и поворот камеры
             invProj.set(event.getProjectionMatrix()).invert();
             invViewRot.set(event.getPoseStack().last().pose()).invert();
             matricesReady = true;
@@ -143,7 +126,6 @@ public final class GunfireLights {
                 if (t < 0f || t > 1f) {
                     continue;
                 }
-                // резкий пик и быстрый спад
                 float k = (1f - t) * (1f - t) * l.strength();
                 Vec3 rel = l.pos().subtract(cam);
                 if (rel.lengthSqr() > 64 * 64) {

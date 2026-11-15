@@ -43,7 +43,6 @@ public class Node {
         }
     }
 
-    // 提供一系列方便的结构操作方法
     public String getID() {
         return id;
     }
@@ -169,7 +168,6 @@ public class Node {
             List<Node> removed = new ArrayList<>();
             removed.add(oldNode);
 
-            // 迁移 oldNode 的子节点
             List<Map.Entry<SlotInstance, List<Node>>> snapshot = new ArrayList<>(oldNode.slotToChildren.entrySet());
             for (Map.Entry<SlotInstance, List<Node>> entry : snapshot) {
                 ISlot slot = entry.getKey().getSlot();
@@ -274,7 +272,7 @@ public class Node {
             Node node = new Node(modular);
             node.id = id;
             boolean loadParam = false;
-            if (EMPTY_ID.equals(parentId) && root == null) { // root
+            if (EMPTY_ID.equals(parentId) && root == null) {
                 root = node;
                 idToNodes.put(id, node);
                 loadParam = true;

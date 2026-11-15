@@ -11,7 +11,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
-
 @OnlyIn(Dist.CLIENT)
 public class ArmPoseHandler implements IClientItemExtensions {
 

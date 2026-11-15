@@ -16,20 +16,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-/**
- * Белая обводка оружия на столе верстака — свой шейдер ({@code shaders/core/gun_outline}).
- *
- * <ol>
- *     <li>{@link #beginMask()} / {@link #endMask()}: BER верстака рисует силуэт оружия (сплошной белый) в отдельную
- *     маску того же размера, что кадр. Глубина маски — копия глубины кадра, поэтому закрытое стенами в маску не попадает.</li>
- *     <li>{@link #onRenderStage}: после погоды полноэкранный проход красит пиксели кадра вокруг силуэта
- *     (в радиусе {@link #width()} px) в белый, маска очищается.</li>
- * </ol>
- */
 @OnlyIn(Dist.CLIENT)
 public final class GunOutline {
     private static TextureTarget mask;
-    /** В маску в этом кадре что-то нарисовано (и глубина уже скопирована). */
     private static boolean dirty;
 
     private GunOutline() {
@@ -39,7 +28,6 @@ public final class GunOutline {
         return Shaders.gunOutline != null;
     }
 
-    /** Привязать маску для рисования силуэта. После рисования — {@link #endMask()}. */
     public static void beginMask() {
         RenderTarget main = Minecraft.getInstance().getMainRenderTarget();
         if (mask == null) {
@@ -61,7 +49,6 @@ public final class GunOutline {
         Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
     }
 
-    /** Толщина обводки в пикселях: 2 px на 1080p, растёт с разрешением. */
     private static float width() {
         return Math.max(1.5f, Minecraft.getInstance().getMainRenderTarget().height / 540f);
     }

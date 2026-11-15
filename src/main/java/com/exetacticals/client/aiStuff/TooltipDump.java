@@ -16,11 +16,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.File;
 
-/**
- * Дев-инструмент: снимок тултипов нескольких предметов на главном экране.
- * {@code -Dexe_tacticals.dumpTooltips=m4a1,ar_ext_handguard,...} (id предметов мода) →
- * {@code run/screenshots/tooltips.png}; с {@code -Dexe_tacticals.dumpTooltipsExit=true} игра закрывается.
- */
 @OnlyIn(Dist.CLIENT)
 public final class TooltipDump {
     private static final String ITEMS = System.getProperty("exe_tacticals.dumpTooltips", "");

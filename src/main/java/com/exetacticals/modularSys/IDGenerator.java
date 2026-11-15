@@ -46,9 +46,6 @@ public class IDGenerator {
         return new String(result);
     }
 
-    /**
-     * String长度 <= 9，该方法获取不碰撞的唯一id值
-     * */
     public static long base62ToLong(String s) {
         long value = 0;
         for (int i = 0; i < s.length(); i++) {

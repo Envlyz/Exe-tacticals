@@ -18,9 +18,6 @@ public interface IStateViewer<T extends IStateView> {
     void addStateMapping(String stateName, String animationPath, float scale, float progress);
 
     boolean removeStateMapping(String stateName);
-    /**
-     * 从资源池中获取动画定义
-     * */
     Optional<AnimationDef> getAnimationDef(String path);
 
     StaticState getState(String stateName);
@@ -30,7 +27,6 @@ public interface IStateViewer<T extends IStateView> {
     T getStateView();
 
     void applyState(IAnimated animated, ModuleRenderContext context, ReadOnlyTag states);
-
 
     class EmptyStateViewer implements IStateViewer<IStateView> {
         @Override

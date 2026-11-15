@@ -16,11 +16,8 @@ public class PlayerCommonStatus implements INBTSync {
 
     public PlayerCommonStatus() {}
 
-    //do not save
     public boolean reloading;
-    //save
     public long gcrCredit;
-    //sync to client and send broadcast? save
     public boolean dataChanged;
 
     public long getGcrCredit() {

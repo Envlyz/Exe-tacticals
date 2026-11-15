@@ -1,10 +1,5 @@
 package com.exetacticals.client.recoil;
 
-/**
- * 武器后坐力物理参数配置包
- */
-
-
 public class RecoilData {
     private RecoilImpulse impulse;
     private RecoilController recoilController;

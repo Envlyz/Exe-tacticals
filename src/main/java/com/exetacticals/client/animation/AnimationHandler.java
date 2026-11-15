@@ -20,9 +20,6 @@ public class AnimationHandler {
     protected AnimationHandler() {
     }
 
-    /**
-     * push keyframe animation recoil
-     * */
     public void pushRecoil(AnimationDef recoilAnimation, long shootTime) {
         if (recoils.size() < MAX_KEYFRAME_ANIMATION_LEN) {
             recoils.add(new AnimationInstance(recoilAnimation, shootTime));
@@ -60,7 +57,6 @@ public class AnimationHandler {
             sequence.apply(root, context);
         }
     }
-
 
     public boolean has(String name) {
         IAnimationSequence sequence = animations.get(name);

@@ -18,7 +18,7 @@ import java.util.Random;
 @OnlyIn(Dist.CLIENT)
 public class FragmentParticle extends TextureSheetParticle {
 
-    public static final int POOL_SIZE = 1024; // 必须是2的幂
+    public static final int POOL_SIZE = 1024;
     public static final int POOL_MASK = POOL_SIZE - 1;
     public static final float[] DIR_X = new float[POOL_SIZE];
     public static final float[] DIR_Y = new float[POOL_SIZE];
@@ -56,7 +56,6 @@ public class FragmentParticle extends TextureSheetParticle {
         this.gravity = 0.0F;
         this.hasPhysics = false;
 
-        // 仅记录一个基于位置的初始种子
         Random rand = new Random((long) (x * y * z * 1000));
         this.baseSeed = rand.nextInt();
         this.color = options.color;
@@ -114,7 +113,6 @@ public class FragmentParticle extends TextureSheetParticle {
             seed ^= seed << 13;
             seed ^= seed >>> 17;
             seed ^= seed << 5;
-
 
             int dirIdx = seed & POOL_MASK;
             float dirX = DIR_X[dirIdx];

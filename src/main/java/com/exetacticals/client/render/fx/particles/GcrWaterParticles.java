@@ -22,20 +22,10 @@ import net.minecraft.tags.FluidTags;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-/**
- * The three TaCZ Additions water effect types using Minecraft's own particle
- * atlas sprites, without copying textures or depending on TaCZ Additions.
- */
 @OnlyIn(Dist.CLIENT)
 public final class GcrWaterParticles {
     private GcrWaterParticles() {}
 
-    /**
-     * TaCZ Additions' optional above-water bubble pass: the water layer
-     * renders after normal particles and otherwise hides underwater trails.
-     * We disable depth ONLY for bubbles in this pass; water puffs and drops
-     * still use depth-tested translucent particle rendering.
-     */
     private static final ParticleRenderType THROUGH_WATER = new ParticleRenderType() {
         @Override
         public void begin(BufferBuilder buffer, TextureManager textures) {

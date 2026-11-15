@@ -23,10 +23,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 
-/**
- * Lightweight, client-only wall decals. No entities, chunks or saved data.
- * Bounded to 256 marks per world; each mark expires after 90 seconds.
- */
 @OnlyIn(Dist.CLIENT)
 public final class BulletImpactDecals {
     private static final RenderType RENDER_TYPE =
@@ -87,8 +83,6 @@ public final class BulletImpactDecals {
     }
 
     private static boolean isBackingBlockPresent(ClientLevel level, Decal mark) {
-        // Probe inside the original face; do not leave decals floating if a
-        // wall is broken, while avoiding any persistent blockstate references.
         BlockPos behind = BlockPos.containing(mark.position.subtract(mark.normal.scale(0.02)));
         return !level.getBlockState(behind).isAir();
     }
@@ -101,7 +95,6 @@ public final class BulletImpactDecals {
         Vector3f right = reference.cross(n, new Vector3f()).normalize();
         Vector3f up = n.cross(right, new Vector3f()).normalize();
 
-        // Stable per-mark orientation breaks up repeated texture patterns.
         double rotation = mark.rotation;
         Vector3f a = new Vector3f(right).mul((float) Math.cos(rotation))
                 .add(new Vector3f(up).mul((float) Math.sin(rotation))).mul(0.065f);

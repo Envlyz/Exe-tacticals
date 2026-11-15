@@ -21,23 +21,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Рецепт оружейного верстака: результат + список «ингредиент × количество» (без сетки).
- * Лежит в датапаке {@code data/<ns>/recipes/...json} с {@code "type": "exe_tacticals:gun_crafting"}:
- * <pre>
- * { "type": "exe_tacticals:gun_crafting", "station": "gun", "category": "rifle",
- *   "result": { "item": "exe_tacticals:m4a1" },
- *   "ingredients": [ { "item": "minecraft:iron_ingot", "count": 20 }, { "tag": "forge:dusts/redstone", "count": 6 } ] }
- * </pre>
- * {@code station} — верстак ({@link WorkbenchType#station}: gun, magazine, attachment, ammo), по умолчанию gun.
- * Рецепты синхронизируются на клиент обычным менеджером рецептов.
- */
 public class GunCraftingRecipe implements Recipe<Container> {
     public record Entry(Ingredient ingredient, int count) {}
 
     private final ResourceLocation id;
     private final String category;
-    /** на каком верстаке крафтится: {@link WorkbenchType#station} ({@code gun} по умолчанию) */
     private final String station;
     private final ItemStack result;
     private final List<Entry> entries;
@@ -66,7 +54,6 @@ public class GunCraftingRecipe implements Recipe<Container> {
         return entries;
     }
 
-    /** Сколько предметов, подходящих под {@code ingredient}, есть в основном инвентаре и второй руке. */
     public static int count(Inventory inventory, Ingredient ingredient) {
         int n = 0;
         for (ItemStack stack : inventory.items) {
@@ -91,7 +78,6 @@ public class GunCraftingRecipe implements Recipe<Container> {
         return true;
     }
 
-    /** Забирает ингредиенты; вызывать только после {@link #canCraft}. */
     public void consume(Inventory inventory) {
         for (Entry entry : entries) {
             int left = entry.count();
@@ -115,11 +101,9 @@ public class GunCraftingRecipe implements Recipe<Container> {
         return left;
     }
 
-    // ---------------------------------------------------------------- Recipe
-
     @Override
     public boolean matches(@NotNull Container container, @NotNull Level level) {
-        return false; // крафтится только из меню верстака
+        return false;
     }
 
     @Override
@@ -144,7 +128,7 @@ public class GunCraftingRecipe implements Recipe<Container> {
 
     @Override
     public boolean isSpecial() {
-        return true; // не показывать в книге рецептов
+        return true;
     }
 
     @Override

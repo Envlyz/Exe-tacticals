@@ -15,14 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-/**
- * Блок характеристик в тултипе: «название — полоска — значение» в строку (текст MSDF-шрифтом).
- * <ul>
- *   <li>оружие: полоса — доля от лучшего значения среди всего оружия мода;</li>
- *   <li>обвесы: изменение от центра — вправо зелёным, если улучшает, влево красным, если ухудшает;</li>
- *   <li>магазин: заполненность патронами, цвет как у прочности.</li>
- * </ul>
- */
 @OnlyIn(Dist.CLIENT)
 public class ClientStatTooltip implements ClientTooltipComponent {
     private static final float SIZE = 8.5f;
@@ -32,7 +24,6 @@ public class ClientStatTooltip implements ClientTooltipComponent {
     private static final int GAP = 7;
     private static final int MARGIN_TOP = 3;
     private static final int MARGIN_BOTTOM = 3;
-    /** изменение, при котором полоса изменения заполнена до края */
     private static final float DELTA_FULL = 30f;
 
     private static final int LABEL = 0xFFB9BAC4;
@@ -41,7 +32,6 @@ public class ClientStatTooltip implements ClientTooltipComponent {
     private static final int BAD = 0xFFFF6464;
     private static final int TRACK = 0x2EFFFFFF;
 
-    /** скругление полосок; меньше нуля — «таблетка» (половина высоты). Меню верстака ставит своё. */
     public static float barRadius = -1f;
 
     private static float barR() {
@@ -109,7 +99,6 @@ public class ClientStatTooltip implements ClientTooltipComponent {
         return rows;
     }
 
-    /** Строка под курсором (координаты как у {@link #renderImage}), или -1. */
     public int rowAt(Font font, int x, int y, double mouseX, double mouseY) {
         if (mouseX < x || mouseX >= x + getWidth(font)) {
             return -1;
@@ -118,10 +107,6 @@ public class ClientStatTooltip implements ClientTooltipComponent {
         return i >= 0 && i < rows.size() ? i : -1;
     }
 
-    /**
-     * Как {@link #renderImage}, но строка {@code i} увеличивается на {@code 6% * hover[i]} (ховер в меню верстака):
-     * подложка-подсветка и масштаб от левого края строки.
-     */
     public void renderRows(Font font, int x, int y, GuiGraphics g, float[] hover) {
         int labelW = labelWidth(font);
         int valueW = valueWidth(font);
@@ -153,7 +138,6 @@ public class ClientStatTooltip implements ClientTooltipComponent {
                     float half = BAR_WIDTH / 2f;
                     float len = Mth.clamp(Math.abs(row.value()) / DELTA_FULL, 0.06f, 1f) * half;
                     float center = barX + half;
-                    // улучшение растёт вправо, ухудшение — влево
                     float from = good ? center : center - len;
                     GuiPanelRender.gradient(g, from, barY, len, BAR_HEIGHT, barR(), color,
                             GuiPanelRender.mix(color, 0xFF000000, 0.25f));

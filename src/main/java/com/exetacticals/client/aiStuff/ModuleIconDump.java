@@ -21,13 +21,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Дев-инструмент: снимки 3D-иконок всех обвесов/магазинов (для проверки {@code ModuleItemRenderer}).
- *
- * <p>Включается JVM-флагом {@code -Dexe_tacticals.dumpIcons=true}: на главном экране рисует сетку предметов
- * (увеличенно) и сохраняет страницы в {@code run/screenshots/module_icons_N.png}.
- * С {@code -Dexe_tacticals.dumpIconsExit=true} после этого закрывает игру.</p>
- */
 @OnlyIn(Dist.CLIENT)
 public final class ModuleIconDump {
     private static final boolean ENABLED = Boolean.getBoolean("exe_tacticals.dumpIcons");

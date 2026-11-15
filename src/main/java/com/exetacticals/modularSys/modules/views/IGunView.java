@@ -8,6 +8,5 @@ public interface IGunView extends IAmmoSourceView {
     boolean hasMagAttachment(CompoundTag states);
     float getHeat(CompoundTag states);
     long getHeatLastUpdate(CompoundTag states);
-    //game time
     long getLastShootTime(CompoundTag states);
 }

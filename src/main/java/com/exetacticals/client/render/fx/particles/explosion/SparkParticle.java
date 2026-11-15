@@ -1,6 +1,5 @@
 package com.exetacticals.client.render.fx.particles.explosion;
 
-
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -17,7 +16,6 @@ import java.util.Random;
 
 import static com.exetacticals.client.render.fx.particles.explosion.FragmentParticle.*;
 
-
 @OnlyIn(Dist.CLIENT)
 public class SparkParticle extends TextureSheetParticle {
 
@@ -33,7 +31,6 @@ public class SparkParticle extends TextureSheetParticle {
         this.radius = options.radius;
         this.speed = options.speed;
 
-        // 飘落需要更长的生命周期，这里固定为 25 帧（可根据需要改为 options 传入）
         this.lifetime = 25;
         this.gravity = 0.0F;
         this.hasPhysics = false;
@@ -73,7 +70,6 @@ public class SparkParticle extends TextureSheetParticle {
         int sG = (this.startColor >> 8) & 0xFF;
         int sB = this.startColor & 0xFF;
 
-
         int fA = (this.fadeColor >> 24) & 0xFF;
         int fR = (this.fadeColor >> 16) & 0xFF;
         int fG = (this.fadeColor >> 8) & 0xFF;
@@ -105,7 +101,6 @@ public class SparkParticle extends TextureSheetParticle {
         int packedLight = LightTexture.FULL_BRIGHT;
         Vector3f vertexPos = new Vector3f();
 
-        // 火花物理运动曲线
         float radialEase = (1.0F - (float) Math.exp(-ageProgress * 8.0F)) / (1.0F - (float) Math.exp(-8.0F));
         float fallEase = ageProgress * ageProgress;
 
@@ -137,7 +132,6 @@ public class SparkParticle extends TextureSheetParticle {
 
             float sizeMul = 0.7F + randSize * 0.6F;
             float pSize = 0.25F * (1.0F + ageProgress) * sizeMul;
-
 
             vertexPos.set(1.0F, -1.0F, 0.0F).rotate(quaternion).mul(pSize).add(pX, pY, pZ);
             buffer.vertex(vertexPos.x(), vertexPos.y(), vertexPos.z()).uv(u1, v1).color(packedColor).uv2(packedLight).endVertex();

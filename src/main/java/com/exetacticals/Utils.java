@@ -23,14 +23,6 @@ import static org.lwjgl.opengl.GL11C.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL30C.*;
 
 public class Utils {
-    /**
-     * 仅在客户端环境中使用此方法
-     * 此方法的目的是复制给定的PoseStack对象
-     * 复制操作包括创建一个新的PoseStack，并将给定的PoseStack的当前状态（包括变换矩阵和法线矩阵）复制到新对象中
-     *
-     * @param stack 需要复制的PoseStack对象
-     * @return 复制后的PoseStack对象，具有与原对象相同的当前状态
-     */
     @OnlyIn(Dist.CLIENT)
     public static PoseStack.Pose copyPose(PoseStack.Pose source) {
         PoseStack copy = new PoseStack();
@@ -48,12 +40,6 @@ public class Utils {
         return result;
     }
 
-    /**
-     * 仅在客户端环境中使用此方法
-     * 检查是否启用了Iris光影
-     *
-     * @return 如果Iris着色器被启用并正在使用自定义着色器包，则返回true；否则返回false
-     */
     @OnlyIn(Dist.CLIENT)
     public static boolean isIrisShaderEnabled() {
         try {
@@ -76,7 +62,6 @@ public class Utils {
         return result != GL11.GL_NONE;
     }
 
-
     @OnlyIn(Dist.CLIENT)
     public static void setUpStencil() {
         Minecraft.getInstance().getMainRenderTarget().enableStencil();
@@ -98,7 +83,6 @@ public class Utils {
                 0, 34041, 34042, null);
         GlStateManager._glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthTextureId, 0);
     }
-
 
     @OnlyIn(Dist.CLIENT)
     public static void fullGLContextPrint(int programId, int shaderId) {
@@ -123,23 +107,18 @@ public class Utils {
 
     @OnlyIn(Dist.CLIENT)
     public static void printAllAttributes(int shaderProgram) {
-        // 获取活动attribute数量
         int numAttributes = GL20C.glGetProgrami(shaderProgram, GL20C.GL_ACTIVE_ATTRIBUTES);
 
         System.out.println("Active Attributes: " + numAttributes);
 
-        // 准备缓冲区
         IntBuffer sizeBuf = BufferUtils.createIntBuffer(1);
         IntBuffer typeBuf = BufferUtils.createIntBuffer(1);
 
         for (int i = 0; i < numAttributes; i++) {
-            // 获取attribute信息
             String attrName = GL20C.glGetActiveAttrib(shaderProgram, i, sizeBuf, typeBuf);
             int attrSize = sizeBuf.get(0);
             int attrType = typeBuf.get(0);
 
-
-            // 获取attribute的位置(slot)
             int location = GL20C.glGetAttribLocation(shaderProgram, attrName);
 
             System.out.printf("Attribute #%d: %s (location=%d, size=%d, type=%s)%n",
@@ -161,11 +140,6 @@ public class Utils {
         };
     }
 
-    /**
-     * 返回一个在给定的投影矩阵中，绝对位于视锥体外的位置，可用于ndc裁剪隐藏的物体或者跳过光栅化和fragment shader对某些物体的处理
-     * @param projectionMatrix 投影矩阵，用于将坐标从视图空间转换到剪裁空间
-     * @return 返回一个在视锥体外部的位置，以Vector3f形式表示
-     */
     public static Vector3f getOutsideFrustumPosition(Matrix4f projectionMatrix) {
         Vector4f clipSpace = new Vector4f(2.0f, 0.0f, 0.0f, 1.0f);
         Matrix4f invProj = new Matrix4f(projectionMatrix).invert();
@@ -198,7 +172,6 @@ public class Utils {
         float r = (color & 0xFF) / 255f;
         return new Vector3f(r, g, b);
     }
-
 
     @OnlyIn(Dist.CLIENT)
     public static int secondToTick(float seconds) {
@@ -295,28 +268,10 @@ public class Utils {
         return (coord.z / coord.w) / 2f + 0.5f;
     }
 
-    /**
-     * 模拟阻尼振荡函数
-     * @param t 时间（秒）
-     * @param A 初始振幅
-     * @param omega0 固有角频率（rad/s）
-     * @param zeta 阻尼比（0 ~ 1）
-     * @param phi 初始相位（rad）
-     * @return 振幅值 x(t)
-     */
     public static double dampedOscillation(float t, float A, float omega0, float zeta, float phi) {
         return A * Math.exp(-zeta * omega0 * t) * Math.cos(omega0 * t + phi);
     }
 
-    /**
-     * 模拟阻尼振荡函数
-     * @param t 时间（秒）
-     * @param A 初始振幅
-     * @param omega0 固有角频率（rad/s）
-     * @param zeta 阻尼比（0 ~ 1）
-     * @param phi 初始相位（rad）
-     * @return 振幅值 x(t)
-     */
     public static double dampedOscillation2(float t, float A, float omega0, float zeta, float phi) {
         double omegaD = omega0 * Math.sqrt(1.0 - zeta * zeta);
 
@@ -324,7 +279,6 @@ public class Utils {
                 * Math.exp(-zeta * omega0 * t)
                 * Math.cos(omegaD * t + phi);
     }
-
 
     public static Vector3f getScreenPos(Matrix4f localPose, Matrix4f modelViewMatrix, Matrix4f projectionMatrix, float width, float height) {
         Vector4f vector4f = localPose.transform(new Vector4f(0, 0, 0, 1.0F));

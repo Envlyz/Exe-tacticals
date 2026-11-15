@@ -28,7 +28,6 @@ public class Bone implements IAnimated {
     public final int vertexCount;
     public Object model;
 
-
     public Bone(int index, String name, int vertexCount, @Nullable Object model) {
         this.index = index;
         this.name = name;
@@ -119,7 +118,6 @@ public class Bone implements IAnimated {
         Bone bone = findBone(pName);
         return bone == null ? Optional.empty() : Optional.of(bone);
     }
-
 
     public void translateAndRotate(PoseStack poseStack) {
         poseStack.translate(this.x, this.y, this.z);

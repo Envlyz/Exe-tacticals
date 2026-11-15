@@ -74,7 +74,6 @@ public class Properties implements IJsonSync, INBTSync, IProperties {
         }
     }
 
-
     @Override
     @Nullable
     public <T extends IProp> T getProp(String name, Class<T> clazz) {

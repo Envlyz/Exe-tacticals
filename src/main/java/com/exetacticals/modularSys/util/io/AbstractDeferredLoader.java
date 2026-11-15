@@ -24,7 +24,6 @@ public abstract class AbstractDeferredLoader<T> {
     @Nullable
     public T load(ResourceLocation location, ResourceManager manager) {
         try {
-            // 开发环境下优先读取 src/main/resources，热重载后才能看到刚修改的 pivot/voxel 数据
             try (InputStream in = DevAssetResolver.openOrNull(location, manager)) {
                 if (in == null) {
                     return null;

@@ -75,9 +75,7 @@ public class IrisShaderCompatMixin {
         }
     }
 
-
     private static String patchFPFsh(String fsh) {
-        // 已经处理过：直接从已有声明里读出 location，赋值给 IrisExtendRT，不重复注入
         if (fsh.contains("gcrMuzzleLightContributions")) {
             int existingLoc = extractExistingLocation(fsh);
             IrisExtendRT.updateAttachmentLayout(existingLoc);
@@ -99,15 +97,12 @@ public class IrisShaderCompatMixin {
 
         String fshOut = fsh;
 
-        // 1. 在 #version 之后插入需要的 uniform 声明（如果这份 fsh 本身还没有）
         fshOut = insertMissingUniformsAfterVersion(fshOut);
 
-        // 2. 插入 layout(out) 输出声明 + in 声明（放在第一个 out 变量之前，找不到就放在 main 之前）
         String layoutDecl = "layout(location = " + chosenLoc + ") out vec2 gcrMuzzleLightContributions;";
         String inDecl = "in float gcrMuzzleLightContribution;\nin vec2 gcrUV0;";
         fshOut = insertDeclarationsBeforeFirstOutOrMain(fshOut, layoutDecl + "\n" + inDecl);
 
-        // 3. 在 main() 函数体第一行插入赋值代码
         String code =
                 """
                 float gcrHeatRes = gcrHeat * texture(gcrHeatMap, gcrUV0).r;
@@ -118,11 +113,6 @@ public class IrisShaderCompatMixin {
         return fshOut;
     }
 
-    /**
-     * 从已经 patch 过的 fsh 中提取 gcrMuzzleLightContributions 的 location 值。
-     * 逐行扫描，找到包含 "out vec2 gcrMuzzleLightContributions" 的那一行，
-     * 再从 "location = " 和 ")" 之间截取数字。
-     */
     private static int extractExistingLocation(String fsh) {
         for (String line : fsh.split("\n")) {
             if (!line.contains("gcrMuzzleLightContributions") || !line.contains("layout")) {
@@ -141,16 +131,11 @@ public class IrisShaderCompatMixin {
             try {
                 return Integer.parseInt(numberPart);
             } catch (NumberFormatException ignored) {
-                // 格式不标准，继续找下一行（理论上不应该发生）
             }
         }
         return -1;
     }
 
-    /**
-     * 逐行扫描 fsh，收集所有已经被占用的 "layout(location = X) out ..." 的 X 值，
-     * 然后从 0 开始找第一个没被占用的 location。
-     */
     private static int findFreeAttachmentLocation(String fsh, int maxMRT) {
         java.util.Set<Integer> usedLocations = new java.util.HashSet<>();
 
@@ -172,7 +157,6 @@ public class IrisShaderCompatMixin {
             try {
                 usedLocations.add(Integer.parseInt(numberPart));
             } catch (NumberFormatException ignored) {
-                // 忽略格式不标准的行
             }
         }
 
@@ -184,10 +168,6 @@ public class IrisShaderCompatMixin {
         return -1;
     }
 
-    /**
-     * 在 #version 那一行之后插入还缺失的 uniform 声明（HeatMap 采样器 + Heat 强度值）。
-     * 跟 injectUniformsAndTransformLogicFP 里插入 vsh uniform 的做法完全一致。
-     */
     private static String insertMissingUniformsAfterVersion(String fsh) {
         StringBuilder extraUniforms = new StringBuilder();
         if (!fsh.contains("uniform sampler2D gcrHeatMap;")) {
@@ -215,11 +195,6 @@ public class IrisShaderCompatMixin {
         return fsh.substring(0, versionLineEnd) + extraUniforms + fsh.substring(versionLineEnd);
     }
 
-    /**
-     * 把声明文本插入到第一个 "out " 变量声明所在行之前；
-     * 如果这份 fsh 里完全没有 out 变量，就插到 "void main" 之前；
-     * 都找不到就插到文件开头（兜底）。
-     */
     private static String insertDeclarationsBeforeFirstOutOrMain(String fsh, String declarations) {
         StringBuilder sb = new StringBuilder(fsh);
 
@@ -233,7 +208,6 @@ public class IrisShaderCompatMixin {
             return sb.toString();
         }
 
-        // 回退到这一行的行首
         while (insertPos > 0 && sb.charAt(insertPos - 1) != '\n') {
             insertPos--;
         }
@@ -241,9 +215,6 @@ public class IrisShaderCompatMixin {
         return sb.toString();
     }
 
-    /**
-     * 把代码插入到 main() 函数体的第一行（跳过左花括号后的空白）。
-     */
     private static String insertAtStartOfMain(String fsh, String code) {
         int mainPos = fsh.indexOf("void main");
         if (mainPos == -1) {
@@ -327,12 +298,12 @@ public class IrisShaderCompatMixin {
         String s = beforeVersionEnd + uniforms + afterVersionEnd;
 
         int mainIndex = s.indexOf("void main()");
-        if (mainIndex == -1) return vsh; // 没找到 main，返回原样
+        if (mainIndex == -1) return vsh;
 
         int braceOpen = s.indexOf("{", mainIndex);
         if (braceOpen == -1) return vsh;
 
-        String beforeMainBody = s.substring(0, braceOpen + 1); // 包含 {
+        String beforeMainBody = s.substring(0, braceOpen + 1);
         String afterMainBody = s.substring(braceOpen + 1);
 
         String injectedCode = """
@@ -398,7 +369,6 @@ public class IrisShaderCompatMixin {
         return program;
     }
 
-
     private static String injectUniformsAndTransformLogic(String vsh) {
 
         if (vsh.contains("uniform int gcrDoTransformOverride;")) {
@@ -445,12 +415,12 @@ public class IrisShaderCompatMixin {
         String s = beforeVersionEnd + uniforms + afterVersionEnd;
 
         int mainIndex = s.indexOf("void main()");
-        if (mainIndex == -1) return vsh; // 没找到 main，返回原样
+        if (mainIndex == -1) return vsh;
 
         int braceOpen = s.indexOf("{", mainIndex);
         if (braceOpen == -1) return vsh;
 
-        String beforeMainBody = s.substring(0, braceOpen + 1); // 包含 {
+        String beforeMainBody = s.substring(0, braceOpen + 1);
         String afterMainBody = s.substring(braceOpen + 1);
 
         String injectedCode = """
@@ -468,7 +438,6 @@ public class IrisShaderCompatMixin {
                 
                     bool visible = gcrNormalLightVisible[3][2] > 0.5;
 
-                
                     gcrTransformedNormal = mat3(gcrNormalLightVisible) * iris_Normal;
                     gcrTransformedNormal = normalize(gcrTransformedNormal);
                     gcrTransformedPos = gcrTransMat * gcrTransformedPos;

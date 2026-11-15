@@ -91,7 +91,6 @@ public class ArmHandlerModel<T extends IStateView> extends AnimatedModel<T> impl
         }
     }
 
-
     protected boolean matchArmStructure(Bone bone, boolean rightArm) {
         String innerLayer = rightArm ? "INNER_R" : "INNER_L";
         Bone inner = bone.getBone(innerLayer);
@@ -122,7 +121,6 @@ public class ArmHandlerModel<T extends IStateView> extends AnimatedModel<T> impl
             return slim ? slimLeft : maleLeft;
         }
     }
-
 
     @Override
     public boolean has(boolean rightArm) {

@@ -28,10 +28,10 @@ public class ShadowNodeRender extends Command{
         if (args.size() != 4) {
             throw new IllegalArgumentException("Invalid command args: " + command);
         }
-        startTimestamp = Float.parseFloat(args.get(0));//指令起点
-        refBoneName = args.get(1);//从哪个骨骼中获取源渲染节点
-        targetBoneName = args.get(2);//将复制节点放到哪个骨骼的姿态上
-        copyNodeStatus = Boolean.parseBoolean(args.get(3));//是否复制数据
+        startTimestamp = Float.parseFloat(args.get(0));
+        refBoneName = args.get(1);
+        targetBoneName = args.get(2);
+        copyNodeStatus = Boolean.parseBoolean(args.get(3));
         tempEntry = new ShadowEntry(targetBoneName);
     }
 
@@ -49,7 +49,7 @@ public class ShadowNodeRender extends Command{
             if (moduleRenderNodes == null || moduleRenderNodes.isEmpty()) {
                 return;
             }
-            if (tempEntry.shadowNode == null || (sequence.getStartTime() != lastStartTime || lastSequence != sequence)) {//copy status if enabled
+            if (tempEntry.shadowNode == null || (sequence.getStartTime() != lastStartTime || lastSequence != sequence)) {
                 ModuleRenderNode shadowRefNode = moduleRenderNodes.get(0);
                 tempEntry.shadowNode = shadowRefNode.copySelfOnly(copyNodeStatus);
                 lastStartTime = sequence.getStartTime();

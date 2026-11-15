@@ -13,9 +13,6 @@ public interface IInteractiveModular {
     @OnlyIn(Dist.CLIENT)
     default void onMousePressed(int button, int action, String thisNodeId, Unit unit, IGun gun, ItemStack itemStack) {}
 
-    /**
-     * @return true if the event is handled
-     * */
     @OnlyIn(Dist.CLIENT)
     default boolean onMouseScroll(double mx, double my, double deltaX, double deltaY, String thisNodeId, Unit unit, IGun gun, ItemStack itemStack) {
         return false;

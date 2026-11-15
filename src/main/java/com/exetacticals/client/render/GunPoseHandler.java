@@ -243,8 +243,6 @@ public class GunPoseHandler {
                     Quaternionf q = Utils.extractPureRotation(mat);
                     Vector3f euler = q.getEulerAnglesXYZ(new Vector3f());
                     boolean cantedSight = node.getCustomParam(ISight.ON_SIDE_POSITION) != -1;
-                    // Inverting each Euler component separately does not
-                    // invert a combined side-sight roll + yaw + pitch.
                     Vector3f inverseEuler = cantedSight
                             ? new Quaternionf(q).conjugate().getEulerAnglesXYZ(new Vector3f())
                             : new Vector3f(-euler.x, -euler.y, -euler.z);

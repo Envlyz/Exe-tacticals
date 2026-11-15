@@ -35,18 +35,10 @@ public class BedrockAnimationLoader {
         return loadAnimationCollection(location, false);
     }
 
-    /**
-     * This method is not guaranteed to be thread-safe.
-     * <p>
-     * Reads bedrock format animation json file which exported by blockbench.
-     * <p>
-     * STEP interpretation is not supported and will be read as LINEAR instead.
-     * */
     public static Map<String, AnimationDef> loadAnimationCollection(ResourceLocation location, boolean readSounds) {
         AtomicReference<Map<String, AnimationDef>> resultRef = new AtomicReference<>(new HashMap<>());
         try {
             ResourceManager manager = Minecraft.getInstance().getResourceManager();
-            // 开发环境下优先读取源目录，热重载时才拿得到刚刚保存的动画 json
             try (InputStream stream = DevAssetResolver.openOrNull(location, manager)) {
                 if (stream == null) {
                     GCR.LOGGER.error("Animation resource not found: {}", location);
@@ -153,7 +145,6 @@ public class BedrockAnimationLoader {
                 main.addSoundPoint(new AnimationDef.SoundPoint(tick, soundName));
             }
         }
-        //加载命令队列
         if (jsonObject.has("timeline")) {
             JsonObject commands = jsonObject.getAsJsonObject("timeline");
             for (String key : commands.keySet()) {

@@ -6,9 +6,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-/**
- * 对于自定义动画的全局动画处理器实现
- * */
 @OnlyIn(Dist.CLIENT)
 public class CustomGlobalAnimationHandler implements IGlobalAnimationHandler{
     @Override

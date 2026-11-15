@@ -34,7 +34,6 @@ public class SplitARHandguard extends AttachmentModule implements IVoxelHandlerM
         this.additionalPropModifier = additionalPropModifier;
     }
 
-
     @Override
     public void onMutated(IWriteableAccessor accessor, Unit thisUnit) {
         findFirstUnderBarrel(accessor)
@@ -47,7 +46,6 @@ public class SplitARHandguard extends AttachmentModule implements IVoxelHandlerM
         if (barrel.isEmpty()) {
             return Optional.empty();
         }
-        //定位第一个下挂枪管配件
         for (Unit unit : barrel) {
             List<Unit> children = accessor.getSlotChildren(unit, "UNDER_BARREL");
             if (!children.isEmpty()) {
@@ -56,7 +54,6 @@ public class SplitARHandguard extends AttachmentModule implements IVoxelHandlerM
         }
         return Optional.empty();
     }
-
 
     @Override
     public IVoxelHandler getHandler() {

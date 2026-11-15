@@ -9,7 +9,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
-/** Строка тултипа MSDF-шрифтом SF Pro: название — Medium и крупнее, остальное — Regular. */
 @OnlyIn(Dist.CLIENT)
 public class ClientTextLine implements ClientTooltipComponent {
     public static final float TITLE_SIZE = 10.5f;
@@ -51,7 +50,6 @@ public class ClientTextLine implements ClientTooltipComponent {
             g.drawString(vanilla, text, x, y, title ? TITLE : TEXT, false);
             return;
         }
-        // базовая линия строки
         float baseline = y + (title ? 9.5f : 7.5f);
         font.draw(g, text, x, baseline, size(), title ? TITLE : TEXT, true);
     }

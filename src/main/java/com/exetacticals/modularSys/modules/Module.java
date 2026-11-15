@@ -1,6 +1,5 @@
 package com.exetacticals.modularSys.modules;
 
-
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import com.exetacticals.items.ModuleItem;

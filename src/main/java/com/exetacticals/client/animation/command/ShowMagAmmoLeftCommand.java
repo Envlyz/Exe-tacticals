@@ -33,7 +33,6 @@ public class ShowMagAmmoLeftCommand extends Command{
         coolDown = Math.max(coolDown, def.lengthInSeconds() - timeStamp);
     }
 
-
     @Override
     public void onFrame(IAnimated animated, IAnimationSequence sequence, ModuleRenderContext context) {
         if (sequence.getCurrentAnimatingProgress() >= startProgress) {

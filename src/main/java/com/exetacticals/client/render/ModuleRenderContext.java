@@ -92,9 +92,6 @@ public class ModuleRenderContext {
         return false;
     }
 
-    /**
-     * 只在明确知道缓存原始类型时使用
-     * */
     public Object getLocalStorage(int id) {
         if (this.localStorage != null) {
             return this.localStorage.get(id);
@@ -128,9 +125,6 @@ public class ModuleRenderContext {
     public ModuleRenderNode getRoot() {
         return root;
     }
-    /**
-     * 直接获取buffer，与原版用法一致
-     * */
     public VertexConsumer getBuffer(RenderType renderType) {
         return bufferSource.getBuffer(renderType);
     }
@@ -140,7 +134,6 @@ public class ModuleRenderContext {
             this.bufferCache.clear();
         }
     }
-
 
     protected void handleAnimation() {
         if (isThirdPerson()) {
@@ -183,8 +176,6 @@ public class ModuleRenderContext {
 
     }
 
-
-
     public boolean isFirstPerson() {
         return displayContext != null && displayContext.firstPerson();
     }
@@ -200,7 +191,6 @@ public class ModuleRenderContext {
     public void setCurrentRenderNode(ModuleRenderNode currentRenderNode) {
         this.currentRenderNode = currentRenderNode;
     }
-
 
     public int getCurrentParam(String key) {
         return currentRenderNode == null ? -1 : currentRenderNode.getCustomParam(key);

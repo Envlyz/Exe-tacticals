@@ -22,7 +22,6 @@ public class FabulousMergeDepthShader {
 
     public static int programId = -1;
 
-    // Uniform locations
     public static int mainDepthLoc = -1;
     public static int translucentDepthLoc = -1;
     public static int itemDepthLoc = -1;
@@ -30,7 +29,6 @@ public class FabulousMergeDepthShader {
     public static int cloudsDepthLoc = -1;
     public static int weatherDepthLoc = -1;
 
-    // fullscreen quad
     public static int vaoId = -1;
     public static int vboId = -1;
     public static int posLoc = -1;
@@ -41,7 +39,7 @@ public class FabulousMergeDepthShader {
     public static void init() {
         ResourceManager manager = Minecraft.getInstance().getResourceManager();
 
-        ResourceLocation vshPath = GCR.RL("shaders/core/muzzle_flash_env.vsh"); // 复用你的全屏 VSH
+        ResourceLocation vshPath = GCR.RL("shaders/core/muzzle_flash_env.vsh");
         ResourceLocation fshPath = GCR.RL("shaders/core/fabulous_merge_depth.fsh");
 
         String vshSource = load(manager, vshPath);

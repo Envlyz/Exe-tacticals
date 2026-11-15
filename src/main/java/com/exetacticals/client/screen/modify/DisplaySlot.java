@@ -14,17 +14,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-/**
- * Карточка обвеса в полосе выбора: 3D-предмет крупно, справа снизу — сколько штук ещё можно поставить.
- * Стоящий сейчас на оружии модуль обведён акцентом, недоступный (0 шт.) — приглушён.
- */
 @OnlyIn(Dist.CLIENT)
 public class DisplaySlot extends AbstractWidget {
     public static final int SIZE = 32;
-    /** предмет 16 px рисуется увеличенным и по центру */
     private static final float ITEM_SCALE = 1.625f;
     private static final float RADIUS = 6f;
-    // светлые карточки: модели обвесов в основном чёрные и на тёмном фоне теряются
     private static final int BACKGROUND_TOP = 0x5C9A9AA4;
     private static final int BACKGROUND = 0x40606068;
     private static final int BACKGROUND_HOVERED = 0x80B4B4BE;
@@ -62,7 +56,6 @@ public class DisplaySlot extends AbstractWidget {
         int border = installed ? GuiPanelRender.ACCENT : GuiPanelRender.mix(BORDER, GuiPanelRender.ACCENT, hover);
         GuiPanelRender.stroke(g, x, y, SIZE, SIZE, RADIUS, installed ? 1f : 0.5f, border);
 
-        // при наведении предмет чуть увеличивается
         float scale = ITEM_SCALE * (1f + 0.08f * hover);
         float offset = (SIZE - 16 * scale) / 2f;
         g.pose().pushPose();
@@ -72,14 +65,12 @@ public class DisplaySlot extends AbstractWidget {
         g.pose().popPose();
 
         g.pose().pushPose();
-        // предметы рисуются сильно выше z = 0, всё остальное — поверх них
         g.pose().translate(0f, 0f, 300f);
         if (!available) {
             GuiPanelRender.fill(g, x, y, SIZE, SIZE, RADIUS, 0xA00C0C0E);
         }
         Font font = Minecraft.getInstance().font;
         if (installed) {
-            // метка «стоит сейчас» в левом верхнем углу
             GuiPanelRender.circle(g, x + 5f, y + 5f, 2.5f, GuiPanelRender.ACCENT);
         }
         if (!installed || count > 0) {

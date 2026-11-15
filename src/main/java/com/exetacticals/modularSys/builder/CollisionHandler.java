@@ -1,6 +1,5 @@
 package com.exetacticals.modularSys.builder;
 
-
 import com.exetacticals.modularSys.IModular;
 import com.exetacticals.modularSys.ISlotProvider;
 import com.exetacticals.modularSys.ISlotProviderModular;
@@ -133,7 +132,6 @@ public class CollisionHandler implements ICollisionHandler{
             return List.of();
         }
         if (with.getModule() instanceof IVoxelHandlerModule thisVoxel) {
-            //避免unit自定义offset污染slot变换
             thisPose = new Matrix4f(thisPose);
             thisPose.translate(0, 0, with.getZOffset());
             if (thisNode.shouldReverseModel() && !reversed.contains(thisNode)) {
@@ -147,13 +145,11 @@ public class CollisionHandler implements ICollisionHandler{
                 }
                 IModular module = other.getModule();
                 if (module instanceof IVoxelHandlerModule voxelOther) {
-                    //boundingBox非mesh精度，允许子模块与父模块重叠
                     if (other == thisNode || other.getParent() == thisNode || thisNode.getParent() == other) {
                         continue;
                     }
                     Matrix4f otherPose = getPose(other.getBelongsTo());
                     if (otherPose != null) {
-                        //避免unit自定义offset污染slot变换
                         otherPose = new Matrix4f(otherPose);
                         otherPose.translate(0, 0, other.getUnit().getZOffset());
                         if (other.shouldReverseModel() && !reversed.contains(other)) {

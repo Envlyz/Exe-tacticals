@@ -27,26 +27,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Меню оружейного верстака — почти на весь экран.
- * <pre>
- * ┌ ▌ОРУЖЕЙНЫЙ ВЕРСТАК ────────────────────────────────────────────────── Рецептов: 5 ┐
- * │ [M4A1    ][АК-74М  ][АКМН    ][AK24    ] │ ┌───────────────────────────────────┐ │
- * │ [MCX     ]                               │ │  [большая иконка]   M4A1          │ │
- * │                                          │ └───────────────────────────────────┘ │
- * │                                          │ Характеристики     │ Требуется        │
- * │                                          │ ▬▬▬▬▬▬             │ [■] 12 / 20      │
- * │                                          │                    │     [ Создать ]  │
- * └───────────────────────────────────────────────────────────────────────────────────┘
- * </pre>
- * Слева — сетка карточек 120×30, до 4 в ряд (на узком экране меньше), прокрутка колесом;
- * справа — выбранное оружие: характеристики полосками, ресурсы «есть / нужно», кнопка «Создать».
- * Крафт проверяет сервер ({@link CraftGunPacket}).
- */
 @OnlyIn(Dist.CLIENT)
 public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu> {
     private static final int MARGIN = 10;
-    /** всё меню целиком (с текстом и карточками) уменьшено пропорционально, вокруг центра экрана */
     private static final float UI_SCALE = 0.8f;
     private static final int PAD = 10;
     private static final int HEADER_H = 26;
@@ -54,11 +37,8 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
     private static final int CARD_H = 30;
     private static final int CARD_GAP = 4;
     private static final int MAX_COLUMNS = 4;
-    /** справа должно остаться хотя бы столько под выбранное оружие */
     private static final int DETAILS_MIN_W = 310;
-    /** строка с названием над окном осмотра */
     private static final int TITLE_H = 30;
-    /** под характеристиками должно остаться столько (8 строк полосок + заголовок) */
     private static final int STATS_H = 112;
     private static final int ING_W = 140;
     private static final int ING_ROW = 18;
@@ -70,17 +50,13 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
     private static final int OK = 0xFF6FDB8F;
     private static final int BAD = 0xFFFF6464;
 
-    /** все рецепты верстака */
     private List<GunCraftingRecipe> allRecipes = new ArrayList<>();
-    /** рецепты выбранной категории (вкладки над карточками) — то, что видно в сетке */
     private List<GunCraftingRecipe> recipes = new ArrayList<>();
-    /** категории рецептов по порядку; вкладки рисуются, если их больше одной ({@code null} — «Все») */
     private final List<String> categories = new ArrayList<>();
     private String category = null;
     private final GuiPanelRender.Fade[] tabHover = new GuiPanelRender.Fade[32];
     private static final int TAB_H = 15;
     private static final int TAB_GAP = 4;
-    /** порядок вкладок; остальные категории — после, по алфавиту */
     private static final List<String> CATEGORY_ORDER = List.of("rifle", "magazine_ar", "magazine_ak",
             "sight", "rail", "suppressor", "muzzle", "stock", "grip", "foregrip", "handguard", "barrel",
             "underbarrel", "laser", "dustcover", "ammo");
@@ -89,21 +65,18 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
     private int columns = MAX_COLUMNS;
     private final GuiPanelRender.Fade buttonHover = new GuiPanelRender.Fade();
     private final GuiPanelRender.Fade[] cardHover = new GuiPanelRender.Fade[128];
-    // осмотр: поворот модели мышью, без неё — медленное вращение
     private float viewYaw = -30f;
     private float viewPitch = 12f;
     private boolean dragging;
     private long lastInteraction;
     private long lastFrame;
-    /** приближение модели в окне осмотра: кнопки «+»/«−» в углу и колесо над окном */
-    private float viewZoom = 0.55f; // по умолчанию
+    private float viewZoom = 0.55f;
     private static final float ZOOM_MIN = 0.25f;
     private static final float ZOOM_MAX = 2.5f;
     private static final float ZOOM_STEP = 0.15f;
     private static final int ZOOM_BTN = 14;
     private final GuiPanelRender.Fade zoomInHover = new GuiPanelRender.Fade();
     private final GuiPanelRender.Fade zoomOutHover = new GuiPanelRender.Fade();
-    // ховер характеристик: плавное увеличение строки и тултип с пояснением
     private final GuiPanelRender.Fade[] statHover = new GuiPanelRender.Fade[16];
     private ClientStatTooltip statBlock;
     private int statX;
@@ -170,12 +143,10 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         recipes = category == null ? allRecipes : allRecipes.stream().filter(r -> r.category().equals(category)).toList();
     }
 
-    /** Вкладки категорий — если категорий больше одной; у верстака магазинов их нет (там всего 10 рецептов). */
     private boolean hasTabs() {
         return categories.size() > 1 && menu.type() != com.exetacticals.workbench.WorkbenchType.MAGAZINE;
     }
 
-    /** Название вкладки: множественное число ({@code workbench.group.<кат>}), если есть, иначе название категории. */
     private static String tabName(String c) {
         if (c == null) {
             return Component.translatable("gui.exe_tacticals.workbench.group.all").getString();
@@ -186,7 +157,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
                 : Component.translatable("gui.exe_tacticals.workbench.category." + c).getString();
     }
 
-    /** Вкладки над карточками: {x, y, w} каждой (первая — «Все»), с переносом по ширине сетки. */
     private List<float[]> tabRects() {
         List<float[]> out = new ArrayList<>();
         if (!hasTabs()) {
@@ -206,7 +176,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         return out;
     }
 
-    /** высота полосы вкладок (с отступом снизу) */
     private int tabsH() {
         List<float[]> rects = tabRects();
         if (rects.isEmpty()) {
@@ -215,7 +184,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         return (int) (rects.get(rects.size() - 1)[1] - gridY()) + TAB_H + 8;
     }
 
-    /** верх и высота области карточек (под вкладками) */
     private int cardsY() {
         return gridY() + tabsH();
     }
@@ -240,14 +208,12 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         }
     }
 
-    /** Одно скругление углов для всего в меню верстака, не зависит от размера плашки (шейдер сам ограничит половиной стороны). */
     public static final float ROUND = 5f;
 
     private static float round(float w, float h) {
         return ROUND;
     }
 
-    /** Копия результата для окна модели и характеристик — предмет рецепта не трогаем (рендер дописывает в него данные). */
     private GunCraftingRecipe previewRecipe;
     private ItemStack previewStack = ItemStack.EMPTY;
 
@@ -263,8 +229,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         return recipes.isEmpty() ? null : recipes.get(selected);
     }
 
-    // ---------------------------------------------------------------- геометрия
-
     private int gridX() {
         return leftPos + PAD;
     }
@@ -277,13 +241,8 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         return columns * CARD_W + (columns - 1) * CARD_GAP;
     }
 
-    /** высота панели без растяжки; окно модели считается от неё, чтобы не прыгало */
     private int baseHeight;
 
-    /**
-     * Высота панели постоянная — такая, чтобы поместилось всё у AK24 (если его рецепта нет — у первого);
-     * не больше, чем влезает в экран с учётом общего уменьшения.
-     */
     private void layout() {
         GunCraftingRecipe reference = null;
         for (GunCraftingRecipe r : allRecipes) {
@@ -295,7 +254,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
             }
         }
         if (reference == null) {
-            // верстаки магазинов/обвесов/патронов: высота — по самому длинному рецепту, чтобы панель не прыгала
             int best = -1;
             for (GunCraftingRecipe r : allRecipes) {
                 int extra = extraBelowStats(r);
@@ -314,7 +272,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         }
     }
 
-    /** высота полосок + разделителя + патрона + столбика магазинов у выбранного оружия */
     private final java.util.Map<GunCraftingRecipe, Integer> extraCache = new java.util.IdentityHashMap<>();
 
     private int extraBelowStats(GunCraftingRecipe recipe) {
@@ -333,7 +290,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         try {
             item.getModule().appendStatRows(new ItemStack(recipe.result().getItem()), rows);
         } catch (RuntimeException ignored) {
-            // пусто
         }
         int stats = rows.isEmpty() ? 0 : 6 + rows.size() * 11;
         int mags = compatibleMagazines(recipe).size();
@@ -366,19 +322,15 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         return topPos + imageHeight - PAD - BTN_H;
     }
 
-    /** Окно осмотра 3D-модели: свободное место над характеристиками минус 100 px (80…200). */
     private int viewH() {
-        // на 100 px ниже, чем всё свободное место: характеристики поднимаются вслед за окном
         int baseGridH = baseHeight - PAD - (HEADER_H + 6);
         return Mth.clamp(baseGridH - TITLE_H - 14 - STATS_H - 100, 80, 200);
     }
 
-    /** где начинаются характеристики и ресурсы (от верха сетки) */
     private int detailsY() {
         return TITLE_H + 2 + viewH() + 12;
     }
 
-    /** кнопка закрытия — правый верхний угол панели, над окном с моделью */
     private int closeX() {
         return leftPos + imageWidth - PAD - CLOSE_BTN;
     }
@@ -394,7 +346,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         float h = closeHover.update(hovered);
         GuiPanelRender.fill(g, x, y, CLOSE_BTN, CLOSE_BTN, ROUND, GuiPanelRender.mix(0x1EFFFFFF, 0xCCE5484D, h));
         GuiPanelRender.stroke(g, x, y, CLOSE_BTN, CLOSE_BTN, ROUND, 0.5f, GuiPanelRender.mix(0x30FFFFFF, 0xFFFF6B6B, h));
-        // крестик — две повёрнутые полоски
         float cx = x + CLOSE_BTN / 2f;
         float cy = y + CLOSE_BTN / 2f;
         int color = GuiPanelRender.mix(0xFFD0D0D6, 0xFFFFFFFF, h);
@@ -423,8 +374,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         return cardsY() + (i / columns) * (CARD_H + CARD_GAP) - scroll;
     }
 
-    // ---------------------------------------------------------------- отрисовка
-
     @Override
     public void render(@NotNull GuiGraphics g, int rawMouseX, int rawMouseY, float partialTick) {
         layout();
@@ -441,7 +390,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         } finally {
             g.pose().popPose();
         }
-        // тултипы — без масштаба, у настоящего курсора
         GunCraftingRecipe recipe = current();
         if (recipe != null) {
             renderHoverTooltips(g, recipe, mouseX, mouseY, rawMouseX, rawMouseY);
@@ -462,7 +410,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         return (mouseY - height / 2.0) / UI_SCALE + height / 2.0;
     }
 
-    /** Ножницы задаются в координатах экрана, а рисуем мы в уменьшенных — пересчёт. */
     private void scissor(GuiGraphics g, float x0, float y0, float x1, float y1) {
         float cx = width / 2f;
         float cy = height / 2f;
@@ -482,7 +429,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         text(g, count, closeX() - 8 - width(count, 8.5f, false), topPos + 18, 8.5f, TEXT_DIM, false);
         renderCloseButton(g, mouseX, mouseY);
         GuiPanelRender.fill(g, leftPos + PAD, topPos + HEADER_H, imageWidth - PAD * 2, 0.5f, 0, 0x22FFFFFF);
-        // разделитель сетки и правой части
         GuiPanelRender.fill(g, rightX() - PAD / 2f, gridY(), 0.5f, gridH(), 0, 0x22FFFFFF);
 
         renderGrid(g, inventory, mouseX, mouseY, creative);
@@ -521,7 +467,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
             }
             boolean isSelected = i == selected;
             float hover = cardHover[Math.min(i, cardHover.length - 1)].update(hovered);
-            // ховер: карточка чуть увеличивается от центра
             g.pose().pushPose();
             if (hover > 0.001f) {
                 float sc = 1f + 0.05f * hover;
@@ -540,7 +485,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
             GuiPanelRender.stroke(g, cx, cy, CARD_W, CARD_H, round(CARD_W, CARD_H), isSelected ? 1f : 0.5f,
                     isSelected ? GuiPanelRender.ACCENT : GuiPanelRender.mix(0x22FFFFFF, 0x55FFFFFF, hover));
 
-            // иконка чуть крупнее обычной
             g.pose().pushPose();
             g.pose().translate(cx + 5, cy + (CARD_H - 20) / 2f, 0);
             g.pose().scale(1.25f, 1.25f, 1f);
@@ -549,7 +493,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
 
             String name = ellipsize(r.result().getHoverName().getString(), CARD_W - 40, 9f, true);
             text(g, name, cx + 30, cy + 13, 9f, TEXT, true);
-            // подпись категории не выходит за карточку (длинные названия — с «…»)
             String category = ellipsize(Component.translatable("gui.exe_tacticals.workbench.category." + r.category()).getString(),
                     CARD_W - 40, 7.5f, false);
             text(g, category, cx + 30, cy + 24, 7.5f, isSelected ? GuiPanelRender.ACCENT : TEXT_DIM, false);
@@ -569,24 +512,21 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         int x = rightX();
         int y = gridY();
         int w = rightW();
-        // название и категория
         text(g, recipe.result().getHoverName().getString(), x + 2, y + 15, 15f, TEXT, true);
         String category = Component.translatable("gui.exe_tacticals.workbench.category." + recipe.category()).getString();
         text(g, category, x + 2, y + 27, 9f, GuiPanelRender.ACCENT, false);
 
-        // окно осмотра
         int vy = y + TITLE_H + 2;
         boolean hovered = mouseX >= x && mouseX < x + w && mouseY >= vy && mouseY < vy + viewH();
         GuiPanelRender.gradient(g, x, vy, w, viewH(), round(w, viewH()), 0x30FFFFFF, 0x08FFFFFF);
         GuiPanelRender.stroke(g, x, vy, w, viewH(), round(w, viewH()), 0.5f, hovered || dragging ? GuiPanelRender.alpha(GuiPanelRender.ACCENT, 0.31f) : 0x22FFFFFF);
-        // «пол» под моделью
         GuiPanelRender.shadow(g, x + w * 0.2f, vy + viewH() - 22, w * 0.6f, 6, 3f, 10f, 0x40000000);
 
         long now = System.currentTimeMillis();
         float dt = lastFrame == 0 ? 0f : Math.min(0.1f, (now - lastFrame) / 1000f);
         lastFrame = now;
         if (!dragging && now - lastInteraction > 2500) {
-            viewYaw += dt * 20f; // медленно крутится, если не трогать
+            viewYaw += dt * 20f;
         }
         renderGunModel(g, preview(recipe), x, vy, w, viewH());
 
@@ -595,7 +535,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         text(g, hint, x + 8, vy + viewH() - 7, 7.5f, 0x90A0A0AA, false);
     }
 
-    /** левая верхняя точка кнопки «+» (под ней «−») — правый верхний угол окна осмотра */
     private int zoomBtnX() {
         return rightX() + rightW() - ZOOM_BTN - 6;
     }
@@ -618,10 +557,9 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         zoomButton(g, x, zoomOutY(), "−", zoomOutHover.update(inside(mouseX, mouseY, x, zoomOutY(), ZOOM_BTN)), viewZoom > ZOOM_MIN);
     }
 
-    /** прозрачный квадратик со значком */
     private void zoomButton(GuiGraphics g, int x, int y, String label, float hover, boolean enabled) {
         g.pose().pushPose();
-        g.pose().translate(0, 0, 400); // поверх модели
+        g.pose().translate(0, 0, 400);
         GuiPanelRender.fill(g, x, y, ZOOM_BTN, ZOOM_BTN, round(ZOOM_BTN, ZOOM_BTN), GuiPanelRender.mix(0x26FFFFFF, 0x50FFFFFF, hover));
         GuiPanelRender.stroke(g, x, y, ZOOM_BTN, ZOOM_BTN, round(ZOOM_BTN, ZOOM_BTN), 0.5f,
                 GuiPanelRender.mix(0x30FFFFFF, GuiPanelRender.ACCENT, hover));
@@ -639,7 +577,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         }
     }
 
-    /** 3D-модель оружия (как в рамке, {@code FIXED}) в прямоугольнике окна осмотра, с поворотом мышью. */
     private void renderGunModel(GuiGraphics g, ItemStack stack, int x, int y, int w, int h) {
         if (!(stack.getItem() instanceof com.exetacticals.items.GunItem gunItem)) {
             renderItemModel(g, stack, x, y, w, h);
@@ -649,7 +586,7 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         scissor(g, x + 1, y + 1, x + w - 1, y + h - 1);
         com.mojang.blaze3d.vertex.PoseStack pose = g.pose();
         pose.pushPose();
-        pose.translate(x + w / 2f, y + h / 2f + 4 - 30, 220); // модель выше центра окна на 30 px
+        pose.translate(x + w / 2f, y + h / 2f + 4 - 30, 220);
         float size = Math.min(w * 0.7f, h * 1.35f) * viewZoom;
         pose.scale(size, -size, size);
         pose.mulPose(com.mojang.math.Axis.XP.rotationDegrees(viewPitch));
@@ -669,10 +606,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         }
     }
 
-    /**
-     * Не оружие (магазин, обвес, патрон): обычная модель предмета ({@code FIXED}; у обвесов и магазинов — 3D через
-     * {@code ModuleItemRenderer}), с тем же поворотом мышью и зумом.
-     */
     private void renderItemModel(GuiGraphics g, ItemStack stack, int x, int y, int w, int h) {
         if (stack.isEmpty()) {
             return;
@@ -702,7 +635,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         }
     }
 
-    /** где кончаются характеристики (или где они были бы) — под ними блок «Подходит для» */
     private int statsBottom;
 
     private void renderStats(GuiGraphics g, GunCraftingRecipe recipe, int mouseX, int mouseY) {
@@ -745,7 +677,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
     private static final int AMMO_ROW = 16;
     private static final int AMMO_GAP = 6;
     private final GuiPanelRender.Fade[] ammoHover = new GuiPanelRender.Fade[24];
-    /** что под курсором в блоке патрона и магазинов — для тултипа */
     private ItemStack hoveredAmmoStack = ItemStack.EMPTY;
 
     {
@@ -756,10 +687,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
 
     private final java.util.Map<GunCraftingRecipe, List<ItemStack>> compatibleGunsCache = new java.util.IdentityHashMap<>();
 
-    /**
-     * Не оружие (магазин, обвес, патрон): к какому оружию подходит. Магазин — {@code MagazineItem.compatibleGuns},
-     * обвес — слоты в дереве оружия ({@code AttachmentCompatibilityTooltip}), патрон — оружие магазинов под этот патрон.
-     */
     private List<ItemStack> compatibleGuns(GunCraftingRecipe recipe) {
         return compatibleGunsCache.computeIfAbsent(recipe, r -> {
             net.minecraft.world.item.Item item = r.result().getItem();
@@ -796,7 +723,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         });
     }
 
-    /** Под характеристиками: разделитель, «Подходит для:» и столбик оружия (иконка + название, тултип при наведении). */
     private void renderCompatibleGuns(GuiGraphics g, GunCraftingRecipe recipe, int x, int y, int mouseX, int mouseY) {
         List<ItemStack> guns = compatibleGuns(recipe);
         if (guns.isEmpty()) {
@@ -829,10 +755,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         return mags;
     }
 
-    /**
-     * Под полосками: разделитель, затем «Патрон» и «Магазины» — столбиком, каждая строка с иконкой и названием,
-     * при наведении увеличивается и показывает тултип предмета.
-     */
     private void renderAmmoInfo(GuiGraphics g, GunCraftingRecipe recipe, int x, int y, int mouseX, int mouseY) {
         hoveredAmmoStack = ItemStack.EMPTY;
         List<ItemStack> mags = compatibleMagazines(recipe);
@@ -845,14 +767,12 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         }
         int right = ingX() - 14;
         int w = right - x;
-        // разделитель между характеристиками и патроном/магазинами
-        GuiPanelRender.fill(g, x, y + AMMO_GAP, w, 0.5f, 0, 0x22FFFFFF); // как вертикальный разделитель рядом
+        GuiPanelRender.fill(g, x, y + AMMO_GAP, w, 0.5f, 0, 0x22FFFFFF);
         int rowY = y + AMMO_GAP * 2 + 1;
         int index = 0;
         String ammoLabel = Component.translatable("gui.exe_tacticals.workbench.ammo").getString();
         float labelW = Math.max(width(ammoLabel, 8.5f, false),
                 width(Component.translatable("gui.exe_tacticals.workbench.magazines").getString(), 8.5f, false));
-        // «Патрон:» отдельной строкой, под ней — столбик патронов
         text(g, ammoLabel, x, rowY + 10, 8.5f, TEXT_DIM, false);
         rowY += 14;
         for (net.minecraft.world.item.Item cartridge : cartridges) {
@@ -860,7 +780,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
             rowY += AMMO_ROW;
         }
         rowY += 4;
-        // «Магазины:» отдельной строкой, под ней — столбик магазинов
         text(g, Component.translatable("gui.exe_tacticals.workbench.magazines").getString(), x, rowY + 10, 8.5f, TEXT_DIM, false);
         rowY += 14;
         for (ItemStack mag : mags) {
@@ -869,7 +788,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         }
     }
 
-    /** строка-плашка «иконка + название» во всю ширину колонки, с ховером */
     private void ammoRow(GuiGraphics g, ItemStack stack, float x, int y, int right, int index,
                          int mouseX, int mouseY, int textColor) {
         float w = right - x;
@@ -903,7 +821,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         return 12 + 3 + width(stack.getHoverName().getString(), 8f, false) + 6;
     }
 
-    /** «Плашка» с маленькой иконкой и названием; возвращает правый край. */
     private float chip(GuiGraphics g, ItemStack stack, float x, int y, int textColor) {
         float w = chipWidth(stack);
         GuiPanelRender.fill(g, x, y, w, 13, ROUND, 0x1CFFFFFF);
@@ -916,7 +833,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         return x + w;
     }
 
-    /** Тултип-пояснение к характеристике: название акцентом и описание, перенос по ширине. */
     private void renderStatInfo(GuiGraphics g, StatRow row, int rawX, int rawY) {
         String title = row.name().getString();
         String desc = Component.translatableWithFallback("stat.exe_tacticals.desc." + row.key(),
@@ -924,7 +840,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         renderInfoBox(g, title, desc, null, 0, rawX, rawY);
     }
 
-    /** Тултип в стиле меню: заголовок, описание с переносом и (необязательно) цветная строка статуса снизу. */
     private void renderInfoBox(GuiGraphics g, String title, String desc, String status, int statusColor, int rawX, int rawY) {
         float size = 8.5f;
         int maxW = 170;
@@ -1018,7 +933,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         }
     }
 
-    /** {@code disabledKey} — надпись неактивной кнопки вместо «Не хватает» ({@code null} — по умолчанию). */
     private void renderButton(GuiGraphics g, boolean enabled, String disabledKey, int mouseX, int mouseY) {
         int x = btnX();
         int y = btnY();
@@ -1064,8 +978,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
         return items[(int) ((System.currentTimeMillis() / 1000L) % items.length)];
     }
 
-    // ---------------------------------------------------------------- текст
-
     private float width(String s, float size, boolean medium) {
         MsdfFont f = medium ? MsdfFont.medium() : MsdfFont.regular();
         return f == null ? font.width(s) : f.width(s, size);
@@ -1098,8 +1010,6 @@ public class GunWorkbenchScreen extends AbstractContainerScreen<GunWorkbenchMenu
     @Override
     protected void renderLabels(@NotNull GuiGraphics g, int mouseX, int mouseY) {
     }
-
-    // ---------------------------------------------------------------- ввод
 
     @Override
     public boolean mouseClicked(double rawX, double rawY, int button) {

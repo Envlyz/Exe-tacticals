@@ -42,7 +42,6 @@ public class FlashLightRenderer {
         public static final float MAX_RANGE = 150f;
         public static final float MAX_ANGLE = 30f;
 
-        // 控制曲线斜率
         public static final float LUMINANCE_K = -0.15f;
         public static final float RANGE_K = -0.025f;
         public static final float ANGLE_K = -0.1f;

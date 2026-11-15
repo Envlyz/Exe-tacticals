@@ -49,8 +49,6 @@ public interface IArmHandlerModular {
             return agilityInc;
         }
 
-
-        /** Модификаторы «в руках» как полоски изменений. */
         public void appendStatRows(List<com.exetacticals.items.tooltip.StatRow> rows) {
             IProperties dummy = PropertiesDummies.getDummy(BaseProperties.class);
             if (!(dummy instanceof BaseProperties p)) {

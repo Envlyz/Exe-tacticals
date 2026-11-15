@@ -17,11 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-
-/**
- * Loads bedrock format model as minecraft AABB list both in the client side and server side.
- */
-
 public class VoxelLoader extends AbstractDeferredLoader<MultiVoxel> implements ResourceManagerReloadListener {
     private static VoxelLoader SERVER;
     private static VoxelLoader CLIENT;

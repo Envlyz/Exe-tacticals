@@ -86,12 +86,9 @@ public abstract class AbstractScopeModel extends SightModel implements IScopeMod
         Matrix4f farMat = crosshair.pose();
         Matrix4f nearMat = crosshairZ.pose();
 
-        // 提取位置
         Vector3f farPos = farMat.getTranslation(new Vector3f());
         Vector3f nearPos = nearMat.getTranslation(new Vector3f());
 
-        // 透视投影保持一致：
-        // x/z 与 y/z 保持不变
         float scale = nearPos.z / farPos.z;
 
         Vector3f projectedPos = new Vector3f(
@@ -103,7 +100,6 @@ public abstract class AbstractScopeModel extends SightModel implements IScopeMod
         if (Client.isUsingIrisShader) {
             crosshairScale *= 0.5f;
         }
-        // 构造新的 matrix
         Matrix4f mat = new Matrix4f()
                 .translation(projectedPos)
                 .rotate(nearMat.getNormalizedRotation(new Quaternionf()))
@@ -120,22 +116,6 @@ public abstract class AbstractScopeModel extends SightModel implements IScopeMod
         BufferUploader.drawWithShader(buffer.end());
     }
 
-//    protected void renderCrosshairTexture(PoseStack.Pose crosshair, PoseStack.Pose crosshairZ) {
-//        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-//        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-//        RenderSystem.setShaderTexture(0, getCrosshairTexture());
-//
-//        Matrix4f mat = new Matrix4f(crosshair.pose());
-//        mat.scale(getCrosshairScale());
-//        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-//
-//        buffer.vertex(mat, -0.5f, -0.5f, 0).uv(0, 1).endVertex();
-//        buffer.vertex(mat,  0.5f, -0.5f, 0).uv(1, 1).endVertex();
-//        buffer.vertex(mat,  0.5f,  0.5f, 0).uv(1, 0).endVertex();
-//        buffer.vertex(mat, -0.5f,  0.5f, 0).uv(0, 0).endVertex();
-//
-//        BufferUploader.drawWithShader(buffer.end());
-//    }
     @Override
     public @NotNull Bone getCrosshairZBone() {
         return getBone("CROSS_HAIR_Z");

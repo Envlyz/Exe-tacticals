@@ -23,21 +23,6 @@ public class GameRendererMixin {
         isBobbingLevelView = pUseFOVSetting;
     }
 
-//    @Inject(method = "renderItemInHand", at = @At("HEAD"))
-//    public void onStartRenderHand(Camera camera, float partialTick, Matrix4f projectionMatrix, CallbackInfo ci) {
-//        isRenderingHand = true;
-//    }
-//
-//
-//    public void onGetFov() {
-//
-//    }
-//
-//    @Inject(method = "renderItemInHand", at = @At("TAIL"))
-//    public void onEndRenderHand(Camera camera, float partialTick, Matrix4f projectionMatrix, CallbackInfo ci) {
-//        isRenderingHand = false;
-//    }
-
     @Inject(method = "bobView", at = @At("HEAD"))
     public void onBobbingView(PoseStack pPoseStack, float pPartialTicks, CallbackInfo ci) {
         if (isBobbingLevelView) {

@@ -73,4 +73,3 @@ public class SubWeaponReloadPacket implements IPacket<SubWeaponReloadPacket> {
         });
     }}
 
-

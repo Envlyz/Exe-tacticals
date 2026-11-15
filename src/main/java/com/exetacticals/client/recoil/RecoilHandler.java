@@ -37,11 +37,9 @@ public class RecoilHandler {
         }
     }
 
-
     public synchronized void setRecoilUpdater(IRecoilUpdater recoilUpdater) {
         this.recoilUpdater = recoilUpdater;
     }
-
 
     public IRecoilUpdater getRecoilUpdater() {
         return recoilUpdater;

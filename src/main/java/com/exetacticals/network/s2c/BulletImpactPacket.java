@@ -7,7 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 
-/** Server-authoritative block impact location; purely cosmetic on clients. */
 public final class BulletImpactPacket implements IPacket<BulletImpactPacket> {
     private final double x;
     private final double y;
@@ -44,6 +43,5 @@ public final class BulletImpactPacket implements IPacket<BulletImpactPacket> {
 
     @Override
     public void onServer(BulletImpactPacket packet, PacketContext context) {
-        // Client cannot authorize new bullet impacts.
     }
 }

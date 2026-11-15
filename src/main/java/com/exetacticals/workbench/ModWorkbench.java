@@ -17,7 +17,6 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-/** Регистрация верстаков (оружие, магазины, обвесы, патроны): блоки, предметы, меню, тип и сериализатор рецептов. */
 public final class ModWorkbench {
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, GCR.MODID);
     public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, GCR.MODID);
@@ -26,17 +25,13 @@ public final class ModWorkbench {
 
     public static final RegistryObject<Block> BLOCK = block("gun_workbench", WorkbenchType.GUN);
     public static final RegistryObject<Item> ITEM = item("gun_workbench", BLOCK);
-    /** верстак для магазинов (2×2) */
     public static final RegistryObject<Block> MAGAZINE_BLOCK = block("magazine_workbench", WorkbenchType.MAGAZINE);
     public static final RegistryObject<Item> MAGAZINE_ITEM = item("magazine_workbench", MAGAZINE_BLOCK);
-    /** верстак для обвесов (2×2) */
     public static final RegistryObject<Block> ATTACHMENT_BLOCK = block("attachment_workbench", WorkbenchType.ATTACHMENT);
     public static final RegistryObject<Item> ATTACHMENT_ITEM = item("attachment_workbench", ATTACHMENT_BLOCK);
-    /** верстак для патронов (1 в ширину, 2 в высоту) */
     public static final RegistryObject<Block> AMMO_BLOCK = block("ammo_workbench", WorkbenchType.AMMO);
     public static final RegistryObject<Item> AMMO_ITEM = item("ammo_workbench", AMMO_BLOCK);
 
-    /** Предметы всех верстаков — для вкладки творческого режима. */
     public static final java.util.List<RegistryObject<Item>> ALL_ITEMS = java.util.List.of(ITEM, MAGAZINE_ITEM, ATTACHMENT_ITEM, AMMO_ITEM);
 
     private static RegistryObject<Block> block(String name, WorkbenchType type) {
@@ -58,7 +53,6 @@ public final class ModWorkbench {
     public static final DeferredRegister<net.minecraft.world.level.block.entity.BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, GCR.MODID);
 
-    /** Только у главной части верстака: хранит скрафченное оружие на столе. */
     @SuppressWarnings("DataFlowIssue")
     public static final RegistryObject<net.minecraft.world.level.block.entity.BlockEntityType<GunWorkbenchBlockEntity>> BLOCK_ENTITY =
             BLOCK_ENTITIES.register("gun_workbench", () -> net.minecraft.world.level.block.entity.BlockEntityType.Builder
@@ -73,7 +67,6 @@ public final class ModWorkbench {
     private ModWorkbench() {
     }
 
-    /** Из конструктора мода: загружает класс (блок и предмет попадают в общие реестры) и регистрирует свои. */
     public static void register(IEventBus modBus) {
         MENUS.register(modBus);
         BLOCK_ENTITIES.register(modBus);

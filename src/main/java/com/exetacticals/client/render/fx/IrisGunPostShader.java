@@ -55,14 +55,13 @@ public class IrisGunPostShader {
             return;
         }
 
-
         int fsh = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fsh, fshSource);
         glCompileShader(fsh);
         if (GL20.glGetShaderi(fsh, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
             String log = GL20.glGetShaderInfoLog(fsh, 512);
             System.out.println("failed to compile [IrisGunPostShader] FSH! \n" + log);
-            GL20.glDeleteShader(vsh); // 清理 VSH
+            GL20.glDeleteShader(vsh);
             GL20.glDeleteShader(fsh);
             isOK = false;
             return;
@@ -80,21 +79,18 @@ public class IrisGunPostShader {
             return;
         }
 
-
         glDeleteShader(vsh);
         glDeleteShader(fsh);
 
-
         muzzleLightContributionSamplerLoc = GL20.glGetUniformLocation(programId, "MuzzleLightContributionSampler");
-
 
         posLoc = GL20.glGetAttribLocation(programId, "Position");
         uvLoc = GL20.glGetAttribLocation(programId, "UV0");
         float[] vertices = {
-                -1.0f, -1.0f, 0.0f,  0.0f, 0.0f, // 左下
-                1.0f, -1.0f, 0.0f,  1.0f, 0.0f, // 右下
-                -1.0f,  1.0f, 0.0f,  0.0f, 1.0f, // 左上
-                1.0f,  1.0f, 0.0f,  1.0f, 1.0f  // 右上
+                -1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+                1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+                -1.0f,  1.0f, 0.0f,  0.0f, 1.0f,
+                1.0f,  1.0f, 0.0f,  1.0f, 1.0f
         };
         FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertices.length);
         vertexBuffer.put(vertices).flip();

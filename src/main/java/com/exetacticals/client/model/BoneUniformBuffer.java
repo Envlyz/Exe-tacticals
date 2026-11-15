@@ -12,7 +12,6 @@ import org.lwjgl.opengl.GL31;
 
 import java.nio.FloatBuffer;
 
-/** A fixed std140 vec4[1024] bone block: eight vec4 values per bone. */
 final class BoneUniformBuffer {
     static final int MAX_BONES = 128;
     static final int FLOATS_PER_BONE = 32;

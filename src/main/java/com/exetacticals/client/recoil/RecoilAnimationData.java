@@ -85,7 +85,6 @@ public class RecoilAnimationData implements IJsonSync {
         return this;
     }
 
-
     public RecoilAnimationData vibration(float vibrate, float vibrateNormal, float vibrateSpeed, float vibrateDamp0) {
         this.vibrateZ = vibrate;
         this.vibrateNormal = vibrateNormal;

@@ -10,15 +10,6 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.Locale;
 
-/**
- * Насколько сильна вспышка выстрела в зависимости от дульного устройства.
- * Свет только визуальный (см. {@link GunfireLights}), в мир ничего не ставится.
- *
- * <ul>
- *   <li>{@code envRadius}/{@code envStrength} — свет на окружении (радиус в блоках, сила);</li>
- *   <li>{@code modelMultiplier} — подсветка самой модели оружия в руках.</li>
- * </ul>
- */
 public enum MuzzleFlashLightProfile {
     OPEN(7.0f, 1.4f, 1.0f),
     FLASH_HIDER(3.5f, 0.45f, 0.35f),
@@ -46,10 +37,6 @@ public enum MuzzleFlashLightProfile {
         return modelMultiplier;
     }
 
-    /**
-     * Read equipped muzzle modules rather than sound type: a flash hider
-     * normally has the same unsuppressed firing sound as an open barrel.
-     */
     public static MuzzleFlashLightProfile forGun(IGun gun, ItemStack stack) {
         if (gun == null || stack == null || stack.isEmpty()) return OPEN;
 
@@ -65,7 +52,6 @@ public enum MuzzleFlashLightProfile {
                 suppressor = true;
             } else {
                 String id = muzzle.getID().toLowerCase(Locale.ROOT);
-                // Include the source mod's historical "flash_hinder" spelling.
                 if (id.contains("flash_hider") || id.contains("flash_hinder")
                         || id.contains("flash_suppressor")) {
                     flashHider = true;
@@ -73,7 +59,6 @@ public enum MuzzleFlashLightProfile {
             }
         }
 
-        // пламегаситель гасит вспышку сильно, но не до нуля
         if (flashHider) return FLASH_HIDER;
         if (suppressor) return SUPPRESSOR;
         return OPEN;

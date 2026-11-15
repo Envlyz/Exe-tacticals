@@ -40,7 +40,6 @@ public class DrawHolsterHandler {
     private ItemStack targetStack = ItemStack.EMPTY;
 
     private ItemStack renderLockedStack = ItemStack.EMPTY;
-    // ✅ 新增：用于在渲染线程记录上一帧的锁定物品
     private ItemStack lastRenderLockedStack = ItemStack.EMPTY;
 
     private float timer = 0f;
@@ -53,9 +52,6 @@ public class DrawHolsterHandler {
 
     private DrawHolsterHandler() {}
 
-    // =========================
-    // Tick
-    // =========================
     public void tick(LocalPlayer player, ItemStack newStack, int selectedSlot) {
         boolean prevIsGun = isGun(prevStack, "prev");
         boolean currIsGun = isGun(newStack, "curr");
@@ -170,8 +166,6 @@ public class DrawHolsterHandler {
         duration = getDrawDuration(stack);
         renderLockedStack = stack;
         equipProgressLast = equipProgress;
-        // 显式重置拔出进度：保证每次换枪/拔枪都从 0 开始播放，
-        // 避免“中断收枪后立刻切回枪械”等路径残留上一把枪的 equipProgress。
         equipProgress = 0f;
         shouldDispatchDraw = true;
     }
@@ -180,10 +174,8 @@ public class DrawHolsterHandler {
         return Mth.lerp(particleTicks, lastHeat, heat);
     }
 
-
     public void onRenderTick(ItemInHandRenderer renderer) {
         if (isRenderLockedStackChanged(lastRenderLockedStack, renderLockedStack)) {
-            //AnimationHandler.INSTANCE.clearAllAnimation();
             lastRenderLockedStack = renderLockedStack;
         }
         if (!(renderer instanceof DualHandItemAccessor accessor)) {
@@ -193,7 +185,6 @@ public class DrawHolsterHandler {
             accessor.setMainHandItem(renderLockedStack);
         }
     }
-
 
     private boolean isRenderLockedStackChanged(ItemStack oldStack, ItemStack newStack) {
         if (oldStack == newStack) {
@@ -216,21 +207,12 @@ public class DrawHolsterHandler {
             if (oldGun != newGun) {
                 return true;
             }
-            // 与 isGunChanged 保持一致：同一 Item / 同一 IGun 实例时，仍可能是两把不同的枪
-            // （例如主副手各一把同型号枪），需再比较唯一 identityID。
-            // 纯客户端（Dist.CLIENT）只读比较，不涉及任何服务端写入。
             return isGunIdentityChanged(oldStack, newStack, oldGun, newGun);
         }
 
         return false;
     }
 
-    /**
-     * 判断两把枪的 identityID 是否发生了“真实的”变化。
-     * 客户端刚拿到枪械时 identityID 是 IGun.NONE("__none__")，服务端第一次同步数据后
-     * 才会变成真实 ID——此时枪械本身并没有切换，不能据此判定换枪。
-     * 因此只有两侧都是真实 ID 且不同，才算真正换了枪。
-     */
     private static boolean isGunIdentityChanged(ItemStack oldStack, ItemStack newStack, IGun oldGun, IGun newGun) {
         String oldIdentity = oldGun.getIdentityID(oldStack);
         String newIdentity = newGun.getIdentityID(newStack);
@@ -292,10 +274,6 @@ public class DrawHolsterHandler {
         if (prevGun != newGun) {
             return true;
         }
-        // 换枪检测的核心补充：同一 Item、同一 IGun 实例仍可能持有两把不同的枪
-        // （例如主副手各一把同型号枪，或同一快捷栏格子被替换成另一把同型号枪）。
-        // 必须使用每把枪唯一的 identityID 判断，与 WeaponStatus / DefaultGunRenderer
-        // 的换枪判定保持一致；该 ID 仅由服务端生成、客户端只读，无服务端交互。
         return isGunIdentityChanged(prevStack, newStack, prevGun, newGun);
     }
 }

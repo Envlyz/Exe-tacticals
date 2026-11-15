@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-
 public class CommitModuleTreePacket implements IPacket<CommitModuleTreePacket> {
     public static final ResourceLocation ID = GCR.RL("set_module_tree");
     public ListTag data;
@@ -47,7 +46,6 @@ public class CommitModuleTreePacket implements IPacket<CommitModuleTreePacket> {
         wrapper.put("modules", data);
         buf.writeNbt(wrapper);
     }
-
 
     @Override
     public void onClient(CommitModuleTreePacket packet, PacketContext context) {
@@ -78,8 +76,6 @@ public class CommitModuleTreePacket implements IPacket<CommitModuleTreePacket> {
                     IReadOnlyTree warehouse = builder.getWarehouse();
                     ListTag finalModules = warehouse.write();
 
-                    // MAG stores physical ammunition; never exchange it via the
-                    // generic attachment editor or ammo/NBT can be duplicated.
                     if (!magazineNodes(originalModules).equals(magazineNodes(finalModules))) {
                         GCRNetwork.sendToPlayer((ServerPlayer) player,
                                 new CommitModuleTreeResponsePacket(originalTag,
@@ -88,8 +84,8 @@ public class CommitModuleTreePacket implements IPacket<CommitModuleTreePacket> {
                     }
 
                     Pair<List<CompoundTag>, List<CompoundTag>> diff = Builder.diffByModule(originalModules, finalModules);
-                    List<CompoundTag> inc = diff.getLeft();//增加的
-                    List<CompoundTag> dec = diff.getRight();//减少的
+                    List<CompoundTag> inc = diff.getLeft();
+                    List<CompoundTag> dec = diff.getRight();
 
                     Map<ModuleItem<?>, Integer> preTakeoff = new HashMap<>();
                     for (CompoundTag tag : dec) {

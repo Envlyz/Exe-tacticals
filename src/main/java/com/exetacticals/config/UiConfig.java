@@ -6,11 +6,6 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 
 import java.util.Locale;
 
-/**
- * Настройки интерфейса мода ({@code config/exe_tacticals-ui-client.toml}).
- * Акцентный цвет пишется как HEX ({@code #009091}, {@code 009091}, {@code #099}) или RGB
- * ({@code 0,144,145}, {@code rgb(0, 144, 145)}).
- */
 public final class UiConfig {
     public static final String DEFAULT_ACCENT = "#009091";
     public static final ForgeConfigSpec SPEC;
@@ -29,7 +24,6 @@ public final class UiConfig {
     private UiConfig() {
     }
 
-    /** Разбор цвета: HEX (3 или 6 знаков, с # или без) или RGB (0–255 через запятую/пробел). Ошибка — {@code fallback}. */
     public static int parseColor(String value, int fallback) {
         if (value == null) {
             return fallback;
@@ -70,7 +64,6 @@ public final class UiConfig {
         return Math.max(0, Math.min(255, c));
     }
 
-    /** Цвет из конфига в виде RGB; при ошибке — стандартный. */
     public static int accentRgb() {
         int fallback = parseColor(DEFAULT_ACCENT, 0x009091);
         int rgb = parseColor(ACCENT_COLOR.get(), -1);
@@ -81,14 +74,12 @@ public final class UiConfig {
         return rgb;
     }
 
-    /** Мод-шина: применить цвет при загрузке и изменении файла (только для своего конфига). */
     public static void onConfig(ModConfigEvent event) {
         if (event.getConfig().getSpec() == SPEC) {
             AccentHook.apply(accentRgb());
         }
     }
 
-    /** Клиентская часть подключается из {@code GCR}: применяет цвет к интерфейсу. */
     public static final class AccentHook {
         public static java.util.function.IntConsumer target = rgb -> {
         };

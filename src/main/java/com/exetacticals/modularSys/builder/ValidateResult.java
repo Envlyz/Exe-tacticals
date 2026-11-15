@@ -60,7 +60,6 @@ public class ValidateResult {
         return !hasErrors();
     }
 
-
     public void sortIssues(boolean reverse) {
         if (reverse) {
             issues.sort(Comparator.comparing(ValidationError::getLevel).reversed());

@@ -188,9 +188,7 @@ public class GrenadeEntity extends Entity{
 
     public void explode(Direction hitDir, Vec3 location) {
         if (!this.level().isClientSide) {
-            //this.level().explode(this, Explosion.getDefaultDamageSource(this.level(), this), null,location.x, location.y, location.z, explodeRadius, false, Level.ExplosionInteraction.NONE, false,  ParticleTypes.EXPLOSION, ParticleTypes.EXPLOSION_EMITTER, SoundEvents.GENERIC_EXPLODE);
             customExplode(location, 40, 10, 6);
-            //TODO:增加自定义炫酷爆炸效果
             spawnCustomExplosionEffect((ServerLevel) this.level(), location.x, location.y, location.z, hitDir);
 
             this.discard();
@@ -218,7 +216,6 @@ public class GrenadeEntity extends Entity{
                 continue;
             }
 
-
             double exposure = getSeenPercent(location, target);
             if (exposure <= 0) {
                 continue;
@@ -230,14 +227,6 @@ public class GrenadeEntity extends Entity{
 
             if (damage > 0) {
                 target.hurt(source, damage);
-//                if (this.shooter instanceof ServerPlayer serverPlayer) {
-//                    if (target instanceof ServerPlayer targetPlayer) {
-//                        System.out.println(source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) + " " +
-//                                serverPlayer.canHarmPlayer(targetPlayer));
-//                        float amount = Math.max(0.0F, source.type().scaling().getScalingFunction().scaleDamage(source, targetPlayer, 10, this.level().getDifficulty()));
-//                        System.out.println("scaled amount: " + amount);
-//                    }
-//                }
 
                 Vec3 knockDir = target.position().subtract(location).normalize();
                 double knockStrength = 0.5 * falloff + 0.1;
@@ -373,7 +362,6 @@ public class GrenadeEntity extends Entity{
         }
     }
 
-
     @Override
     protected void addAdditionalSaveData(CompoundTag pCompound) {
         pCompound.putInt("tick", tickCount);
@@ -413,5 +401,4 @@ public class GrenadeEntity extends Entity{
         this.modelType = packet.getData();
     }
 }
-
 

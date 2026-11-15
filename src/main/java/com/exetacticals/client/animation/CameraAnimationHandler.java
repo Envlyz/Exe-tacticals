@@ -13,7 +13,6 @@ public class CameraAnimationHandler {
     public float cameraPitch;
     public float cameraRoll;
 
-
     public void set(Bone cameraPosePart) {
         cameraYaw = cameraPosePart.yRot;
         cameraPitch = cameraPosePart.xRot;

@@ -26,6 +26,4 @@ public class MuzzleModel extends MuzzleFlashRendererModel {
 
     }
 
-
-
 }

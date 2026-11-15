@@ -58,20 +58,8 @@ public interface IGun extends IModular, IAmmoSource, IGunView, IStateModular {
 
     void serverShoot(LivingEntity entity, ItemStack itemStack, int shootID, GunFirePacket packet);
 
-    /**
-     * 服务端拒绝了一发开火（已经卡壳 / 膛内没弹 / 客户端上报的枪不是当前主手）。
-     *
-     * <p>必须回执：客户端用它把本地卡壳预测配对解除。没有回执的话，客户端只能等预测超时才
-     * 敢继续射击，切枪造成的“虚假卡壳”也会一直挂在那里。</p>
-     */
     void serverShootRejected(ServerPlayer player, ItemStack itemStack, int shootID);
 
-    /**
-     * 服务端把枪械当前的卡壳状态推给客户端。
-     *
-     * <p>用于开火之外的卡壳变化（清障、排障）：客户端在自认为卡壳时不会开火，
-     * 所以不能指望下一次开火的回执来解除故障。</p>
-     */
     void syncStuck(ServerPlayer player, ItemStack itemStack);
 
     void fullSyncFromServer(ItemStack itemStack, CompoundTag data);
@@ -104,12 +92,10 @@ public interface IGun extends IModular, IAmmoSource, IGunView, IStateModular {
 
     CompoundTag rootNodeTag(ItemStack itemStack);
 
-
     @Nullable
     CompoundTag getNodeStatesTag(ItemStack itemStack, String nodeId);
     CompoundTag getAmmoSourceTag(ItemStack itemStack);
     CompoundTag getStatesTag(ItemStack itemStack);
-
 
     void setStatesTag(ItemStack itemStack, CompoundTag states);
 
@@ -117,11 +103,8 @@ public interface IGun extends IModular, IAmmoSource, IGunView, IStateModular {
 
     void setPropertiesTag(ItemStack itemStack, CompoundTag properties);
 
-    //唯一物品id，用于判断是否切换枪械
     String getIdentityID(ItemStack itemStack);
 
-
-    //模块改动id
     int getModifyID(ItemStack itemStack);
 
     void setModifyID(ItemStack itemStack, int modifyID, boolean copy);
@@ -138,7 +121,6 @@ public interface IGun extends IModular, IAmmoSource, IGunView, IStateModular {
     List<IFireMode<?>> getAllFireModes();
     void setFireMode(ItemStack itemStack, IFireMode<?> fireMode);
     void toNextFireMode(ItemStack itemStack);
-
 
     String getUsingSightID(ItemStack itemStack);
 
@@ -158,7 +140,6 @@ public interface IGun extends IModular, IAmmoSource, IGunView, IStateModular {
 
     Map<String, IProperties> getProperties();
 
-
     void notifyDataChanged(ItemStack itemStack);
 
     boolean dataChanged(ItemStack itemStack);
@@ -168,7 +149,6 @@ public interface IGun extends IModular, IAmmoSource, IGunView, IStateModular {
     CompoundTag reCalculateProperties(IReadOnlyTree warehouse);
 
     BaseProperties getBaseProperties();
-
 
     @Nullable
     IArmHandlerModular getLeftArmHolding(ItemStack itemStack);

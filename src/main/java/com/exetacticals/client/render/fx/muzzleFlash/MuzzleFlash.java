@@ -1,6 +1,5 @@
 package com.exetacticals.client.render.fx.muzzleFlash;
 
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -45,9 +44,6 @@ public class MuzzleFlash {
         return REGISTRY.get(name);
     }
 
-    /**
-     * create a muzzle flash without random rotation
-     * */
     public MuzzleFlash(List<MuzzleFlashTexture> textures) {
         this.textures = textures;
         this.randomRotate = false;
@@ -55,12 +51,6 @@ public class MuzzleFlash {
         this.rotation = 0;
     }
 
-    /**
-     * 渲染枪口火焰
-     *
-     * @return 实际写入的 {@link RenderType}，没有画则返回 null
-     *         （调用方拿到后可以立即 {@code bufferSource.endBatch(renderType)}，保证绘制顺序 = 排序顺序）
-     */
     @Nullable
     public RenderType render(PoseStack.Pose pose, MultiBufferSource bufferSource, float scale, long startTime, boolean isFirstPerson, int light) {
         if (!textures.isEmpty()) {

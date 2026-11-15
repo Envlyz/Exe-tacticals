@@ -73,15 +73,12 @@ public class VoxelShapeRenderer {
             float g = ((color >> 8) & 0xFF) / 255.0f;
             float b = (color & 0xFF) / 255.0f;
 
-            // X 轴
             buffer.vertex(renderPos, -len, 0, 0).color(r, g, b, a).normal(1, 0, 0).endVertex();
             buffer.vertex(renderPos, +len, 0, 0).color(r, g, b, a).normal(1, 0, 0).endVertex();
 
-            // Y 轴
             buffer.vertex(renderPos, 0, -len, 0).color(r, g, b, a).normal(0, 1, 0).endVertex();
             buffer.vertex(renderPos, 0, +len, 0).color(r, g, b, a).normal(0, 1, 0).endVertex();
 
-            // Z 轴
             buffer.vertex(renderPos, 0, 0, -len).color(r, g, b, a).normal(0, 0, 1).endVertex();
             buffer.vertex(renderPos, 0, 0, +len).color(r, g, b, a).normal(0, 0, 1).endVertex();
         }

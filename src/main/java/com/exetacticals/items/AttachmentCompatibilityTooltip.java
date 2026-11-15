@@ -19,16 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Conservative list of gun families whose attachment trees expose a slot
- * compatible with a module, including slots added by intermediate adapters,
- * rails, handguards and muzzle mounts. Derived from registered slot filters
- * instead of hardcoded per-item names. This is informative, not a replacement
- * for builder collision/compatibility validation.
- *
- * Universal rail-mounted items are intentionally omitted: their usability
- * depends on the rail/adapter installed, not on the bare gun model.
- */
 public final class AttachmentCompatibilityTooltip {
     private static volatile Map<String, List<String>> byModule;
     private AttachmentCompatibilityTooltip() {}
@@ -54,7 +44,6 @@ public final class AttachmentCompatibilityTooltip {
                     .append(Component.translatable(gunId).withStyle(ChatFormatting.GRAY)));
     }
 
-    /** Оружие (id модулей), в дереве которого есть слот для {@code attachment} — с учётом планок и переходников. */
     public static List<String> compatibleGuns(IModular attachment) {
         Map<String, List<String>> index = byModule;
         if (index == null) {
@@ -73,8 +62,6 @@ public final class AttachmentCompatibilityTooltip {
                 .filter(module -> module instanceof IGun && module instanceof ISlotProviderModular)
                 .toList();
         Map<String, List<String>> compatible = new HashMap<>();
-        // Cache the filter decisions shared by multiple guns and by all
-        // possible intermediate attachment/adapter paths.
         Map<ISlot, List<IModular>> choicesBySlot = new IdentityHashMap<>();
         for (IModular gun : guns) {
             Set<String> visited = new HashSet<>();

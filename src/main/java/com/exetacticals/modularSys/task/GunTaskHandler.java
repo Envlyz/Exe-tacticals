@@ -65,9 +65,6 @@ public class GunTaskHandler {
             } else {
                 String currID = gunItem.getGun().getIdentityID(mainHandItem);
                 String taskID = task.getGun().getIdentityID(task.getStack());
-                // 客户端刚拿到枪械时 identityID 是 IGun.NONE("__none__")，
-                // 服务端第一次同步数据后才会变成真实 ID——此时枪械并没有切换，
-                // 不能据此取消正在进行的任务；只有两侧都是真实 ID 且不同才算换枪。
                 if (!IGun.NONE.equals(currID) && !IGun.NONE.equals(taskID) && !Objects.equals(currID, taskID)) {
                     cancelTask();
                     return;

@@ -14,7 +14,6 @@ public class SmoothNoise1D {
 
         float local = t - x0;
 
-        // 平滑插值
         float smooth = smoothStep(local);
 
         float v0 = randomValue(x0);
@@ -30,7 +29,6 @@ public class SmoothNoise1D {
 
         long result = (n * (n * n * 15731L + 789221L) + 1376312589L);
 
-        // 映射到 [-1,1]
         return 1.0f - ((result & 0x7fffffff) / 1073741824.0f);
     }
 

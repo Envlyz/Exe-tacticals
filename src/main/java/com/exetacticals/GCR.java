@@ -85,29 +85,19 @@ import org.slf4j.Logger;
 import java.util.Collection;
 import java.util.Map;
 
-
 @Mod(GCR.MODID)
 public class GCR {
 
     public static boolean IS_DEVELOPMENT;
-    // Define mod id in a common place for everything to reference
     public static final String MODID = "exe_tacticals";
-    // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
-    // Create a Deferred Register to hold Blocks which will all be registered under the "exe_tacticals" namespace
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
-    // Create a Deferred Register to hold Items which will all be registered under the "exe_tacticals" namespace
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "exe_tacticals" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
-
-
 
     public static final RegistryObject<Item> UNIVERSAL_CARTRIDGE_ITEM =
             ITEMS.register("universal_cartridge", () -> new Item(new Item.Properties().stacksTo(64)));
 
-    // Legacy universal ammo ID is retained for old saved inventories only.
-    // Physical magazine loading now uses caliber-compatible weapon cartridges.
     public static final RegistryObject<Item> M4A1_CARTRIDGE_ITEM =
             ITEMS.register("m4a1_cartridge", () -> new Item(new Item.Properties().stacksTo(64)));
     public static final RegistryObject<Item> AK74M_CARTRIDGE_ITEM =
@@ -119,9 +109,6 @@ public class GCR {
     public static final RegistryObject<Item> AKMN_CARTRIDGE_ITEM =
             ITEMS.register("akmn_cartridge", () -> new Item(new Item.Properties().stacksTo(64)));
 
-    // Canonical physical ammunition is identified by caliber, never gun model.
-    // Old *_cartridge IDs remain registered (but hidden from Creative) so
-    // previously saved inventories can still be loaded and consumed.
     public static final RegistryObject<Item> AMMO_556X45_ITEM =
             ITEMS.register("ammo_5_56x45", () -> new Item(new Item.Properties().stacksTo(64)));
     public static final RegistryObject<Item> AMMO_545X39_ITEM =
@@ -131,7 +118,6 @@ public class GCR {
     public static final RegistryObject<Item> AMMO_762X39_ITEM =
             ITEMS.register("ammo_7_62x39", () -> new Item(new Item.Properties().stacksTo(64)));
 
-    // Трассирующие патроны (красный наконечник): те же калибры, пуля рисуется трассером.
     public static final RegistryObject<Item> AMMO_556X45_TRACER_ITEM =
             ITEMS.register("ammo_5_56x45_tracer", () -> new Item(new Item.Properties().stacksTo(64)));
     public static final RegistryObject<Item> AMMO_545X39_TRACER_ITEM =
@@ -152,7 +138,6 @@ public class GCR {
     public static final RegistryObject<Item> AKMN_ITEM =
             ITEMS.register(GCRModules.AKMN.getSimpleID(), () -> new GunItem((AK) GCRModules.AKMN));
 
-
     public static final RegistryObject<Item> ACOG_ITEM =
             ITEMS.register(GCRModules.ACOG.getSimpleID(), () -> new ModuleItem<>(GCRModules.ACOG));
     public static final RegistryObject<Item> ELCAN_ITEM =
@@ -172,7 +157,6 @@ public class GCR {
     public static final RegistryObject<Item> MAGPUL_MBUS_PRO_SIGHT_FAR_ITEM =
             ITEMS.register(GCRModules.MAGPUL_MBUS_PRO_SIGHT_FAR.getSimpleID(), () -> new ModuleItem<>(GCRModules.MAGPUL_MBUS_PRO_SIGHT_FAR));
 
-
     public static final RegistryObject<Item> A2_PISTOL_GRIP_ITEM =
             ITEMS.register(GCRModules.A2_PISTOL_GRIP.getSimpleID(), () -> new ModuleItem<>(GCRModules.A2_PISTOL_GRIP));
     public static final RegistryObject<Item> MOE_GRIP_ITEM =
@@ -188,7 +172,6 @@ public class GCR {
     public static final RegistryObject<Item> AK_BAKELITE_GRIP_ITEM =
             ITEMS.register(GCRModules.AK_BAKELITE_GRIP.getSimpleID(), () -> new ModuleItem<>(GCRModules.AK_BAKELITE_GRIP));
 
-
     public static final RegistryObject<Item> M4_PROFILE_FSB_BARREL_ITEM =
             ITEMS.register(GCRModules.M4_PROFILE_FSB_BARREL.getSimpleID(), () -> new ModuleItem<>(GCRModules.M4_PROFILE_FSB_BARREL));
     public static final RegistryObject<Item> STANAG_MAG_30R_ITEM =
@@ -202,7 +185,6 @@ public class GCR {
     public static final RegistryObject<Item> PMAG_30R_ITEM =
             ITEMS.register(GCRModules.PMAG_30R.getSimpleID(), () -> new MagazineItem((com.exetacticals.modularSys.modules.Mag) GCRModules.PMAG_30R));
 
-
     public static final RegistryObject<Item> MAG_6L18_ITEM =
             ITEMS.register(GCRModules.MAG_6L18.getSimpleID(), () -> new MagazineItem((com.exetacticals.modularSys.modules.Mag) GCRModules.MAG_6L18));
     public static final RegistryObject<Item> MAG_6L23_ITEM =
@@ -213,7 +195,6 @@ public class GCR {
             ITEMS.register(GCRModules.SPEAR_MAG_20R.getSimpleID(), () -> new MagazineItem((com.exetacticals.modularSys.modules.Mag) GCRModules.SPEAR_MAG_20R));
     public static final RegistryObject<Item> AKM_STEEL_MAG_ITEM =
             ITEMS.register(GCRModules.AKM_STEEL_MAG.getSimpleID(), () -> new MagazineItem((com.exetacticals.modularSys.modules.Mag) GCRModules.AKM_STEEL_MAG));
-
 
     public static final RegistryObject<Item> M4_CARBINE_STOCK_ITEM =
             ITEMS.register(GCRModules.M4_CARBINE_STOCK.getSimpleID(), () -> new ModuleItem<>(GCRModules.M4_CARBINE_STOCK));
@@ -233,7 +214,6 @@ public class GCR {
             ITEMS.register(GCRModules.MAGPUL_SL_M_STOCK.getSimpleID(), () -> new ModuleItem<>(GCRModules.MAGPUL_SL_M_STOCK));
     public static final RegistryObject<Item> AKM_STOCK_ITEM =
             ITEMS.register(GCRModules.AKM_STOCK.getSimpleID(), () -> new ModuleItem<>(GCRModules.AKM_STOCK));
-
 
     public static final RegistryObject<Item> A2_FLASH_HINDER_ITEM =
             ITEMS.register(GCRModules.A2_FLASH_HINDER.getSimpleID(), () -> new ModuleItem<>(GCRModules.A2_FLASH_HINDER));
@@ -258,7 +238,6 @@ public class GCR {
     public static final RegistryObject<Item> AKM_MUZZLE_BRAKE_ITEM =
             ITEMS.register(GCRModules.AKM_MUZZLE_BRAKE.getSimpleID(), () -> new ModuleItem<>(GCRModules.AKM_MUZZLE_BRAKE));
 
-
     public static final RegistryObject<Item> KAC_FORWARD_GRIP_ITEM =
             ITEMS.register(GCRModules.KAC_FORWARD_GRIP.getSimpleID(), () -> new ModuleItem<>(GCRModules.KAC_FORWARD_GRIP));
     public static final RegistryObject<Item> RK_6_GRIP_ITEM =
@@ -275,7 +254,6 @@ public class GCR {
             ITEMS.register(GCRModules.AK24B_BARREL.getSimpleID(), () -> new ModuleItem<>(GCRModules.AK24B_BARREL));
     public static final RegistryObject<Item> SIG_FURY_BARREL_ITEM =
             ITEMS.register(GCRModules.SIG_FURY_BARREL.getSimpleID(), () -> new ModuleItem<>(GCRModules.SIG_FURY_BARREL));
-
 
     public static final RegistryObject<Item> URGI_HANDGUARD_ITEM =
             ITEMS.register(GCRModules.URGI_HANDGUARD.getSimpleID(), () -> new ModuleItem<>(GCRModules.URGI_HANDGUARD));
@@ -307,7 +285,6 @@ public class GCR {
             ITEMS.register(GCRModules.AK_WOODEN_HANDGUARD_LOWER.getSimpleID(), () -> new ModuleItem<>(GCRModules.AK_WOODEN_HANDGUARD_LOWER));
     public static final RegistryObject<Item> AK_WOODEN_HANDGUARD_UPPER_ITEM =
             ITEMS.register(GCRModules.AK_WOODEN_HANDGUARD_UPPER.getSimpleID(), () -> new ModuleItem<>(GCRModules.AK_WOODEN_HANDGUARD_UPPER));
-
 
     public static final RegistryObject<Item> VORTEX_RAZOR_RED_DOT_ITEM =
             ITEMS.register(GCRModules.VORTEX_RAZOR_RED_DOT.getSimpleID(), () -> new ModuleItem<>(GCRModules.VORTEX_RAZOR_RED_DOT));
@@ -410,7 +387,6 @@ public class GCR {
                                 output.accept(SPEAR_HANDGUARD_ITEM.get());
                                 output.accept(SPEAR_LT_HANDGUARD_ITEM.get());
 
-
                                 output.accept(KAC_FORWARD_GRIP_ITEM.get());
                                 output.accept(RK_6_GRIP_ITEM.get());
                                 output.accept(M203_ITEM.get());
@@ -451,7 +427,6 @@ public class GCR {
                                 addMagazineVariants(output, SPEAR_MAG_20R_ITEM);
                             }).build());
 
-    /** Отдельная вкладка для всех верстаков (оружие, магазины, обвесы, патроны). */
     public static final RegistryObject<CreativeModeTab> WORKBENCH_TAB =
             CREATIVE_MODE_TABS.register("workbenches",
                     () -> CreativeModeTab.builder()
@@ -464,11 +439,6 @@ public class GCR {
                                 }
                             }).build());
 
-    /**
-     * Creative inventory presets: two independent ItemStacks of the SAME
-     * registered magazine item. They differ only by the persisted ammo NBT.
-     * Do not register extra magazine IDs or duplicate module bindings.
-     */
     private static void addMagazineVariants(CreativeModeTab.Output output, RegistryObject<Item> entry) {
         MagazineItem magazine = (MagazineItem) entry.get();
 
@@ -516,7 +486,6 @@ public class GCR {
         MinecraftForge.EVENT_BUS.register(com.exetacticals.entity.projectile.GcrBulletWaterEffects.class);
         MinecraftForge.EVENT_BUS.addListener(this::onAddReloadListeners);
 
-
         if (FMLLoader.getDist() == Dist.CLIENT) {
             modEventBus.addListener(ClientEvents::registerCustomVanillaShader);
         }
@@ -539,12 +508,6 @@ public class GCR {
         System.out.println("server started!");
     }
 
-    /**
-     * 服务端在专用服务器上真正可用的最早时机：此时 Minecraft 的注册已完成，
-     * 数据包（含 GCR 的 pivot/voxel 资源）已经通过 {@link #onAddReloadListeners} 注册的
-     * reload listener 装载完毕。在这里预热枪械初始数据缓存，任何生成失败都会当场崩溃，
-     * 而不是等到玩家实际用枪时才发现数据错误。
-     */
     @SubscribeEvent
     public void onServerAboutToStart(ServerAboutToStartEvent event) {
         warmUpGunInitialData();
@@ -555,24 +518,12 @@ public class GCR {
         Commons.onServerStarted(event);
     }
 
-
     public void onAddReloadListeners(AddReloadListenerEvent event) {
         event.addListener(PivotMapLoader.getServer());
         event.addListener(VoxelLoader.getServer());
-        //资源重载会重新填充 pivot/voxel，缓存的初始数据可能基于旧资源，必须重建
         reWarmUpGunInitialData();
     }
 
-    /**
-     * 为所有已注册的枪械物品预热 InitialDataTag 缓存。
-     *
-     * <p>生成失败不吞异常：{@link Gun#warmUpInitialDataTag} 会带上枪械 id 抛出，
-     * 在这里直接冲出启动流程让游戏崩溃——枪械初始数据写坏的代价是存档数据被污染甚至锁死，
-     * 必须在启动阶段就暴露出来。</p>
-     *
-     * <p>客户端与服务端都会调用：两侧各自持有独立的 {@link Gun} 实例与资源，
-     * 且两侧的 public 渲染/预览路径确实会自行构造 ItemStack 数据。</p>
-     */
     public static void warmUpGunInitialData() {
         String side = FMLEnvironment.dist.isClient() ? "client" : "dedicated_server";
         long startedAt = System.nanoTime();
@@ -585,7 +536,6 @@ public class GCR {
         }
         long elapsedMs = (System.nanoTime() - startedAt) / 1_000_000L;
         if (warmed == 0) {
-            //注册表里一把枪都没有，多半是模块注册还没跑完就被调用了
             LOGGER.warn("Precomputed initial data tags on {}, but no gun module was found "
                     + "(ModuleRegister has {} module(s))", side, ModuleRegister.all().size());
             return;
@@ -594,7 +544,6 @@ public class GCR {
                 warmed, side, elapsedMs);
     }
 
-    /** 资源重载后重新预热：先整体清空再重建，失败同样当场抛出。 */
     private static void reWarmUpGunInitialData() {
         for (IModular modular : ModuleRegister.all().values()) {
             if (modular instanceof Gun gun) {
@@ -614,7 +563,6 @@ public class GCR {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP: {}", FMLLoader.getDist());
         Collection<RegistryObject<Item>> entries = ITEMS.getEntries();
         for (RegistryObject<Item> entry : entries) {
@@ -687,7 +635,6 @@ public class GCR {
             PivotMapLoader.getClient().trigger(resourceManager, false);
             VoxelLoader.getClient().trigger(resourceManager, false);
 
-            //客户端侧的建模资源已经就绪，预热枪械初始数据缓存；生成失败直接崩溃
             warmUpGunInitialData();
 
             RenderSystem.recordRenderCall(FabulousMergeDepthShader::init);

@@ -20,9 +20,6 @@ import java.util.Map;
 @OnlyIn(Dist.CLIENT)
 public class HeatMapTextureManager {
     private static final Map<ResourceLocation, AbstractTexture> CACHE = new HashMap<>();
-    /**
-     * 默认空 HeatMap
-     */
     private static int EMPTY_TEXTURE_ID;
 
     public static void handleTextureLoad() {
@@ -37,7 +34,6 @@ public class HeatMapTextureManager {
                 return;
             }
 
-            // 开发环境下用 DevSimpleTexture，热重载时才能直接从源目录读到新的热力图
             DevSimpleTexture texture = new DevSimpleTexture(path);
 
             textureManager.register(path, texture);
@@ -47,19 +43,13 @@ public class HeatMapTextureManager {
             CACHE.put(path, texture);
 
             RenderSystem.recordRenderCall(() -> {
-                RenderSystem.bindTexture(texture.getId()); // 显式先绑定
+                RenderSystem.bindTexture(texture.getId());
                 texture.setFilter(true, false);
             });
         });
         RenderSystem.recordRenderCall(HeatMapTextureManager::initEmptyTexture);
     }
 
-    /**
-     * 重新从磁盘读取一张已经登记过的热力图纹理（模型热重载使用）。
-     *
-     * <p>只有启动时被 {@link #handleTextureLoad()} 记录进缓存的路径才需要处理：
-     * 重新注册纹理并同步缓存，避免 {@link #getTexId(ResourceLocation)} 拿到已经释放的旧纹理对象。</p>
-     */
     public static void reloadCachedTexture(ResourceLocation path) {
         if (path == null || !CACHE.containsKey(path)) {
             return;

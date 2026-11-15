@@ -8,7 +8,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.Optional;
 
-
 @OnlyIn(Dist.CLIENT)
 public interface IAnimationControllerModel {
     Optional<IAnimationController<?>> getController();

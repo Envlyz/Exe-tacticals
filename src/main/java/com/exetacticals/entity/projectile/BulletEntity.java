@@ -56,11 +56,9 @@ public class BulletEntity extends Entity {
     private long serverBirthTime;
     private LivingEntity shooter;
     private Gun gun;
-    // 新增：命中后先移动到命中点，延迟一帧再真正移除，避免客户端来不及渲染就消失
     private boolean markedForRemoval = false;
     public static final EntityDataAccessor<Vector3f> EXACT_VELOCITY =
             SynchedEntityData.defineId(BulletEntity.class, EntityDataSerializers.VECTOR3);
-    /** пуля из трассирующего патрона — рисуется красным трассером; обычные пули не видны */
     public static final EntityDataAccessor<Boolean> TRACER =
             SynchedEntityData.defineId(BulletEntity.class, EntityDataSerializers.BOOLEAN);
     private int shooterId;
@@ -130,8 +128,6 @@ public class BulletEntity extends Entity {
             return;
         }
 
-        // 新增：上一 tick 已经命中过，这一 tick 才真正移除，
-        // 保证命中那一帧的位置同步包已经发给了客户端
         if (markedForRemoval) {
             discard();
             return;
@@ -165,11 +161,7 @@ public class BulletEntity extends Entity {
             entityCheckEnd = blockHit.getLocation();
         }
 
-        // Search broadly but resolve an impact ONLY against the actual target
-        // geometry. The former ProjectileUtil raycast added an invisible margin.
         ResolvedContact entityHit = findExactEntityHit(start, entityCheckEnd, velocity);
-        // Server-authoritative visual water trail, ending at the nearest
-        // actual collision. This does not modify GCR bullet physics or damage.
         if (level() instanceof ServerLevel serverLevel) {
             Vec3 trailEnd = entityHit != null ? entityHit.hit().getLocation() : entityCheckEnd;
             GcrBulletWaterEffects.trace(serverLevel, start, trailEnd);
@@ -188,7 +180,6 @@ public class BulletEntity extends Entity {
         setPos(end);
     }
 
-    /** The coarse search expansion never changes the actual hitbox. */
     private ResolvedContact findExactEntityHit(Vec3 start, Vec3 end, Vec3 velocity) {
         AABB candidates = getBoundingBox().expandTowards(velocity).inflate(1.0);
         double nearestSq = start.distanceToSqr(end);
@@ -196,15 +187,11 @@ public class BulletEntity extends Entity {
         for (Entity target : level().getEntities(this, candidates,
                 e -> e != this
                         && !OwnMultipartHitFilter.isOwnerOrOwnedPart(e, shooter)
-                        // Player anatomy is resolved ONLY through PlayerAnatomy.
-                        // Do not let Aftermatch/other player-part entities bypass
-                        // that path and receive ordinary entity damage instead.
                         && !(e instanceof PartEntity<?> part && part.getParent() instanceof Player)
                         && e.isPickable() && e.isAlive())) {
             Vec3 intersection;
             PlayerAnatomy.Part part = null;
             if (target instanceof Player player) {
-                // Only players receive anatomical hitboxes or location damage.
                 PlayerAnatomy.Hit anatomical = PlayerAnatomy.trace(player, start, end);
                 if (anatomical == null) continue;
                 intersection = anatomical.location();
@@ -250,8 +237,6 @@ public class BulletEntity extends Entity {
                 double vz = normal.z * speed;
                 BlockParticleOption particleData = new BlockParticleOption(ParticleTypes.BLOCK, state);
                 Vec3 hitLocation = hit.getLocation();
-                // Cosmetic only. PlayerAnatomy and PlayerHitZoneConfig remain
-                // authoritative for player hits and bullet damage.
                 GCRNetwork.CHANNEL.send(
                         PacketDistributor.NEAR.with(() -> new PacketDistributor.TargetPoint(
                                 hitLocation.x, hitLocation.y, hitLocation.z, 96.0, serverWorld.dimension())),
@@ -291,15 +276,12 @@ public class BulletEntity extends Entity {
         return true;
     }
 
-
     private void onHitEntity(ResolvedContact contact) {
         EntityHitResult hit = contact.hit();
         Entity target = hit.getEntity();
         target.invulnerableTime = 0;
         DamageSource damageSource = createBulletDamageSource();
         float damage = (float) (baseDamage * (0.9f + 0.2f * Math.random()));
-        // Player-only anatomical damage. Mobs and other entities retain the
-        // exact same damage as before. Armor is still handled by vanilla hurt().
         if (target instanceof Player && contact.playerPart() != null) {
             damage *= PlayerHitZoneConfig.multiplier(contact.playerPart().zone());
         }

@@ -9,7 +9,6 @@ import com.exetacticals.client.render.fx.muzzleSmoke.slow.SlowSmokeEntry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-
 @OnlyIn(Dist.CLIENT)
 public class BarrelModel extends MuzzleFlashRendererModel {
 

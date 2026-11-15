@@ -38,7 +38,6 @@ public class ControllerEvents {
 
     @SubscribeEvent
     public static void onKeyBoardEvent(InputEvent.Key event) {
-        //if (event.getAction() == 1) {
             LocalPlayer player = Minecraft.getInstance().player;
             if (player == null) {
                 return;
@@ -54,7 +53,6 @@ public class ControllerEvents {
                 }
                 handleGunFunctionalInput(gunModule, itemStack, event);
             }
-        //}
     }
 
     private static void handleGunFunctionalInput(IGun gunModule, ItemStack itemStack, InputEvent.Key event) {
@@ -80,9 +78,6 @@ public class ControllerEvents {
                     GunTaskHandler.INSTANCE.setTask(task);
                 }
             }
-            // Physical-magazine R handling is performed by PhysicalMagazineInput.
-            // GCR's original reload refills magazines without consuming items,
-            // so it must not run alongside physical magazine transfers.
             if (KeyBinds.SWITCH_EFFECTIVE_SIGHT.isDown()) {
                 if (gunModule instanceof ISlottedGun) {
                     IGunTask<?> task = gunModule.getTask(itemStack, IGunTask.TaskType.SWITCH_USING_SIGHT, Map.of());
@@ -91,8 +86,6 @@ public class ControllerEvents {
                     }
                 }
             }
-            // Physical-magazine mechanics: removal of a jam cannot be triggered by the old U key.
-            // It requires holding R and is verified again by the server.
         }
 
         Map<String, Node> idToNodes = Client.WEAPON_STATUS.getIDToNodes();
@@ -122,9 +115,6 @@ public class ControllerEvents {
         if (event.phase != TickEvent.Phase.END) return;
         adsDelay = Math.max(0, adsDelay - 1);
         PhysicalMagazineInput.tick();
-        // Physical-magazine mechanics: release ADS whenever mouse input is no longer valid.
-        // In particular, opening a screen or losing focus may swallow the
-        // physical right-button release event.
         if (!shouldHandleMouseEvent() || !Client.WEAPON_STATUS.isHoldingGun()) {
             Client.RIGHT_BUTTON_PRESSED.set(false);
         }
@@ -156,8 +146,6 @@ public class ControllerEvents {
         }
     }
 
-    // Suppress vanilla right-click use while physically unloading a magazine,
-    // without preventing the use key from tracking whether RMB remains down.
     @SubscribeEvent
     public static void onMagazineUse(InputEvent.InteractionKeyMappingTriggered event) {
         Minecraft mc = Minecraft.getInstance();
@@ -177,31 +165,23 @@ public class ControllerEvents {
 
         if (Client.WEAPON_STATUS.isHoldingGun()) {
             if (btn >= 2 && action == 1) {
-                // Mouse-bound GCR actions never generate an InputEvent.Key.
-                // Dispatch press actions without intercepting the key mapping.
                 dispatchRemappedMouseAction(btn);
             }
-            if (action == 1) {//press
-                if (btn == 0) {//left
+            if (action == 1) {
+                if (btn == 0) {
                     Client.LEFT_BUTTON_PRESSED.set(true);
-                    // 立刻叫醒武器线程，让第一发不用等它的下一个周期
                     ClientWeaponLooper.wake();
-                } else if (btn == 1) {//right
-                    // Physical-magazine mechanics: hold RMB to aim; do not toggle ADS on clicks.
+                } else if (btn == 1) {
                     if (adsDelay <= 0) {
                         Client.RIGHT_BUTTON_PRESSED.set(true);
                     }
                 }
-                // Only intercept primary firearm attack/use buttons.
-                // Canceling MMB here prevents vanilla/Forge from updating
-                // controls remapped to middle or other mouse buttons.
                 if (btn == 0 || btn == 1) event.setCanceled(true);
-            } else if (action == 0) {//up
-                if (btn == 0) {//left
+            } else if (action == 0) {
+                if (btn == 0) {
                     Client.LEFT_BUTTON_PRESSED.set(false);
                     Client.WEAPON_STATUS.fireCount = 0;
-                } else if (btn == 1) {//right
-                    // Releasing RMB must always end ADS, even during adsDelay.
+                } else if (btn == 1) {
                     Client.RIGHT_BUTTON_PRESSED.set(false);
                 }
             }

@@ -56,7 +56,6 @@ public class FirstPersonRenderContext extends ModuleRenderContext implements IRe
                 }
             }
         });
-        //default
         if (leftArm == null || rightArm == null) {
             if (root.model instanceof IArmHandlerModel model) {
                 if (leftArm == null && model.has(false)) {
@@ -115,7 +114,7 @@ public class FirstPersonRenderContext extends ModuleRenderContext implements IRe
         root.initTranslate(poseStack);
         IStateViewer<?> viewer = null;
 
-        if (renderMode) {//应用动画
+        if (renderMode) {
             if (root.model instanceof IStateViewerModel<?> stateListenerModel) {
                 viewer = stateListenerModel.getViewer();
             }

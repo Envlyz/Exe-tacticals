@@ -46,8 +46,6 @@ public class ModSounds {
     public static RegistryObject<SoundEvent> AK74M_FIRE = registerSound("ak74m_fire", "exe_tacticals");
     public static RegistryObject<SoundEvent> AK74M_FIRE_SUPPRESSED = registerSound("ak74m_fire_suppressed", "exe_tacticals");
 
-
-    /** наведение на лепесток кругового меню */
     public static final RegistryObject<SoundEvent> WHEEL_SELECT =
             registerSound("wheel_select", "exe_tacticals");
     public static final RegistryObject<SoundEvent> MAG_ROUND_LOAD =
@@ -69,7 +67,6 @@ public class ModSounds {
     public static RegistryObject<SoundEvent> M203NEW_SHELL_IN = registerSound("m203new_shellin", "exe_tacticals");
     public static RegistryObject<SoundEvent> M203NEW_SHELL_OUT = registerSound("m203new_shellout", "exe_tacticals");
 
-
     public static RegistryObject<SoundEvent> AK24_FIRE = registerSound("ak24_fire", "exe_tacticals");
     public static RegistryObject<SoundEvent> AK24_FIRE_SUPPRESSED = registerSound("ak24_fire_suppressed", "exe_tacticals");
 
@@ -79,7 +76,6 @@ public class ModSounds {
     public static RegistryObject<SoundEvent> AKMN_FIRE = registerSound("akmn_fire", "exe_tacticals");
     public static RegistryObject<SoundEvent> AKMN_FIRE_SUPPRESSED = registerSound("akmn_fire_suppressed", "exe_tacticals");
 
-    // M4NEW
     public static RegistryObject<SoundEvent> M4NEW_FIRE_V2 = registerSound("m4new_fire_v2", "exe_tacticals");
     public static RegistryObject<SoundEvent> M4NEW_FIRE_SUP_V2 = registerSound("m4new_fire_sup_v2", "exe_tacticals");
 
@@ -126,7 +122,6 @@ public class ModSounds {
     public static RegistryObject<SoundEvent> M4NEW_SELECTOR_1 = registerSound("m4new_selector1", "exe_tacticals");
     public static RegistryObject<SoundEvent> M4NEW_SELECTOR_2 = registerSound("m4new_selector2", "exe_tacticals");
 
-    // AK24
     public static RegistryObject<SoundEvent> AK24_FIRE_V2 = registerSound("ak24_fire_v2", "exe_tacticals");
     public static RegistryObject<SoundEvent> AK24_FIRE_SUP_V2 = registerSound("ak24_fire_sup_v2", "exe_tacticals");
 
@@ -193,7 +188,6 @@ public class ModSounds {
             sound(vol, pit, player, soundEvent);
         }
     }
-
 
     public static void sound(float vol, float pit, double x, double y, double z, Player player, ResourceLocation name) {
         SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.get(name);

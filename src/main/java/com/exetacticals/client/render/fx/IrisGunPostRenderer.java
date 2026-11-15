@@ -53,15 +53,12 @@ public class IrisGunPostRenderer {
                 RenderSystem.depthMask(false);
                 GL20.glUseProgram(IrisGunPostShader.programId);
 
-
                 RenderSystem.activeTexture(GL13.GL_TEXTURE0);
                 RenderSystem.bindTexture(IrisExtendRT.textureId);
                 Uniform.uploadInteger(IrisGunPostShader.muzzleLightContributionSamplerLoc, 0);
 
-
                 GL30.glBindVertexArray(IrisGunPostShader.vaoId);
                 GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
-
 
                 IrisExtendRT.clearMuzzleTexture();
                 GL30.glBindVertexArray(0);

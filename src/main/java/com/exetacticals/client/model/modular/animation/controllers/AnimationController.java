@@ -71,7 +71,6 @@ public abstract class AnimationController<T extends IModularModel> implements IA
         return trackMap.get(name);
     }
 
-
     @Override
     public List<Track<T>> getAllTracks() {
         return new ArrayList<>(trackMap.values());
@@ -87,7 +86,6 @@ public abstract class AnimationController<T extends IModularModel> implements IA
         return eventRegistries;
     }
 
-
     protected AnimationInstance anim(String name) {
         AnimationDef def = animationPool.get(name);
         if (def == null) {
@@ -99,7 +97,6 @@ public abstract class AnimationController<T extends IModularModel> implements IA
     protected AnimationDef animDef(String name) {
         return animationPool.get(name);
     }
-
 
     @Override
     public void clearNode() {

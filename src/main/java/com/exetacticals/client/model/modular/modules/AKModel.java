@@ -64,7 +64,6 @@ public class AKModel extends ArmHandlerModel<AKView> implements IBulletShellHand
         return handHoldPivot;
     }
 
-
     @Override
     public IMuzzleFlashRenderer getRenderer() {
         return muzzleFlashRenderer;

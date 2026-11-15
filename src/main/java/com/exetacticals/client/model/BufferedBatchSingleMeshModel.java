@@ -34,14 +34,13 @@ public class BufferedBatchSingleMeshModel {
     public static final int COMPILE_LIGHT = LightTexture.pack(15, 15);
 
     private final ResourceLocation name;
-    private final int repeat; // 最大副本数
+    private final int repeat;
 
     private float[] singlePositions;
     private float[] singleNormals;
     private float[] singleUvs;
     private int singleVertexCount;
 
-    // GPU 相关
     protected VertexBuffer rawDataVertexBuffer;
     protected FloatBuffer boneStatusUboBuffer;
     private final BoneUniformBuffer boneUbo = new BoneUniformBuffer();
@@ -80,7 +79,6 @@ public class BufferedBatchSingleMeshModel {
         readSingleMesh(singleMesh);
     }
 
-    // 读取单个 mesh 的顶点到 CPU 数组（保持与之前代码类似格式）
     private void readSingleMesh(MeshModelData root) {
         List<Vertex> vertices = root.getVertices();
         this.singleVertexCount = vertices.size();
@@ -96,7 +94,6 @@ public class BufferedBatchSingleMeshModel {
         }
     }
 
-    // compile：在 VBO 中将 single mesh 重复写 repeat 次（每份标记不同的 UV1.x = instanceIndex）
     public void compile(RenderType type) {
         if (rawDataVertexBuffer != null) {
             return;
@@ -144,15 +141,14 @@ public class BufferedBatchSingleMeshModel {
         }
     }
 
-
     private void initUboBufferWithIdentity() {
         boneStatusUboBuffer.clear();
         for (int i = 0; i < repeat; i++) {
-            loadMat4Identity(boneStatusUboBuffer); // 16 floats
-            loadMat3Identity(boneStatusUboBuffer); // 12 floats (含 padding)
-            loadLightAndVisible(boneStatusUboBuffer, COMPILE_LIGHT, false); // 4 floats
+            loadMat4Identity(boneStatusUboBuffer);
+            loadMat3Identity(boneStatusUboBuffer);
+            loadLightAndVisible(boneStatusUboBuffer, COMPILE_LIGHT, false);
         }
-        boneStatusUboBuffer.flip(); // 准备好
+        boneStatusUboBuffer.flip();
     }
 
     private void checkOrCreateUBO() {
@@ -189,7 +185,6 @@ public class BufferedBatchSingleMeshModel {
         }
     }
 
-    // 释放资源
     public void release() {
         if (RenderSystem.isOnRenderThread()) {
             _release();
@@ -219,14 +214,12 @@ public class BufferedBatchSingleMeshModel {
 
     protected void prepareUbo() {
         boneUbo.beginWrite();
-        boneStatusUboBuffer.clear(); // 重置 position = 0
+        boneStatusUboBuffer.clear();
         for (int i = 0; i < repeat; i++) {
             InstanceStatus s = instanceStatuses[i];
             if (s.visible) {
                 boneUbo.putBone(s.pose, s.lightmapUV, true);
             } else {
-                // 不可见：跳过矩阵写入，只写控制位
-                // 1. 跳过 Mat4 (16) + Mat3 (12) = 28 个 float
                 boneUbo.putInvisibleBone(COMPILE_LIGHT);
             }
         }
@@ -267,38 +260,12 @@ public class BufferedBatchSingleMeshModel {
         buf.put(0f); buf.put(0f); buf.put(0f); buf.put(1f);
     }
 
-    // 绑定 UBO 并上传数据
     protected boolean checkShaderUbo(int shaderProgramId) {
         return boneUbo.bindProgram(shaderProgramId);
-        /*
-        if (uboId == -1) {
-            return false;
-        }
-        if (shaderProgramId == 0) {
-            return false;
-        }
-        if (lastKnownProgramId != shaderProgramId) {
-            int blockIndex = GL31.glGetUniformBlockIndex(shaderProgramId, "GcrBoneUBO");
-            if (blockIndex == GL31.GL_INVALID_INDEX) {
-                lastKnownProgramId = -1;
-                return false;
-            }
-            GL31.glUniformBlockBinding(shaderProgramId, blockIndex, UBO_BINDING_POINT);
-            lastKnownProgramId = shaderProgramId;
-        }
-        //GL31.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, UBO_BINDING_POINT, uboId);
-        return true; */
     }
 
     protected void uploadUbo() {
         boneUbo.uploadAndBind();
-        /*
-        //重新绑定ubo buffer base以解决某些intel老旧集成显卡的ubo访问问题，也许可以解决问题。。。
-        GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 0, 0);
-        GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, uboId);
-        GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, boneStatusUboBuffer);
-        GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
-        GL31.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, UBO_BINDING_POINT, uboId); */
     }
 
     protected boolean updateCompatType() {
@@ -313,7 +280,6 @@ public class BufferedBatchSingleMeshModel {
         return true;
     }
 
-    // render：一次 draw 所有 repeat 副本（shader 内使用 UV1.x 去索引 UBO）
     public void render(boolean isFirstPerson) {
         if (rawDataVertexBuffer != null && renderType != null) {
             if (!updateCompatType()) {

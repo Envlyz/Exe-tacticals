@@ -16,15 +16,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
-/**
- * 对于全局动画的硬编码实现
- * */
 @OnlyIn(Dist.CLIENT)
 public class HardCodeAnimationHandler implements IGlobalAnimationHandler {
     protected static IGlobalAnimationHandler INSTANCE;
     private static final MovingInertialHandler MOVING_INERTIAL_HANDLER = new MovingInertialHandler();
     private static final float PI = (float) Math.PI;
-    /** 闲置/呼吸动画的计时器 (跨帧保持状态) */
     private float idleProgress = 0;
     private float aimingProgress = 0;
 
@@ -33,22 +29,13 @@ public class HardCodeAnimationHandler implements IGlobalAnimationHandler {
     private float idleScale = 1f;
     private float moveInertialScale = 1f;
 
-    // ===== 射击抑制(globalScale 抵抗)参数 =====
-    /** 每一发子弹叠加的抑制冲击量 */
     private static final float SHOOT_RESIST_KICK = 0.35f;
-    /** 抑制量的连续泄漏(停火恢复)时间常数(秒) */
     private static final float SHOOT_RESIST_RELEASE_TAU = 0.4f;
-    /** 输出平滑时间常数(秒)：把逐发离散的冲击摊开成连续的 globalScale 变化 */
     private static final float SHOOT_RESIST_SMOOTH_TAU = 0.06f;
-    /** 抑制量最大强度：globalScale */
     private static final float SHOOT_RESIST_STRENGTH = 0.5f;
-    /** 单帧最大积分步长(秒)，防止卡顿/切枪后一帧内突变 */
     private static final float MAX_INTEGRATION_STEP = 0.35f;
-    /** 射击冲击积累量 [0, 1] */
     private float shootKick = 0f;
-    /** 平滑后的射击抑制量 [0, 1]，用于最终缩放 */
     private float shootResist = 0f;
-    /** 上一帧的"距上次射击时间"，用于检测新的一发 */
     private float lastShootDist = 0f;
 
     private float rxPre, ryPre, rzPre, txPre, tyPre, tzPre;
@@ -161,7 +148,6 @@ public class HardCodeAnimationHandler implements IGlobalAnimationHandler {
             walkDist -= sprintingStartSwing;
             bob = Mth.lerp(partialTicks, player.oBob, player.bob) * sprintingProgress * 3f;
 
-
             float sin = Mth.sin(walkDist) * bob;
             float cos = Mth.cos(walkDist) * bob;
 
@@ -270,24 +256,20 @@ public class HardCodeAnimationHandler implements IGlobalAnimationHandler {
     private float calcShootResistance(float delta) {
         float dt = Mth.clamp(delta, 0f, MAX_INTEGRATION_STEP);
 
-        // 距上次射击的时间只会在开火时回退，借此检测新的一发
         float dist = Client.distFromLastShoot();
         if (dist < lastShootDist - 1e-3f) {
             shootKick = Math.min(1f, shootKick + SHOOT_RESIST_KICK);
         }
         lastShootDist = dist;
 
-        // 连续泄漏：停火后抑制量按指数缓慢恢复
         shootKick *= (float) Math.exp(-dt / SHOOT_RESIST_RELEASE_TAU);
         if (shootKick < 1e-5f) {
             shootKick = 0f;
         }
 
-        // 输出平滑：即使冲击是逐发叠加的，globalScale 也不会瞬间跳变
         shootResist += (shootKick - shootResist) * (1f - (float) Math.exp(-dt / SHOOT_RESIST_SMOOTH_TAU));
         shootResist = Mth.clamp(shootResist, 0f, 1f);
 
-        // smoothstep 让接近上限时变化更平缓，最终缩放落在 (0.1, 1]
         float shaped = shootResist * shootResist * (3f - 2f * shootResist);
         return 1f - SHOOT_RESIST_STRENGTH * shaped;
     }

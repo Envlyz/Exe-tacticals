@@ -16,11 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-/**
- * Кнопка экрана модификации: скруглённая, тёмная, с плавной подсветкой при наведении.
- * Показывает иконку 32x32, текст или и то и другое. Отключённая кнопка всё равно забирает клик
- * (он не уходит на модель за ней), но ничего не делает и выглядит приглушённой.
- */
 @OnlyIn(Dist.CLIENT)
 public class UiButton extends AbstractButton {
     public static final int SIZE = 18;
@@ -58,13 +53,11 @@ public class UiButton extends AbstractButton {
         return new UiButton(width, SIZE, null, text, (x, y) -> action.run());
     }
 
-    /** Красная подсветка при наведении — для действий вроде «снять». */
     public UiButton danger() {
         this.danger = true;
         return this;
     }
 
-    /** Без фона и рамки, пока на кнопку не навели (для кнопок внутри панелей). */
     public UiButton flat() {
         this.flat = true;
         return this;
@@ -116,7 +109,6 @@ public class UiButton extends AbstractButton {
 
     @Override
     public void onPress() {
-        // с клавиатуры (Enter/пробел) координат мыши нет
         if (enabled) {
             handler.onPress(getX(), getY());
         }

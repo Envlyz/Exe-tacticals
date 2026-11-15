@@ -29,28 +29,24 @@ public class RecoilUpdater implements IRecoilUpdater {
     private float noiseTimerX = (float) (50 + Math.random() * 100);
     private float noiseTimerY = (float) (50 + Math.random() * 100);
 
+    private final RecoilSpring1D zLinear = new RecoilSpring1D();
+    private final RecoilSpring1D basePitch = new RecoilSpring1D();
+    private final RecoilSpring2D localRot = new RecoilSpring2D();
+    private final RecoilSpring2D globalRot = new RecoilSpring2D();
+    private final RecoilSpring1D roll = new RecoilSpring1D();
 
-    private final RecoilSpring1D zLinear = new RecoilSpring1D();      // 线性位移 Z
-    private final RecoilSpring1D basePitch = new RecoilSpring1D();    // 基础 Pitch 抬起
-    private final RecoilSpring2D localRot = new RecoilSpring2D();     // 模型本地 Pitch (X) & Yaw (Y) 旋转震动
-    private final RecoilSpring2D globalRot = new RecoilSpring2D();    // 全局 Pitch (X) & Yaw (Y) 旋转震动
-    private final RecoilSpring1D roll = new RecoilSpring1D();         // 枪械侧倾 Roll
-
-    // 汇总物理状态（用于兼容渲染层与同步）
     private final Vector3f gunDisplacement = new Vector3f();
     private final Vector3f gunVelocity = new Vector3f();
     private final Vector3f localAngularDisplacement = new Vector3f();
     private final Vector3f globalAngularDisplacement = new Vector3f();
     private final Vector3f gunAngularVelocity = new Vector3f();
 
-    // --- 镜头后坐力状态 ---
     private float camUpSpeed = 0f;
     private float camRandomSpeedPitch = 0f;
     private float camRandomSpeedYaw = 0f;
     private float camShake = 0f;
     private final Vector2f cameraSpeed = new Vector2f();
 
-    // --- 渲染插值相关变量 ---
     private static final double PHYSICS_TICK_NANOS = 10_000_000.0;
     private final Vector3f prevRenderDisplacement = new Vector3f();
     private final Vector3f prevRenderLocalAngularDisplacement = new Vector3f();
@@ -66,9 +62,6 @@ public class RecoilUpdater implements IRecoilUpdater {
     private float randomSeed = 0f;
     private float randomSeed2 = 0f;
 
-    /**
-     * 物理线程在 update 结束时调用，用于发布状态给渲染线程
-     */
     private void publishRenderState() {
         renderStateLock.lock();
         try {
@@ -119,12 +112,10 @@ public class RecoilUpdater implements IRecoilUpdater {
         float c_ang_global = controller.globalRotDamping() * aimingRotFactorDamp * recoilControl;
         globalRot.updateExplicit(dt, k_ang_global, c_ang_global);
 
-
         float k_ang_roll = controller.rollStiffness() * aimingRotFactorStiff;
         float c_ang_roll = controller.rollDamping() * aimingRotFactorDamp;
         float zFactor = Mth.lerp(-zLinear.getDisplacement() * 8, 1, 1.5f);
         roll.updateExplicit(dt, k_ang_roll * zFactor, c_ang_roll);
-
 
         gunDisplacement.set(0, 0, zLinear.getDisplacement());
         gunVelocity.set(0, 0, zLinear.getVelocity());
@@ -221,7 +212,6 @@ public class RecoilUpdater implements IRecoilUpdater {
         float rollVelocityImpulse = rawShakeRoll * shakeFactor * adsShakeFactor;
         float shakeZFactor = Math.min(1.0f - shakeFactor, adsShakeFactor) * adsShakeFactor;
         float rollDisplacementImpulse = rawShakeRoll * shakeZFactor * 0.026f;
-
 
         zLinear.addVelocity(impulseZ);
         basePitch.addVelocity(torqueImpulseX);
@@ -335,7 +325,6 @@ public class RecoilUpdater implements IRecoilUpdater {
                     shakeX = (float) Utils.dampedOscillation(distFromLastShoot, scale, omega, 0.26f, rand * halfPI * 0.67f);
                     shakeY = (float) Utils.dampedOscillation(distFromLastShoot, scale, omega * 1.1f, 0.28f, rand * halfPI);
 
-
                     float cScale = mix.rotScale();
                     float ry = Math.signum(randomSeed - 0.5f) * Math.min(randomSeed + 0.5f, 1);
                     float rx = (Math.signum(randomSeed2 - 0.5f) + 0.5f - aimingProgress * 0.5f) * Math.min(randomSeed2 + 0.6f, 1);
@@ -374,7 +363,6 @@ public class RecoilUpdater implements IRecoilUpdater {
         poseStack.translate(lerpGunDisplacement.x, lerpGunDisplacement.y, zBack);
 
     }
-
 
     @Override
     public void setRecoilData(RecoilData data) {
@@ -438,7 +426,6 @@ public class RecoilUpdater implements IRecoilUpdater {
         return noise1DY.sample(seed) + (RANDOM.nextFloat() * 0.2f - 0.1f);
     }
 
-
     public static class RecoilSpring1D {
         private float displacement = 0f;
         private float velocity = 0f;
@@ -448,7 +435,6 @@ public class RecoilUpdater implements IRecoilUpdater {
             velocity += force * dt;
             displacement += velocity * dt;
         }
-
 
         public void updateImplicit(float dt, float stiffness, float damping) {
             velocity = (velocity - stiffness * displacement * dt) / (1.0f + damping * dt);

@@ -75,9 +75,7 @@ public class ModuleHandler {
     public static ModuleRenderNode buildRenderTree(ItemStack itemStack) {
         CompoundTag orDefault = itemStack.getTag();
         if (orDefault != null && !orDefault.isEmpty()) {
-            //直接使用源NBT，避免数据复制
             CompoundTag unsafe = orDefault;
-            //时序列表，首节点视作渲染root，不止局限于从root构建
             ListTag modulesTag = unsafe.getList(IGun.MODULES_KEY, ListTag.TAG_COMPOUND);
             if (modulesTag.isEmpty()) {
                 return null;

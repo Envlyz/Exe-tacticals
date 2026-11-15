@@ -34,38 +34,23 @@ import static org.lwjgl.opengl.GL15.*;
 public class BufferedBoneMeshModel {
     protected CompatType compatType = CompatType.VANILLA;
     public static final int COMPILE_LIGHT = LightTexture.pack(15,15);
-    //mat4 * 2
     private static final int UBO_ELEMENT_SIZE = 16 * 2;
-    // UBO 在 GLSL 中的绑定点 (layout (..., binding = 0) ...)
     private static final int UBO_BINDING_POINT = 0;
-    // 骨骼数量 (必须与 GLSL 中的 128 匹配)
     private static final int MAX_BONES = 128;
-    /**
-     * 原始数据
-     * */
     protected float[] positions;
     protected float[] normals;
     protected float[] uvs;
-    //bone1 index start -> bone1 index end, bone2 index start -> bone2 index end
     protected int[] boneIndices;
-    /**
-     * 骨骼数据
-     * */
     public Bone rootBone;
     protected List<BoneRenderStatus> renderableBoneStatusList;
     protected Map<Integer, Bone> IndexToBone;
     protected Object2ObjectOpenHashMap<String, Bone> flatBoneMap;
-    /**
-     * 渲染工具
-     * */
     protected FloatBuffer boneStatusUboBuffer;
     private final BoneUniformBuffer boneUbo = new BoneUniformBuffer();
 
-    // UBO 的 OpenGL ID
     private int uboId = -1;
     private int irisOverride = -1;
-    private int lastKnownProgramId = -1; // 用来检测 Shader 是否变化
-
+    private int lastKnownProgramId = -1;
 
     public RenderType renderType;
     protected VertexBuffer rawDataVertexBuffer;
@@ -214,8 +199,6 @@ public class BufferedBoneMeshModel {
         if (!boneUbo.create(renderableBoneStatusList.size())) {
             throw new IllegalStateException("GCR requires <= 128 renderable bones and a 16 KiB uniform block");
         }
-        // 1.20.1 stores the vertex data in BufferBuilder.RenderedBuffer.
-        // Quads requiring translucency sorting need a separate render-path review.
         BufferBuilder.RenderedBuffer rawData = rawBuilder.endOrDiscardIfEmpty();
         if (rawData != null) {
             rawDataVertexBuffer.bind();
@@ -254,7 +237,6 @@ public class BufferedBoneMeshModel {
         glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
     }
 
-
     protected boolean updateCompatType() {
         CompatType prevType = Client.isUsingIrisShader ? CompatType.IRIS : CompatType.VANILLA;
         if (compatType != prevType) {
@@ -276,12 +258,6 @@ public class BufferedBoneMeshModel {
             renderingVertexCount += bone.vertexCount;
             for (int i = vertexStart; i < vertexEnd; i++) {
                 int posIndex = i * 3;
-                // The Oculus/Iris path uses a shaderpack-provided entity
-                // shader, NOT GCR's own fragment shader. Give modular gun
-                // meshes subtle geometric key/fill contrast in their existing
-                // vertex colors so their facets remain readable there, too.
-                // This is intentionally restricted to gun/attachment meshes:
-                // player arms, particles and other buffered models are untouched.
                 float geometryLight = 1f;
                 if (compatType == CompatType.IRIS
                         && this instanceof com.exetacticals.client.model.modular.ModularModel) {
@@ -294,8 +270,6 @@ public class BufferedBoneMeshModel {
                         nx *= invLength;
                         ny *= invLength;
                         nz *= invLength;
-                        // Opposing soft key and fill; contrast is deliberately
-                        // bounded (75%-100%) rather than painting hard shadows.
                         float key = Math.max(0f, 0.33f * nx + 0.78f * ny + 0.53f * nz);
                         float fill = Math.max(0f, -0.72f * nx + 0.44f * ny + 0.49f * nz);
                         geometryLight = Math.min(1.0f, 0.75f + 0.25f * key + 0.07f * fill);
@@ -378,22 +352,11 @@ public class BufferedBoneMeshModel {
         unUseShaderAndBuffer(shader);
     }
 
-    /**
-     * 1.20.1's {@link ShaderInstance#apply()} only binds samplers that were registered through
-     * {@link ShaderInstance#setSampler}; vanilla does that inside VertexBuffer.drawWithShader, which GCR bypasses
-     * (it issues raw glDrawElements). Without this every sampler reads whatever texture happened to be bound.
-     */
     public static void applyVanillaDefaultUniforms(ShaderInstance shader) {
         applyVanillaDefaultUniforms(shader, false);
     }
 
-    /**
-     * {@code firstPerson}: туман не применяется. Пушка и руки в руках у камеры, а под водой (особенно в реках
-     * и болотах, там туман ближе) шейдер красил их в цвет воды — модель выглядела тёмной.
-     */
     public static void applyVanillaDefaultUniforms(ShaderInstance shader, boolean firstPerson) {
-        // Vanilla sets these in VertexBuffer.drawWithShader, which GCR bypasses. Without them the
-        // light directions stay (0,0,0) -> normalize() yields NaN and the model is unlit/dark.
         RenderSystem.setupShaderLights(shader);
         if (firstPerson) {
             com.exetacticals.client.render.LightDiag.capture(shader);
@@ -530,36 +493,10 @@ public class BufferedBoneMeshModel {
 
     public boolean checkShaderUbo(int shaderProgramId) {
         return boneUbo.bindProgram(shaderProgramId);
-        /*
-        if (uboId == -1) {
-            return false;
-        }
-        if (shaderProgramId == 0) {
-            return false;
-        }
-
-        if (lastKnownProgramId != shaderProgramId) {
-            int blockIndex = GL31.glGetUniformBlockIndex(shaderProgramId, "GcrBoneUBO");
-            if (blockIndex == GL31.GL_INVALID_INDEX) {
-                lastKnownProgramId = -1;
-                return false;
-            }
-            GL31.glUniformBlockBinding(shaderProgramId, blockIndex, UBO_BINDING_POINT);
-            lastKnownProgramId = shaderProgramId;
-        }
-
-        return true; */
     }
 
     public void uploadUbo() {
         boneUbo.uploadAndBind();
-        /*
-        //重新绑定ubo buffer base以解决某些intel老旧集成显卡的ubo访问问题，也许可以解决问题。。。
-        GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 0, 0);
-        glBindBuffer(GL31.GL_UNIFORM_BUFFER, uboId);
-        glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, boneStatusUboBuffer);
-        glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
-        GL31.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, UBO_BINDING_POINT, uboId); */
     }
 
     protected void afterUniformLoaded(ShaderInstance shader, boolean isFirstPerson, boolean isShadowPass, float partialTicks) {}
@@ -571,22 +508,22 @@ public class BufferedBoneMeshModel {
         boneStatusUboBuffer.put((float) u);
         boneStatusUboBuffer.put((float) v);
         boneStatusUboBuffer.put(status.visible ? 1.0f : 0.0f);
-        boneStatusUboBuffer.put(0.0f);//padding
+        boneStatusUboBuffer.put(0.0f);
     }
 
     private void loadMat3(Matrix3f mat) {
         boneStatusUboBuffer.put(mat.m00);
         boneStatusUboBuffer.put(mat.m01);
         boneStatusUboBuffer.put(mat.m02);
-        boneStatusUboBuffer.put(0.0f);//padding
+        boneStatusUboBuffer.put(0.0f);
         boneStatusUboBuffer.put(mat.m10);
         boneStatusUboBuffer.put(mat.m11);
         boneStatusUboBuffer.put(mat.m12);
-        boneStatusUboBuffer.put(0.0f);//padding
+        boneStatusUboBuffer.put(0.0f);
         boneStatusUboBuffer.put(mat.m20);
         boneStatusUboBuffer.put(mat.m21);
         boneStatusUboBuffer.put(mat.m22);
-        boneStatusUboBuffer.put(0.0f);//padding
+        boneStatusUboBuffer.put(0.0f);
     }
 
     protected void loadMat4(Matrix4f mat) {
@@ -607,7 +544,6 @@ public class BufferedBoneMeshModel {
         boneStatusUboBuffer.put(mat.m32());
         boneStatusUboBuffer.put(mat.m33());
     }
-
 
     public void resetPose() {
         rootBone.resetPoseAll();
@@ -631,12 +567,6 @@ public class BufferedBoneMeshModel {
         this.updateBoneRenderStatus(rootBone, poseStack, light);
     }
 
-    /**
-     * Габариты модели в текущей (обычно исходной) позе: {minX, minY, minZ, maxX, maxY, maxZ}
-     * в координатах корня модели. Скрытые кости (видимость выкл. или нулевой масштаб) не учитываются.
-     *
-     * @return null, если у модели нет видимых вершин
-     */
     @Nullable
     public float[] computeBounds() {
         if (rootBone == null || positions == null) {
@@ -672,7 +602,6 @@ public class BufferedBoneMeshModel {
         }
         poseStack.popPose();
     }
-
 
     public ResourceLocation getDebugName() {
         return debugName;

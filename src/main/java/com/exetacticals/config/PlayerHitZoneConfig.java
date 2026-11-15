@@ -2,11 +2,6 @@ package com.exetacticals.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-/**
- * GCR's player-only anatomical hit detection and damage tuning.
- * Based on the HEAD/TORSO/LEGS/FEET categories from AftermatchDayZ.
- * No dependency on AftermatchDayZ is required in the public release.
- */
 public final class PlayerHitZoneConfig {
     public static final ForgeConfigSpec SPEC;
     public static final ForgeConfigSpec.BooleanValue ENABLED;

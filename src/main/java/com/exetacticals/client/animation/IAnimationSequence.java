@@ -14,9 +14,6 @@ public interface IAnimationSequence {
 
     void apply(IAnimated root, ModuleRenderContext context);
 
-    /**
-     * returns true if sequence is finished
-     * */
     boolean tick();
 
     boolean applying();

@@ -27,7 +27,6 @@ public class Command {
     }
 
     protected void resolve() {
-        // 去掉结尾的分号
         String raw = command.replace(";", "").trim();
 
         this.args = new ArrayList<>();
@@ -35,22 +34,18 @@ public class Command {
         int left = raw.indexOf('(');
         int right = raw.lastIndexOf(')');
 
-        // 没有参数，例如: play;
         if (left == -1 || right == -1 || right < left) {
             this.command = raw;
             return;
         }
 
-        // 命令名
         this.command = raw.substring(0, left).trim();
 
-        // 参数区
         String argPart = raw.substring(left + 1, right).trim();
         if (argPart.isEmpty()) {
             return;
         }
 
-        // 拆分参数
         String[] split = argPart.split(",");
         for (String s : split) {
             args.add(s.trim());

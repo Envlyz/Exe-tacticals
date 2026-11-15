@@ -43,7 +43,6 @@ public class SlotProvider implements ISlotProvider{
         return slotNames.contains(slotName);
     }
 
-
     @Override
     public ResourceLocation getAssetsPath() {
         return pivotMapPath;

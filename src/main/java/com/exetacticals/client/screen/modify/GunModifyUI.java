@@ -18,23 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
-/**
- * Раскладка и оформление экрана модификации.
- *
- * <pre>
- * ┌ [✥][⟲][+][-][Осмотр] ┐        НАЗВАНИЕ ОРУЖИЯ          ┌ ошибки сборки ┐
- *                            слот · модуль (акцентом)
- *                            подсказки управления
- *
- *                                   (модель)
- *
- *                       ┌ [=======●=========] [⟲] ┐   ← положение на планке
- *              ┌ ▌ПРИЦЕЛ  · 7           < 1/2 >  [Снять] ┐
- *              │ [■][■][■][■][■][■][■][■][■][■]          │   ← подходящие обвесы
- *              └─────────────────────────────────────────┘
- * </pre>
- * Полоса появляется, когда на модели выбран слот или модуль. Клик по карточке сразу ставит обвес.
- */
 @OnlyIn(Dist.CLIENT)
 public class GunModifyUI {
     public static final ResourceLocation DRAG = GCR.RL(GCR.MODID, "textures/gui/component/drag.png");
@@ -55,7 +38,6 @@ public class GunModifyUI {
     private static final int SCROLLER_WIDTH = 180;
     private static final int ERROR_PANEL_WIDTH = 170;
 
-    // видимость: всё (скрыто в режиме осмотра), полоса обвесов, ползунок планки
     private static boolean rootVisible = true;
     private static boolean stripVisible = false;
     private static boolean stripPaged = false;
@@ -69,7 +51,6 @@ public class GunModifyUI {
     private static int shownSlots;
     private static String pageText = "";
 
-    // заголовок
     private static Component title = Component.empty();
     private static Component slotLabel = Component.empty();
     private static Component moduleLabel = Component.empty();
@@ -89,7 +70,6 @@ public class GunModifyUI {
 
     private record Gate(AbstractWidget widget, BooleanSupplier visible) {}
 
-    /** Создаёт все виджеты и добавляет их на экран (вызывается из каждого {@code Screen.init()}). */
     public static void create(GunModifyScreen screen) {
         gates.clear();
         toolbar.clear();
@@ -162,7 +142,6 @@ public class GunModifyUI {
         screen.addUiWidget(widget);
     }
 
-    /** Пересчитывает видимость всех виджетов по текущему состоянию. */
     public static void refreshVisibility() {
         for (Gate gate : gates) {
             gate.widget().visible = gate.visible().getAsBoolean();
@@ -174,8 +153,6 @@ public class GunModifyUI {
         refreshVisibility();
     }
 
-    // ---------------------------------------------------------------- полоса обвесов
-
     public static void setStripVisible(boolean visible) {
         stripVisible = visible;
         if (!visible) {
@@ -185,7 +162,6 @@ public class GunModifyUI {
         refreshVisibility();
     }
 
-    /** Подписи над полосой и в заголовке экрана. */
     public static void setLabels(Component gunName, Component slot, Component module, int suitableCount) {
         title = gunName == null ? Component.empty() : gunName;
         slotLabel = slot == null ? Component.empty() : slot;
@@ -193,10 +169,6 @@ public class GunModifyUI {
         totalSuitable = suitableCount;
     }
 
-    /**
-     * Подгоняет полосу под число карточек на странице и ставит её по центру внизу экрана,
-     * ползунок планки — над ней. Вызывать после того, как предметы страницы разложены по слотам.
-     */
     public static void layoutStrip(boolean paged) {
         if (btnPrevPage == null) {
             return;
@@ -215,7 +187,6 @@ public class GunModifyUI {
             refreshVisibility();
             return;
         }
-        // постраничная полоса держит размер полной страницы, чтобы кнопки не прыгали
         int cells = stripPaged ? itemSlots.size() : Math.max(filled, 1);
         int columns = Math.min(cells, stripColumns);
         int rows = Math.max(1, (cells + columns - 1) / columns);
@@ -301,7 +272,6 @@ public class GunModifyUI {
         Minecraft.getInstance().setScreen(new GunModifyScreen(Component.empty()));
     }
 
-    /** Клики по панелям не должны уходить на модель за ними. */
     public static boolean isOverPanel(double mouseX, double mouseY) {
         if (!rootVisible) {
             return false;
@@ -314,9 +284,6 @@ public class GunModifyUI {
                 && mouseY >= btnResetScroller.getY() - 5 && mouseY <= btnResetScroller.getY() + UiButton.SIZE + 5;
     }
 
-    // ---------------------------------------------------------------- отрисовка
-
-    /** До виджетов: стеклянные подложки и надписи, которые должны быть под ними. */
     public static void renderBackground(GuiGraphics g) {
         if (!rootVisible) {
             return;
@@ -334,7 +301,6 @@ public class GunModifyUI {
             GuiPanelRender.panel(g, left, btnResetScroller.getY() - 5, right - left, UiButton.SIZE + 10, 9f);
         }
         GuiPanelRender.panel(g, stripX, stripY, stripW, stripH);
-        // заголовок полосы: акцентная черта, название слота, число вариантов
         int hx = stripX + STRIP_PADDING;
         int hy = stripY + 7;
         GuiPanelRender.fill(g, hx, hy - 1, 2, 10, 1, GuiPanelRender.ACCENT);
@@ -369,7 +335,6 @@ public class GunModifyUI {
     private static void renderTitle(GuiGraphics g, Font font) {
         int cx = screenWidth / 2;
         int y = MARGIN + 2;
-        // название оружия — крупнее обычного текста
         float scale = 1.5f;
         int tw = font.width(title);
         g.pose().pushPose();
@@ -389,7 +354,6 @@ public class GunModifyUI {
             g.drawCenteredString(font, Component.translatable("gui.exe_tacticals.modify.pick_slot"), cx, y, GuiPanelRender.TEXT_DIM);
         }
         y += 12;
-        // линия-разделитель под заголовком, гаснущая к краям
         float lineW = Math.max(80f, tw * scale + 40f);
         for (int i = 0; i < 4; i++) {
             float w = lineW * (1f - i / 4f);
@@ -397,7 +361,6 @@ public class GunModifyUI {
         }
     }
 
-    /** После виджетов: подсказки, ошибки сборки, тултип наведённого обвеса. */
     public static void renderForeground(GuiGraphics g, int mouseX, int mouseY, List<Component> issues) {
         if (!rootVisible) {
             return;

@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-
 public class GunItem extends ModuleItem<Gun>{
 
     public GunItem(Gun module) {
